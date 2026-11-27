@@ -840,7 +840,7 @@
     ];
 
     const INIT_FORUM = [
-      {
+       {
         id: 'fp20',
         tag: '新岚惊天大瓜',
         author: '笑到缺氧的上班搭子',
@@ -893,7 +893,7 @@
             t: '刚看见浩浩荡荡一群人进电梯了！不过那个穿素净衣服的小姑娘怎么一点都不慌，眼神里甚至全是在看戏啊……'
           },
           {
-            a: '姐姐别哭',
+            a: '顶楼前排火速归来',
             t: '哈哈哈哈哈哈哈哈考古打卡！！十分钟前还在心疼楼主，十分钟后从顶楼下来笑得肚子抽筋，姐妹们快去看上面那条直播贴！！'
           },
           {
@@ -4658,65 +4658,75 @@ ${wbSummary}
     color: #f7dec0;
     border: 1px solid rgba(207, 160, 94, 0.52);
   }
+  .x-del-btn {
+    margin-left: auto;
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-size: 10.5px;
+    color: #9e8a95;
+    background: rgba(255, 255, 255, 0.06);
+    border: 1px solid rgba(255, 255, 255, 0.09);
+    flex-shrink: 0;
+  }
+  .x-del-btn:active {
+    background: rgba(235, 96, 122, 0.24);
+    color: #ff9fb3;
+  }
 </style>
 <script>
 (function () {
   const X_ME_NAME = 'Cynder';
   const X_ME_HANDLE = '@Cynder';
 
+  // 仅在「没接 API / 断网」时才用的离线兜底池；接了 API 后完全由 AI 无限自由发挥！
+  const OFFLINE_X_FALLBACK = [
+    {
+      author: '晚宴桌下观察员', handle: '@UnderTable_X', av: '宴', verified: 'blue', views: '342K',
+      text: '刚从慈善晚宴逃出来，必须发推感叹一句：禁欲系男人的占有欲真不是一般人能扛得住的。\n\n主桌上188的迟总全程冷着脸跟大佬聊百亿并购，结果我一低头，亲眼看见桌布底下他的左手把 Cynder 整只手腕严严实实扣在腿上，拇指还在她腕骨内侧极慢地摩挲。\n\n面上冷得像块冰，暗地里恨不得把人直接拆吃入腹，这反差谁看谁腿软。',
+      likes: 6820, rts: 1240,
+      replies: [
+        { a: '深夜红温机', h: '@blush_2am', t: '桌布底下扣着手腕摩挲腕骨……救命这种暗戳戳的掌控感比直接秀恩爱撩一万倍！' },
+        { a: '陈序', h: '@chenxu_adv', t: '习惯就好，他现在只要和太太坐一桌，心思早就飞到散场以后了。' }
+      ]
+    },
+    {
+      author: '微醺露台电台', handle: '@Balcony_FM', av: '酒', verified: 'blue', views: '289K',
+      text: '派对露台上 Cynder 喝了半杯起泡果酒，耳尖通红地拽着某位大总裁的领带晃来晃去，踮脚凑在他下巴边小声嘀咕了一句什么。\n\n平时连衬衫扣子都一丝不苟的迟总眼神瞬间暗得发沉，喉结滚了一下，低头贴在她耳廓极哑地笑了声，下一秒直接用西装外套把人整个裹紧打横抱走。\n\n行，懂了，今晚这位小祖宗大概率是别想早睡了。',
+      likes: 7950, rts: 1510,
+      replies: [
+        { a: '领带控尖叫', h: '@tie_pull', t: '拽着领带挑衅一只平时极度克制的狼，Cynder 你是懂怎么把自己送进虎口的哈哈哈！' },
+        { a: '成年人懂的都懂', h: '@adult_vibe', t: '他临走前那个沉得吓人的眼神，明晃晃写着“回家关上门再跟你算总账”！' }
+      ]
+    }
+  ];
+
+  // 迟川本人发推的离线兜底池（接 API 时由迟川本人实时自由发挥）
   const CYRUS_X_POOL = [
     {
       text: '刚注意到某位小朋友把账号改成了 Cynder。\n\n和 Cyrus 排在一起倒是很顺眼。至少现在全平台都知道，她是谁的人了。',
       likes: 12480, rts: 2640, views: '518K',
       replies: [
-        { a: '全网磕疯了', h: '@cp_maniac', t: 'Cyrus × Cynder！！救命这是什么情侣头缀暗戳戳官宣，迟总占有欲藏都不藏了！' },
-        { a: '陈序', h: '@chenxu_adv', t: '刚开完并购复盘就刷到你在推特宣示主权，老迟你真是越来越不装高冷了。' },
-        { a: '玫瑰金认证粉', h: '@rose_vip', t: '一个金标一个粉金标，连名字前两个字母都配成一对，酸死我得了呜呜呜！' }
+        { a: '全网磕疯了', h: '@cp_maniac', t: 'Cyrus × Cynder！！救命这是什么情侣前缀暗戳戳宣示主权，迟总占有欲藏都不藏了！' },
+        { a: '陈序', h: '@chenxu_adv', t: '刚开完并购复盘就刷到你在推特圈地盘，老迟你真是越来越不装高冷了。' },
+        { a: '玫瑰金认证粉', h: '@rose_vip', t: '一个金标一个粉金标，连名字前两个字母都配成一对，酸死我得了！' }
       ]
     },
     {
-      text: '凌晨一点半，书房灯还亮着。\n\n某人嘴上说着困了先睡，结果在 X 广场上连续点了十二个赞。给你三分钟放下手机，不然我亲自过去收。',
-      likes: 10920, rts: 1980, views: '432K',
+      text: '凌晨一点半，书房灯还亮着。\n\n某人嘴上说着困了先睡，结果在 X 广场上连续点赞了十几个虎狼帖子。给你三分钟放下手机，不然我亲自过去收，顺便让你把刚刚看兴奋的内容亲自复习一遍。',
+      likes: 11920, rts: 2180, views: '472K',
       replies: [
-        { a: '熬夜抓包现场', h: '@night_caught', t: '哈哈哈哈正主亲自查岗！！Cynder 姐妹快跑，迟总已经合上笔记本往卧室走了！' },
-        { a: '声控重症室', h: '@Voice_ICU', t: '脑补了一下他低着嗓子敲开卧室门把人连手机带被子一起捞进怀里的画面，太苏了！' },
-        { a: '深夜围观员', h: '@late_watch', t: '嘴上说着要收手机，其实只是想顺理成章把人抱回怀里哄睡吧（懂的都懂）。' }
+        { a: '熬夜抓包现场', h: '@night_caught', t: '“亲自复习一遍”？？？迟总！！这是大号能免费公开放出来的话吗！！' },
+        { a: '声控重症室', h: '@Voice_ICU', t: 'Cynder 姐妹快跑！晚一秒手机被收走不说，明天中午怕是都下不来床了哈哈哈！' },
+        { a: '深夜围观员', h: '@late_watch', t: '白天禁欲系冰山，半夜公开威胁太太复习功课，我直接原地红温！' }
       ]
     },
     {
-      text: '散会整理大衣口袋，摸到一只粉色绒面小发夹。\n\n大概是昨晚靠在我肩上打盹时掉进去的。不打算还了，就放我西装内袋里。',
-      likes: 9860, rts: 1720, views: '376K',
-      replies: [
-        { a: '新岚总裁办匿名', h: '@xl_secret', t: '怪不得刚才递文件时看见迟总低头对着一只小发夹笑得那么温柔，全组差点以为看错了！' },
-        { a: '反差控晚期', h: '@gap_moe', t: '冷面高定西装内袋里藏着太太的粉色绒面发夹，这反差杀伤力也太犯规了！' },
-        { a: '柠檬树常驻', h: '@lemon_tree', t: '“不打算还了”——霸道得这么云淡风轻，请问这谁顶得住啊！' }
-      ]
-    },
-    {
-      text: '六点游完一千五百米回来，窗帘透进一点微光。\n\n她还裹着我的宽大白衬衫缩在被子里没醒。把上午九点的例会往后推了一小时，此刻什么项目都没有陪她多睡一会儿重要。',
-      likes: 11340, rts: 2150, views: '465K',
-      replies: [
-        { a: '林助理在线加班', h: '@lin_asst', t: '收到迟总，九点例会已顺延至十点，顺便把您的无麸质早餐和太太的温牛奶安排妥当了。' },
-        { a: '陈序', h: '@chenxu_adv', t: '以前连迟到三分钟都要冷脸的人，现在为了陪太太赖床主动推会，双标得明明白白。' },
-        { a: '白衬衫美学', h: '@shirt_vibe', t: '裹着 188cm 老公的宽大白衬衫赖床……光看文字我都已经替她感到幸福了！' }
-      ]
-    },
-    {
-      text: '出差第四天。\n\n原本觉得一周很快，结果每天晚上翻完备忘录还是觉得房间空得过分。机票改签提前了，明早落地直接回家，某位小朋友欠我的拥抱记得加倍还。',
+      text: '出差第四天。\n\n原本觉得一周很快，结果每天晚上回到酒店都觉得空得烦躁。机票改签提前了，明早落地直接回家，某位在评论区肆无忌惮惹火的 @Cynder，欠我的账记得加倍还。',
       likes: 13210, rts: 2890, views: '594K',
       replies: [
-        { a: '前排吃瓜', h: '@frontrow_x', t: '提前改签飞回来要“加倍拥抱”……姐妹你明早记得提前做好心理准备哈哈哈！' },
-        { a: '戒痕与光', h: '@RingMark_00', t: '冷静克制的 INTJ 一旦想念超标，执行力全用来连夜改签飞回太太身边了呜呜！' },
+        { a: '前排吃瓜', h: '@frontrow_x', t: '连夜改签飞回来要“加倍还账”……姐妹你明早记得提前做好心理准备哈哈哈！' },
+        { a: '戒痕与光', h: '@RingMark_00', t: '冷静克制的 INTJ 一旦想念失控，执行力全用来连夜飞回太太身边秋后算账了！' },
         { a: '夜猫子一号', h: '@nightowl_01', t: '明天的热搜标题我都想好了：《关于迟总提前结束出差回家算账这件事》。' }
-      ]
-    },
-    {
-      text: '刚路过她最爱的那家甜品店，把最后一盒低糖栗子塔买下了。\n\n顺便提醒某位刚在评论区跟网友聊得起劲的 @Cynder：甜品可以吃，但今晚的解释逃不掉。',
-      likes: 10450, rts: 1840, views: '410K',
-      replies: [
-        { a: '甜品店目击者', h: '@cake_eye', t: '刚才真是迟总本人来买的！站在柜台前还仔细核对配料表，又宠又讲究！' },
-        { a: '吃瓜前排', h: '@melon_x', t: '一边买她最爱的栗子塔，一边点名 @Cynder 回家解释，又甜又撩太会拿捏了！' },
-        { a: '手控雷达', h: '@hand_radar', t: '公开 @Cynder 点名算账，这就是传说中的高段位明目张胆偏爱吗！' }
       ]
     }
   ];
@@ -4750,10 +4760,16 @@ ${wbSummary}
     return '';
   }
 
-  // 自动把历史 X 广场里的旧称呼同步升级成 Cynder 专属认证
   function syncCynderIdentity() {
+    if (!Array.isArray(ST.deletedXIds)) ST.deletedXIds = [];
     if (!Array.isArray(ST.xposts)) return;
     let changed = false;
+    if (ST.deletedXIds.length) {
+      const delSet = new Set(ST.deletedXIds);
+      const before = ST.xposts.length;
+      ST.xposts = ST.xposts.filter(p => !delSet.has(p.id));
+      if (ST.xposts.length !== before) changed = true;
+    }
     ST.xposts.forEach(p => {
       if (isMePost(p)) {
         if (p.author !== X_ME_NAME || p.handle !== X_ME_HANDLE || p.verified !== 'cynder') {
@@ -4784,7 +4800,138 @@ ${wbSummary}
     if (changed) saveST();
   }
 
-  // 新增：让迟川本人（@Cyrus_1229）发一条 X 推文
+  // 1. 升级 X 广场专属风味指令：彻底摆脱普通论坛的温和客套，拉满深夜推特的直球、拉扯、暧昧双关与成年人张力
+  window.getXStyleDirective = function () {
+    const custom = (ST.cfg.xPrompt || '').trim();
+    const lvl = ST.cfg.xLevel || 'wild';
+    const presets = {
+      mild: '深夜微醺撩人风：比普通论坛更私密大胆，聚焦 188cm 极致体型差、禁欲系私下反差、手控/腕表/锁骨/低哑嗓音与克制不住的占有欲，暧昧留白极强。',
+      spicy: '深夜推特直球拉扯风：彻底抛开普通论坛“好甜好般配”的客套话！推特网友说话非常放得开、嘴毒又爱起哄，擅长扒成年人情侣间隐秘又滚烫的反差细节、占有欲失控瞬间、暧昧双关段子与关上门后的大胆脑补，句句让人脸红心跳。',
+      wild: '推特深夜无滤镜高张力 + 成年人虎狼吐槽风（彻底区分于清水论坛！）：完全呈现中文推特深夜区那种极其直白、大胆、带点恶趣味与荷尔蒙拉满的成人向浪漫吐槽！围绕「白天极度禁欲冷峻的188cm掌控型男人 × 私下失控反差、强势占有欲、极致体型差压迫感、关上门后把娇小伴侣哄到眼尾泛红喊爸爸求饶、各种令人脸红心跳的私密生活细节/双关段子/痕迹/氛围拉扯」展开，画面感极强、火辣好笑、毫不端着。'
+    };
+    return `${presets[lvl] || presets.wild}${custom ? `\n【用户亲自指定的 X 广场口味（最高优先级，务必严格体现）】${custom}` : ''}`;
+  };
+
+  // 2. 彻底放开 AI 脑洞：不再用固定场景池限制，只传动态随机种子 + 已有推文避重清单，让 API 无限自由创作！
+  window.generateXPosts = async function (count = 1) {
+    const ch = activeChar();
+    const created = [];
+
+    if (hasValidAPI()) {
+      try {
+        const existingSnippets = ST.xposts
+          .slice(0, 18)
+          .map((x, idx) => `${idx + 1}. ${x.text.replace(/\s+/g, ' ').slice(0, 42)}`)
+          .join('\n');
+        const wbSummary = (ST.worldbook || [])
+          .filter(w => w.enabled)
+          .map(w => `·${w.title}：${w.content}`)
+          .join('\n')
+          .slice(0, 800);
+
+        const seed = `${Date.now().toString(36)}-${Math.floor(Math.random() * 99999)}`;
+
+        const sys = `你是推特(X)深夜中文区的自由脑洞推文生成器。这里不是温和清水的普通匿名论坛，而是成年人说话直白、大胆、充满暧昧张力与虎狼调侃的深夜时间线。
+【核心调性】${getXStyleDirective()}
+【人物底色（可自由延伸生活细节，不要局限于单一场景）】
+- 男主：${ch.name}（X 账号 Cyrus / @Cyrus_1229，28岁，188cm，新岚能源CEO，INTJ禁欲掌控型人格；白天西装革履冷峻克制、金丝眼镜、每日晨泳练出极佳肩背手臂力量，私下对太太占有欲极强、低哑大提琴嗓音、极度护短又充满反差感，常被她喊“爸爸”）；
+- 女主：${ST.userName}（X 账号 ${X_ME_NAME} / ${X_ME_HANDLE}，娇小软甜又有梗，与他有极致体型差，两人戴着定制对戒「晨星」与「缚光」）。
+${wbSummary}
+【无限自由创作规则】
+1. 严禁重复或改写下方「已有推文」里的任何桥段、梗或台词！每一次生成都必须完全原创出让人眼前一亮的新场景、新爆料人身份（可以是朋友损友、圈内八卦大V、偶遇路人、造型师/调酒师/邻居/匿名树洞/深夜情感博主/手控声控大V等，随你自由脑洞）。
+2. 拒绝写得平淡像普通秀恩爱！要写出“只有在 X 广场深夜时间线才能刷到”的那种直球大胆、令人脸红心跳的成年人拉扯感、私密反差、辛辣双关或强占有欲张力（保持高质感文学性/网感，不生硬低俗）。
+3. 每条正文 80~170 字，分段利落有节奏感；每条自带 3 条同样放得开、爱起哄、接梗极快的推特网友热评。`;
+
+        const userPrompt = `【创意随机种子：${seed}｜当前时间：${fmtDateCN()} ${nowHM()}】
+【已有推文摘要（绝对禁止撞梗或翻炒）】
+${existingSnippets || '（暂无）'}
+
+请彻底放开脑洞，自由构思 ${count} 条风格各异、视角完全不同、极具深夜 X 广场直球张力的全新热推！
+严格返回JSON：{"posts":[{"author":"推特昵称","handle":"@英文ID","verified":"blue或空","text":"推特正文","replies":[{"a":"网友1","h":"@id1","t":"大胆热评1"},{"a":"网友2","h":"@id2","t":"大胆热评2"},{"a":"网友3","h":"@id3","t":"大胆热评3"}]}]}`;
+
+        const j = await callDualAPI(sys, userPrompt);
+        const arr = Array.isArray(j?.posts) ? j.posts.slice(0, count) : [];
+        arr.forEach((p, idx) => {
+          if (!p || !p.text) return;
+          const author = String(p.author || '深夜观察员');
+          created.push({
+            id: 'xp_' + Date.now() + '_' + idx,
+            author,
+            handle: String(p.handle || '@night_x_' + Math.floor(Math.random() * 900 + 100)),
+            av: author.slice(0, 1),
+            verified: p.verified === 'blue' ? 'blue' : '',
+            time: idx === 0 ? '刚刚' : `${idx * 7}分钟前`,
+            views: `${140 + Math.floor(Math.random() * 560)}K`,
+            text: String(p.text).trim(),
+            likes: 2600 + Math.floor(Math.random() * 8200),
+            rts: 380 + Math.floor(Math.random() * 1500),
+            liked: false,
+            rted: false,
+            replies: Array.isArray(p.replies) && p.replies.length
+              ? p.replies.map((r, ri) => ({ a: String(r.a || '路人'), h: String(r.h || `@user_${ri + 1}`), t: String(r.t || '') })).filter(r => r.t)
+              : [{ a: '深夜红温机', h: '@late_blush', t: '救命这段画面感太直接了，不愧是 X 广场深夜区，我脸都烧起来了！' }]
+          });
+        });
+      } catch {
+        toast('API 暂不可用，已切换离线兜底推文');
+      }
+    }
+
+    if (!created.length) {
+      const combinedPool = [...OFFLINE_X_FALLBACK, ...(typeof EXTRA_X_POOL !== 'undefined' ? EXTRA_X_POOL : [])];
+      const unused = combinedPool.filter(x => !ST.xposts.some(p => p.text === x.text));
+      const pool = unused.length >= count ? pickRandomItems(unused, count) : pickRandomItems(combinedPool, count);
+      pool.forEach((p, idx) => {
+        created.push({
+          ...p,
+          id: 'xp_' + Date.now() + '_' + idx,
+          time: idx === 0 ? '刚刚' : `${idx * 11}分钟前`,
+          liked: false,
+          rted: false,
+          replies: (p.replies || []).map(r => ({ ...r }))
+        });
+      });
+    }
+
+    created.reverse().forEach(p => ST.xposts.unshift(p));
+    RT.xTab = 'forYou';
+    saveST();
+    SFX.soft();
+    if (RT.app === 'xapp' && !RT.openXId) vXApp();
+    toast(`X 时间线已自由刷出 ${created.length} 条全新深夜热推 ✦`);
+  };
+
+  // 3. 删除推文弹窗（支持删除任意推文，刷新不会复活）
+  function confirmDeleteXPost(postId) {
+    SFX.tap();
+    const p = ST.xposts.find(x => x.id === postId);
+    if (!p) return;
+    const nameShow = isMePost(p) ? X_ME_NAME : p.author;
+    openModal(`<div class="stack">
+      <div class="row"><span class="sec-t">删除这条推文？</span><button type="button" onclick="closeModal()" class="tag-chip">取消</button></div>
+      <div class="sec-s" style="line-height:1.6">将删除 <strong>${esc(nameShow)}</strong> 的这条推文及评论，删除后刷新也不会重新出现。</div>
+      <div class="g2">
+        <button type="button" onclick="closeModal()" class="btn soft">先留着</button>
+        <button type="button" id="xDelConfirmBtn" class="btn danger">确认删除</button>
+      </div>
+    </div>`);
+    $('xDelConfirmBtn').onclick = () => {
+      if (!Array.isArray(ST.deletedXIds)) ST.deletedXIds = [];
+      if (!ST.deletedXIds.includes(postId)) ST.deletedXIds.push(postId);
+      ST.xposts = ST.xposts.filter(x => x.id !== postId);
+      if (RT.openXId === postId) {
+        RT.openXId = null;
+        RT.xReplyTo = null;
+      }
+      saveST();
+      closeModal();
+      SFX.tap();
+      if (RT.app === 'xapp') vXApp();
+      toast('已删除该条推文 ✦');
+    };
+  }
+
+  // 4. 让迟川本人（@Cyrus_1229）发一条更有深夜张力的 X 推文
   window.generateCyrusXPost = async function () {
     const ch = activeChar();
     let newPost = null;
@@ -4793,25 +4940,26 @@ ${wbSummary}
       try {
         const existing = ST.xposts
           .filter(p => isDadPost(p, ch))
-          .slice(0, 8)
-          .map(p => p.text.slice(0, 26))
+          .slice(0, 10)
+          .map(p => p.text.slice(0, 34))
           .join(' / ');
+        const seed = Date.now().toString(36);
         const sys = buildCharSystemPrompt(ch) + `
 【X 广场迟川本人发推规则】
-1. 你正用个人实名金标账号 Cyrus (@Cyrus_1229) 在 X 广场发一条深夜/日常随笔推文。
-2. 保持低沉、克制、有分寸感但暗藏强烈占有欲与偏爱的 INTJ 口吻，可以自然提到她的新 ID「Cynder」或日常相处的暧昧瞬间（如晨泳、西装口袋、对戒「晨星/缚光」、催她早睡、提前结束出差回家等）。
-3. 严禁出现浮夸网络热词（如“家人们/笑死/绝绝子/yyds”），分段干净，长度 45~115 字。
+1. 你正用个人实名金标账号 Cyrus (@Cyrus_1229) 在 X 广场发一条深夜随笔。这里不是公开演讲，而是你褪去白天冰冷面具后，带着克制暗火、隐秘占有欲与成年人张力的私人表达。
+2. 保持低沉、冷感、游刃有余却藏不住强烈占有欲与偏爱的 INTJ 口吻——可以自由发挥各种深夜片段（如抓包 @Cynder 熬夜看大胆内容、暗示关上门后的反差、提她留在你身上的气息/领带/衬衫/对戒、出差憋不住提前飞回去算账等），绝不平淡无聊。
+3. 严禁出现浮夸网络热词（如“家人们/笑死/绝绝子/yyds”），分段干净有电影质感，长度 45~120 字。
 严格返回JSON：{"text":"推文正文"}`;
-        const j = await callDualAPI(sys, `已有推文摘要（请避开重复）：${existing}\n当前时间：${fmtDateCN()} ${nowHM()}。请生成 1 条全新的 Cyrus (@Cyrus_1229) 原创推文。`);
+        const j = await callDualAPI(sys, `随机种子：${seed}｜已有推文摘要（严禁重复）：${existing}\n当前时间：${fmtDateCN()} ${nowHM()}。请自由创作 1 条全新的 Cyrus (@Cyrus_1229) 深夜推文。`);
         const txt = j && (j.text || j.post || j.content || Object.values(j).find(v => typeof v === 'string'));
         if (txt && String(txt).trim()) {
           let replies = [
-            { a: '全网磕疯了', h: '@cp_maniac', t: '迟总大号又营业了！！表面云淡风轻，字字句句都在暗戳戳宣示主权啊！' },
-            { a: '陈序', h: '@chenxu_adv', t: '刚散会就刷到你在这秀恩爱，明早董事会我替你多喝两杯咖啡醒神。' }
+            { a: '全网红温现场', h: '@blush_all', t: '迟总大号半夜发这种暗藏火星子的话，评论区全体原地腿软，Cynder 今晚保重！' },
+            { a: '陈序', h: '@chenxu_adv', t: '哥们你大号发言越来越收不住了，明早股价要是波动算你的秀恩爱溢价。' }
           ];
           try {
             await new Promise(r => setTimeout(r, 650));
-            const nr = await callNpcCrowdAPI('xapp', `Cyrus (@Cyrus_1229) 刚刚在 X 广场发了新推文（他太太在 X 的 ID 是 ${X_ME_NAME} ${X_ME_HANDLE}）：\n${String(txt).trim()}`, 3);
+            const nr = await callNpcCrowdAPI('xapp', `Cyrus (@Cyrus_1229) 刚刚在 X 广场深夜发了新推文（他太太在 X 的 ID 是 ${X_ME_NAME} ${X_ME_HANDLE}）：\n${String(txt).trim()}`, 3);
             if (nr && nr.replies && nr.replies.length) {
               replies = nr.replies.map((r, i) => ({ a: r.a, h: r.h || `@x_fan_${i + 1}`, t: r.t }));
             }
@@ -4859,20 +5007,20 @@ ${wbSummary}
     }
 
     ST.xposts.unshift(newPost);
+    RT.xTab = 'forYou';
     saveST();
     SFX.msg();
     if (RT.app === 'xapp' && !RT.openXId) vXApp();
     toast('Cyrus (@Cyrus_1229) 刚刚发了一条新推文 ✦');
   };
 
-  // 重写 vXApp：升级 Cynder 专属颜色+粉金认证标，并加入「让迟川发推」按钮
+  // 5. 渲染 X 广场（Cynder 认证标 + 迟川发推键 + 删推键 + 自由刷推）
   window.vXApp = function () {
     syncCynderIdentity();
     const ch = activeChar();
     const fmtNum = n => n >= 1000 ? (n / 1000).toFixed(1) + 'K' : String(n);
     const lvlName = { mild: '微醺暗涌', spicy: '深夜直球', wild: '虎狼无滤镜' }[ST.cfg.xLevel || 'wild'] || '虎狼无滤镜';
 
-    // 单条推文详情页
     if (RT.openXId) {
       const p = ST.xposts.find(x => x.id === RT.openXId);
       if (!p) { RT.openXId = null; RT.xReplyTo = null; return vXApp(); }
@@ -4889,7 +5037,9 @@ ${wbSummary}
             <button type="button" onclick="RT.openXId=null;RT.xReplyTo=null;renderCurrentApp()" class="x-btn ghost" style="padding:5px 11px;font-size:12px">← 返回</button>
           </div>
           <div style="text-align:center;font-size:15px;font-weight:700;color:#f6f3f7">推文</div>
-          <div></div>
+          <div style="display:flex;align-items:center;justify-content:flex-end">
+            <button type="button" id="xDetDel" class="x-btn ghost" style="padding:5px 10px;font-size:11.5px;color:#ff9fb3">删除</button>
+          </div>
         </div>
         <div class="x-feed no-sb">
           <div style="padding:15px;border-bottom:1px solid rgba(255,255,255,0.09);background:${isUserPost ? 'rgba(255,158,198,0.07)' : isChPost ? 'rgba(229,140,168,0.06)' : 'transparent'}">
@@ -4952,6 +5102,7 @@ ${wbSummary}
         </div>
       </div>`;
 
+      $('xDetDel').onclick = () => confirmDeleteXPost(p.id);
       $('xDetRt').onclick = () => { SFX.tap(); p.rted = !p.rted; p.rts += p.rted ? 1 : -1; saveST(); vXApp(); };
       $('xDetLike').onclick = () => { SFX.tap(); p.liked = !p.liked; p.likes += p.liked ? 1 : -1; saveST(); vXApp(); };
       if ($('xCancelRep')) $('xCancelRep').onclick = () => { SFX.tap(); RT.xReplyTo = null; vXApp(); };
@@ -4990,24 +5141,23 @@ ${wbSummary}
               a: repliedToOther ? target.a : '夜色起哄机',
               h: repliedToOther ? (target.h || '@night_x') : '@night_tease',
               replyTo: X_ME_HANDLE,
-              t: '天哪 @Cynder 亲自下场回复了！！连粉金认证标都和迟总配成情侣款，这波糖我先磕为敬！'
+              t: '天哪 @Cynder 亲自下场回复了！！姐妹快多讲讲他关上门扯松领带后的反差，我们全是成年人经得起听！'
             },
-            { a: '体型差控', h: '@size_gap_fan', t: '快看 @Cyrus_1229 的反应，每次 Cynder 一冒头他十秒内必赶到现场抓包哈哈哈！' }
+            { a: '体型差控', h: '@size_gap_fan', t: '快看 @Cyrus_1229 的反应，每次 Cynder 在深夜区一冒头他十秒内必赶到现场抓包算账哈哈哈！' }
           ];
           let dadReply = repliedToDad
-            ? `在评论区这么能说会道，${ch.userCall}。手机先放一边，晚上回家对着${ch.myCall}慢慢说。`
-            : `刚刷到 @Cynder 在这条推文底下聊得这么起劲。把手机放下，想说什么今晚回家跟${ch.myCall}当面讲。`;
+            ? `在外面跟网友聊得这么大胆，${ch.userCall}。手机放下，今晚回家关上门让你亲自验证。`
+            : `刚刷到 @Cynder 在这条推文底下玩得这么起劲。想验证哪一条，今晚对着${ch.myCall}亲自试。`;
 
           if (hasValidAPI()) {
             const targetDesc = target
               ? `${ST.userName}（X 广场 ID：${X_ME_NAME} ${X_ME_HANDLE}）专门回复了 ${target.a}（原评：“${target.t}”），她写的是：“${txt}”`
               : `${ST.userName}（X 广场 ID：${X_ME_NAME} ${X_ME_HANDLE}）在推文下评论：“${txt}”`;
             const ctx = `推文正文（${p.author}）：${p.text}\n${targetDesc}`;
-            // 优先让迟川拿 API 通道，隔 700ms 再请求路人，防止并发冲突掉人机
             try {
               const chText = await callChichuanSoloAPI(
                 ch,
-                `你在 X(推特)用金标账号 @Cyrus_1229 看到${ST.userName}（她在 X 的 ID 是 ${X_ME_NAME}）刚刚发了这条回复（${targetDesc}）。请紧扣她刚说的话，用迟川本人低沉克制、暗藏占有欲与纵容的口吻回复她一句（严禁浮夸网感词，45字内）。`,
+                `你在 X(推特)深夜区用金标账号 @Cyrus_1229 抓包${ST.userName}（ID：${X_ME_NAME}）刚刚发了这条大胆回复（${targetDesc}）。请紧扣她刚说的话，用迟川本人极度低沉、危险又暗藏强烈占有欲与亲密暗示的口吻回她一句（比如暗示今晚回家关上门算账/别想早睡/亲自验证，严禁浮夸网感词，50字内）。`,
                 ctx
               );
               if (chText) dadReply = chText;
@@ -5045,7 +5195,6 @@ ${wbSummary}
       return;
     }
 
-    // 主时间线列表
     const list = RT.xTab === 'following'
       ? ST.xposts.filter(p => isDadPost(p, ch) || isMePost(p) || p.liked)
       : ST.xposts;
@@ -5068,8 +5217,8 @@ ${wbSummary}
       <div class="x-feed no-sb">
         <div style="padding:11px 14px;border-bottom:1px solid rgba(255,255,255,0.08);background:#121118" class="stack">
           <div class="row">
-            <span style="font-size:11.5px;color:#cfc8d4;font-weight:600">暗夜时间线 · 尺度：${esc(lvlName)}</span>
-            <button type="button" id="btnXModePill" style="font-size:10px;color:#e58ca8;background:rgba(229,140,168,0.14);padding:2px 8px;border-radius:999px">⚙ 调校 API 风味</button>
+            <span style="font-size:11.5px;color:#cfc8d4;font-weight:600">暗夜时间线 · ${esc(lvlName)}（AI 自由脑洞）</span>
+            <button type="button" id="btnXModePill" style="font-size:10px;color:#e58ca8;background:rgba(229,140,168,0.14);padding:2px 8px;border-radius:999px">⚙ 自定义风味</button>
           </div>
           <div class="g2">
             <button type="button" id="btnGenX1" class="x-btn ghost" style="padding:8px 10px;font-size:11.5px">✨ 刷 1 条直球推</button>
@@ -5088,10 +5237,13 @@ ${wbSummary}
           return `<div class="x-post" data-xopen="${p.id}" style="cursor:pointer;background:${rowBg}">
             <div class="x-av">${isChPost && ch.avatar ? `<img src="${ch.avatar}" alt="">` : isUserPost && ST.userAvatar ? `<img src="${ST.userAvatar}" alt="">` : esc(p.av || dispAuthor.slice(0, 1))}</div>
             <div style="min-width:0;flex:1">
-              <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
-                <span style="font-size:13.5px;font-weight:700;color:${nameColor}">${esc(dispAuthor)}</span>
-                ${badgeHTML(p.verified, isUserPost, isChPost)}
-                <span style="font-size:11.5px;color:#7e7b88">${esc(dispHandle)} · ${esc(p.time)}</span>
+              <div style="display:flex;align-items:center;gap:4px">
+                <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;min-width:0;flex:1">
+                  <span style="font-size:13.5px;font-weight:700;color:${nameColor}">${esc(dispAuthor)}</span>
+                  ${badgeHTML(p.verified, isUserPost, isChPost)}
+                  <span style="font-size:11.5px;color:#7e7b88">${esc(dispHandle)} · ${esc(p.time)}</span>
+                </div>
+                <button type="button" data-xdel="${p.id}" class="x-del-btn">删除</button>
               </div>
               <div class="x-body">${esc(p.text)}</div>
               <div class="x-acts">
@@ -5119,17 +5271,23 @@ ${wbSummary}
     $('btnXSettings').onclick = openXSettingsModal;
     $('btnXModePill').onclick = openXSettingsModal;
     $('btnGenX1').onclick = async () => {
-      lockBtns('btnGenX1', '刷新中…');
+      lockBtns('btnGenX1', '正在自由生成深夜热推…');
       await generateXPosts(1);
     };
     $('btnGenX3').onclick = async () => {
-      lockBtns('btnGenX3', '连刷 3 条中…');
+      lockBtns('btnGenX3', '正在自由生成 3 条热推…');
       await generateXPosts(3);
     };
     $('btnGenCyrusX').onclick = async () => {
       lockBtns('btnGenCyrusX', 'Cyrus 正在编辑推文…');
       await generateCyrusXPost();
     };
+    $('appLayer').querySelectorAll('[data-xdel]').forEach(b => {
+      b.onclick = e => {
+        e.stopPropagation();
+        confirmDeleteXPost(b.dataset.xdel);
+      };
+    });
     $('appLayer').querySelectorAll('[data-xrt]').forEach(b => {
       b.onclick = e => {
         e.stopPropagation(); SFX.tap();
@@ -5151,7 +5309,7 @@ ${wbSummary}
     $('btnNewXPost').onclick = () => {
       openModal(`<div class="stack">
         <div class="row"><span class="sec-t">以 Cynder 身份发一条 X 推文</span><button type="button" onclick="closeModal()" class="tag-chip">取消</button></div>
-        <textarea id="nxTxt" rows="4" class="inp" placeholder="发一条深夜碎碎念、秀一下体型差或吐槽你家禁欲系老公…"></textarea>
+        <textarea id="nxTxt" rows="4" class="inp" placeholder="发一条深夜直球碎碎念、秀一下体型差或吐槽你家禁欲系老公…"></textarea>
         <button id="nxPub" type="button" class="btn pink">发送推文 · 看推特网友和 @Cyrus_1229 怎么回 ✦</button>
       </div>`);
       $('nxPub').onclick = async () => {
@@ -5166,18 +5324,18 @@ ${wbSummary}
         saveST(); closeModal(); SFX.soft(); vXApp();
 
         let npcList = [
-          { a: 'Sota', h: '@S_Studio42', t: 'Cynder 终于亲自发推了！！这粉金认证标和 @Cyrus_1229 简直绝配，坐等迟总秒来抓包！' },
-          { a: '深夜吃瓜机', h: '@night_melon', t: '前排围观正主撒糖，感觉评论区马上就要迎来迟总低气压巡逻了哈哈！' },
-          { a: '手控雷达', h: '@hand_radar', t: 'Cyrus × Cynder 情侣前缀锁死，单身网友先酸为敬！' }
+          { a: 'Sota', h: '@S_Studio42', t: 'Cynder 终于亲自在深夜区放飞了！！这粉金认证标和 @Cyrus_1229 简直绝配，坐等迟总秒来抓包算账！' },
+          { a: '深夜吃瓜机', h: '@night_melon', t: '救命这成年人张力直接拉满，坐等明早下不来床的后续哈哈哈！' },
+          { a: '手控雷达', h: '@hand_radar', t: '脑补了一下他刷到这条推文时微微眯起眼睛、单手扯松领带的画面……太要命了！' }
         ];
-        let dadReply = `刷到 @Cynder 发的新推文了，${ch.userCall}。这么大胆的话都敢往外发，今晚回家可别缩在被子里装睡。`;
+        let dadReply = `刷到 @Cynder 发的新推文了，${ch.userCall}。这么大胆的话都敢发给全网看，今晚回家可别缩在被子里红着眼眶求饶。`;
 
         if (hasValidAPI()) {
-          const ctx = `${ST.userName}（X 广场 ID：${X_ME_NAME} ${X_ME_HANDLE}）刚发了新推文：“${text}”`;
+          const ctx = `${ST.userName}（X 广场 ID：${X_ME_NAME} ${X_ME_HANDLE}）刚在深夜区发了新推文：“${text}”`;
           try {
             const chText = await callChichuanSoloAPI(
               ch,
-              `${ST.userName}在 X(推特)用她的认证账号 ${X_ME_NAME} 发了这条新推文，你用 @Cyrus_1229 刷到了。请用迟川本人低沉克制、暗藏占有欲与偏爱的口吻回复她一句（严禁浮夸网感词，45字内）。`,
+              `${ST.userName}在 X(推特)深夜区用认证账号 ${X_ME_NAME} 发了这条很大胆直白的推文，你用 @Cyrus_1229 刷到了。请用迟川本人极度低沉、表面克制却暗藏强烈占有欲与亲密暗示的口吻回复她一句（严禁浮夸网感词，50字内）。`,
               ctx
             );
             if (chText) dadReply = chText;
@@ -5191,7 +5349,7 @@ ${wbSummary}
           } catch {}
         }
 
-        toast('推文刚发出就火了，网友和 @Cyrus_1229 正在赶来…');
+        toast('推文刚发出就爆了，网友和 @Cyrus_1229 正在赶来…');
         const queue = [
           npcList[0],
           { a: 'Cyrus', h: '@Cyrus_1229', verified: 'gold', replyTo: X_ME_HANDLE, t: dadReply },
