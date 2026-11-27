@@ -266,25 +266,110 @@
       flex-shrink: 0; padding: max(12px, var(--sat)) 14px 10px;
       background: var(--glass-hi); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
       border-bottom: 1px solid var(--glass-line);
-      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      display: grid; grid-template-columns: 86px minmax(0, 1fr) 86px; align-items: center; gap: 6px;
     }
     .back-btn {
       padding: 5px 11px; border-radius: 999px; font-size: 12px; font-weight: 500;
       background: var(--pink-soft); color: var(--pink-deep);
-      display: inline-flex; align-items: center; gap: 3px;
+      display: inline-flex; align-items: center; gap: 3px; white-space: nowrap;
     }
     .app-body {
       flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch;
-      padding: 13px 14px max(24px, var(--sab));
+      padding: 13px 15px calc(22px + var(--sab));
     }
-
-    /* 通用卡片与表单 */
     .card {
-      background: var(--glass-hi); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
-      border: 1px solid var(--glass-line); border-radius: 20px; padding: 14px; box-shadow: var(--shadow);
+      border-radius: 20px; padding: 14px;
+      background: var(--glass-hi); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+      border: 1px solid var(--glass-line); box-shadow: var(--shadow);
     }
     .sec-t { font-size: 14px; font-weight: 600; color: var(--text); }
-    .sec-s { font-size: 11.5px; color: var(--muted); line-height: 1.5; }
+    .sec-s { font-size: 11.5px; color: var(--muted); line-height: 1.55; }
+    /* X 广场（暗夜微醺推特风样式） */
+    .x-shell {
+      flex: 1; min-height: 0; display: flex; flex-direction: column;
+      background: #0c0c10; color: #f1eef2;
+    }
+    .x-hd {
+      flex-shrink: 0; padding: max(12px, var(--sat)) 14px 10px;
+      background: rgba(12, 12, 16, 0.92); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+      display: grid; grid-template-columns: 86px minmax(0, 1fr) 86px; align-items: center; gap: 6px;
+    }
+    .x-tabs {
+      flex-shrink: 0; display: grid; grid-template-columns: 1fr 1fr;
+      border-bottom: 1px solid rgba(255, 255, 255, 0.09); background: #0c0c10;
+    }
+    .x-tab {
+      padding: 10px 0; font-size: 12.5px; font-weight: 600; color: #7e7b86;
+      position: relative; text-align: center;
+    }
+    .x-tab.on { color: #f6f3f7; }
+    .x-tab.on::after {
+      content: ""; position: absolute; bottom: 0; left: 50%; transform: translateX(-50%);
+      width: 44px; height: 3px; border-radius: 99px; background: #e58ca8;
+    }
+    .x-feed {
+      flex: 1; min-height: 0; overflow-y: auto; -webkit-overflow-scrolling: touch;
+      padding-bottom: calc(24px + var(--sab));
+    }
+    .x-post {
+      padding: 14px 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+      display: flex; align-items: flex-start; gap: 10px; text-align: left; width: 100%;
+    }
+    .x-av {
+      width: 38px; height: 38px; border-radius: 999px; flex-shrink: 0;
+      background: linear-gradient(135deg, #2d2433, #191620); color: #f2d7e0;
+      border: 1px solid rgba(229, 140, 168, 0.35);
+      display: flex; align-items: center; justify-content: center; font-weight: 700; font-size: 14px;
+      overflow: hidden;
+    }
+    .x-av img { width: 100%; height: 100%; object-fit: cover; display: block; }
+    .x-vbadge {
+      display: inline-flex; align-items: center; justify-content: center;
+      width: 14px; height: 14px; border-radius: 999px; background: #1d9bf0; color: #fff;
+      font-size: 8.5px; font-weight: 800; flex-shrink: 0;
+    }
+    .x-vbadge.gold { background: #cfa05e; }
+    .x-body { font-size: 13.5px; line-height: 1.66; color: #f3eff4; white-space: pre-line; margin-top: 5px; word-break: break-word; }
+    .x-meta { font-size: 11px; color: #7a7885; margin-top: 7px; }
+    .x-acts {
+      display: flex; align-items: center; justify-content: space-between; gap: 10px;
+      margin-top: 9px; padding-right: 10px; font-size: 11.5px; color: #848190;
+    }
+    .x-act { display: inline-flex; align-items: center; gap: 4px; color: inherit; padding: 2px 4px; border-radius: 8px; }
+    .x-act.liked { color: #f26c95; }
+    .x-act.rted { color: #54c787; }
+    .x-reply-box {
+      padding: 12px 15px; border-bottom: 1px solid rgba(255, 255, 255, 0.07);
+      display: flex; align-items: flex-start; gap: 10px;
+    }
+    .x-bar {
+      flex-shrink: 0; padding: 10px 13px max(12px, var(--sab));
+      background: #101016; border-top: 1px solid rgba(255, 255, 255, 0.09);
+    }
+    .x-inp {
+      width: 100%; padding: 9px 13px; border-radius: 999px; font-size: 12.5px;
+      background: #1a1a22; border: 1px solid rgba(255, 255, 255, 0.12); color: #f4f1f6; outline: none;
+    }
+    .x-inp:focus { border-color: #e58ca8; }
+    .x-btn {
+      padding: 7px 14px; border-radius: 999px; font-size: 12px; font-weight: 700;
+      background: #f4f1f6; color: #0c0c10; white-space: nowrap; flex-shrink: 0;
+    }
+    .x-btn.pink { background: linear-gradient(135deg, #f19ab6, #da7496); color: #fff; }
+    .x-btn.ghost { background: rgba(255, 255, 255, 0.08); color: #ece7ef; border: 1px solid rgba(255, 255, 255, 0.14); }
+    .reply-target-bar {
+      display: flex; align-items: center; justify-content: space-between; gap: 8px;
+      padding: 6px 10px; border-radius: 12px; font-size: 11px;
+      background: var(--pink-soft); color: var(--pink-deep);
+      border: 1px dashed rgba(201, 98, 131, 0.36);
+    }
+    .cm-reply-btn {
+      padding: 1.5px 7px; border-radius: 999px; font-size: 10px; font-weight: 500;
+      color: var(--pink-deep); background: rgba(255, 255, 255, 0.78);
+      border: 1px solid rgba(229, 140, 168, 0.34); white-space: nowrap; flex-shrink: 0;
+    }
+    body.theme-night .cm-reply-btn { background: rgba(45, 36, 52, 0.88); }
     .inp {
       width: 100%; padding: 10px 12px; border-radius: 14px; font-size: 13px;
       background: rgba(255, 255, 255, 0.78); border: 1.2px solid rgba(229, 140, 168, 0.34);
@@ -614,7 +699,8 @@
       anni: '<rect x="3" y="5" width="18" height="16" rx="3"/><path d="M16 3v4M8 3v4M3 10h18"/><path d="M12 17.5s-3-1.9-3-3.7a1.7 1.7 0 0 1 3-1.1 1.7 1.7 0 0 1 3 1.1c0 1.8-3 3.7-3 3.7z"/>',
       fortune: '<path d="M6 3h12l-1.5 16a2 2 0 0 1-2 1.8h-5a2 2 0 0 1-2-1.8L6 3z"/><path d="M9 3V1M15 3V1M8 9h8M9 13h6"/>',
       mood: '<circle cx="12" cy="12" r="9"/><path d="M8.5 14.5s1.3 2 3.5 2 3.5-2 3.5-2"/><circle cx="9" cy="10" r="1"/><circle cx="15" cy="10" r="1"/>',
-      backup: '<path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>'
+      backup: '<path d="M12 3v12m0 0l-4-4m4 4l4-4"/><path d="M4 17v2a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2v-2"/>',
+      xapp: '<path d="M4.5 4.5l15 15M19.5 4.5l-15 15"/>'
     };
     const svg = (k, s = 23) => `<svg width="${s}" height="${s}" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">${IC[k] || ''}</svg>`;
 
@@ -754,6 +840,30 @@
     ];
 
     const INIT_FORUM = [
+      {
+        id: 'fp17', tag: '体型差热议', author: '圈内围观群众', time: '8分钟前',
+        title: '【匿名树洞】所谓极致体型差，就是大家表面彬彬有礼道喜，私下全被那种张力苏疯了',
+        body: '从他们第一次发合照起，到带去见朋友、订婚戴上「晨星」和「缚光」对戒，大家表面上都彬彬有礼地笑着祝福。可说实话，每次亲眼看见身高188cm、气场冷峻的迟总站在那么娇小可爱的她身边，谁心里能没一点上头的画面感啊……\n\n碍于礼貌修养，没人会把那些发疯的念头说出口。可几乎每个见过他们同框的人，都忍不住脑补他平时是怎么轻而易举把她单手打横抱起、整个人严严实实笼进怀里细声哄的——尤其上次看见他宽大的手掌把她整只戴着戒指的小手包在掌心，那种极致的掌控感与温柔反差，嘴上只敢说一句“好般配”，心里早就替他俩尖叫一万遍了！',
+        likes: 1284,
+        replies: [
+          { a: '宴会厅前排吃瓜', t: '救命说进我心坎里了！！上次晚宴结束我看迟总把大衣一裹、直接把人圈进怀里护着上车，我当场体面微笑内心疯狂尖叫！' },
+          { a: '闺蜜团隐身号', t: '本人作证，每次聚会大家都装得极其端庄矜持，散场后私聊群里全在刷“这体型差也太犯规了吧”哈哈哈哈！' },
+          { a: '新岚总裁办路人', t: '更要命的是迟总看着冷若冰霜，对着太太说话声音低得像大提琴，真不敢想他们私下有多黏糊……' },
+          { a: '柠檬树下常驻', t: '别说了别说了，表面祝福“百年好合”，背地里都在暗暗羡慕这该死的保护欲和反差感呜呜呜！' }
+        ]
+      },
+      {
+        id: 'fp18', tag: '商战爆笑瓜', author: '某竞品离职分析员', time: '22分钟前',
+        title: '【史诗级笑料】竞品派高智商情报组想听新岚机密，监听一天全员脸绿摔麦！！',
+        body: '已离职保平安，今天必须把这个商战史上最离谱的瓜发出来！前阵子某家新能源竞品眼红新岚的固-固态电池，重金组了一支名校博士高精尖情报团，绞尽脑汁想摸清迟川下班后的私下动向与商业底牌。\n\n结果监听分析了一整天，第二天竞品董事长兴冲冲来要机密简报，推门发现屋里七八个顶级专家全都一脸菜色、眼神放空，一言难尽地把耳麦递过去：“董事长，您……自己听一下吧。”\n\n董事长满怀期待戴上耳麦，以为能听到什么冷酷的百亿资本操盘，结果耳机里传来平时在谈判桌上令人闻风丧胆的迟总，正用一种前所未有的、软到骨子里的低沉嗓音温声哄着太太：“乖宝宝，别把脚丫探出被子，刚温好的水再喝两口……好，小公主说什么都对，毛衣袖口我拆了重织齐了，摸摸软不软？”\n\n据说竞品董事长当场沉默十秒，一把摔了耳麦大吼：“这叫冷血魔王？！全组解散！！”',
+        likes: 1640,
+        replies: [
+          { a: '新岚研发部笑哭', t: '哈哈哈哈哈哈救大命！！这波简直是精神攻击，比商业反制杀伤力还大一万倍！' },
+          { a: '陈序路过补刀', t: '笑得我咖啡差点喷键盘上，建议竞品下次改行出情感专栏，毕竟偷听老迟秀恩爱确实太伤身了。' },
+          { a: '情报组前同事', t: '我也在现场！听完三小时毫无营养的纯糖哄睡实录，我们首席心理侧写师当场递了辞呈说工伤太重😂' },
+          { a: '总裁办小透明', t: '难怪林助理早上偷偷笑得合不拢嘴，原来安保部门早就查清顺便当笑话传阅完了！' }
+        ]
+      },
       {
         id: 'fp1', tag: '新岚茶水间', author: '匿名研发小哥', time: '18分钟前',
         title: '【惊天大瓜】刚才去迟总办公室送数据，撞见他在对着多肉小声说话！！',
@@ -1084,6 +1194,224 @@
       }
     ];
 
+    /* X 广场预置推文：高张力、体型差、禁欲反差与暗夜大胆吐槽 */
+    const INIT_XPOSTS = [
+      {
+        id: 'xp6', author: '陈序（后悔多嘴版）', handle: '@cx_regret_asking', av: '陈', verified: 'blue',
+        time: '12:44 · 刚刚', views: '484K',
+        text: '昨晚喝酒一时嘴欠，问某位平时禁欲得像苦行僧的新岚CEO：“哥们，你们小两口一盒一般能用多久啊？”\n\n他端着水杯面不改色算了算：“差不多一个月吧。”\n我当场笑喷：“我去！你们这是君子之交淡如水啊？！”\n结果他皱眉看了我一眼，极其认真地反问：“……恒河水吗？哪里淡了？”\n\n直到今天去他家书房拿文件，路过储物柜瞥见整箱整箱囤的——\n合着我问的是一小盒，他以为我说的是里面装了十二小盒的大盒家庭装！！救命，谁来把我昨晚的嘴缝上！！',
+        likes: 9420, rts: 2180, liked: false, rted: false,
+        replies: [
+          { a: '数学课代表', h: '@math_rep', t: '等等我按计算器算了一下……十二小盒用一个月？？平均每天……迟太太你腰还好吗呜呜呜！！' },
+          { a: '笑裂在被窝', h: '@laugh_crack', t: '哈哈哈哈哈“恒河水吗哪里淡了”！！不愧是INTJ，连开车反杀都透着一股严谨的学术杀伤力！' },
+          { a: 'Cyrus', h: '@Cyrus_1229', verified: 'gold', t: '统计口径未对齐，是你的失误。另外，少看我家里储物柜。' },
+          { a: '深夜虎狼组', h: '@wolf_night', t: '白天在公司冷若冰霜，晚上把十二小盒当月度基础耗材，迟总您是真克制不住一点啊哈哈哈哈！' }
+        ]
+      },
+      {
+        id: 'xp7', author: '闺蜜隐身吃瓜号', handle: '@bestie_peek', av: '瓜', verified: 'blue',
+        time: '12:43 · 18分钟前', views: '349K',
+        text: '救命！！刚听完迟琰讲昨晚约会前的名场面，笑得我在床上打滚！！\n\n身高188、身家几十亿的新岚大总裁出差刚落地，把人按在玄关亲完之后，眼神暗得发沉，低哑着嗓子在她耳边极其认真地交代了一句：\n“为了今晚这次约会，我攒了一周。”\n\n小姑娘愣了两秒，眨着圆溜溜的眼睛极其天真地抬头问他：\n“……你攒的是钱对吧？”\n\n据说迟总当场沉默三秒，眼底笑意混着危险的暗火，二话不说直接把人打横扛回卧室了：“我看起来像缺钱的样子吗，宝宝？今晚你自己验货。”',
+        likes: 8310, rts: 1506, liked: false, rted: false,
+        replies: [
+          { a: '今晚别想下床', h: '@no_getup', t: '哈哈哈哈新岚CEO为了约会攒了一周的钱？！迟太太你是懂怎么在老虎嘴边反复试探的！' },
+          { a: '耳膜已红温', h: '@ear_blush', t: '“今晚你自己验货”——救命这句话配他低沉沙哑的大提琴嗓音，我隔着屏幕腿都软了！！' },
+          { a: '陈序', h: '@chenxu_adv', t: '刚核完季度分红报表，帮大家确认了一下：他账上确实不需要攒一周的钱。祝某人今晚验货愉快。' },
+          { a: 'Cyrus', h: '@Cyrus_1229', verified: 'gold', t: '她当时问得太认真，我总要亲自示范一下攒的到底是什么。' }
+        ]
+      },
+      {
+        id: 'xp8', author: '深夜养生翻车台', handle: '@health_oops', av: '养', verified: 'blue',
+        time: '12:43 · 35分钟前', views: '248K',
+        text: '笑疯了！！听说迟琰昨天刷到一个科普帖说“女生洗完澡后不要立刻穿小裤裤，对身体好”，认认真真看完评论区觉得特别有道理，于是洗完澡套着宽大白衬衫光着两条细腿走出来，一本正经地开始严肃实行！\n\n某位本来戴着眼镜看《货币哲学》的188cm冷面霸总，一抬头看见宽大衣摆下若隐若现的真空风景，手里钢笔直接停在半空，喉结重重滚了一下。\n\n嘴上极度克制地夸了句：“嗯，很讲究科学。”\n眼神却早就变成 😋 了，三秒后合上书把人抱上书桌：“既然宝宝这么重视健康，今晚爸爸配合你，顺便检查一下通风效果。”',
+        likes: 6890, rts: 1084, liked: false, rted: false,
+        replies: [
+          { a: '科普博主连夜跑路', h: '@run_fast', t: '哈哈哈哈科普是让你们透气的，不是让你把一只饿了一周的狼精准引过来的呀妹妹！！' },
+          { a: '白衬衫受害者', h: '@shirt_victim', t: '穿他宽大的白衬衫 + 下面真空 + 极其严肃地讲科学……这简直是对禁欲系 INTJ 精准投放的核武器好吗！！' },
+          { a: '窗台多肉目击证人', h: '@desk_plant', t: '桌上的《货币哲学》：我招谁惹谁了又被一把推到桌角，你们俩能不能顾及一下旁边多肉的死活！' },
+          { a: 'Cyrus', h: '@Cyrus_1229', verified: 'gold', t: '尊重科学是好习惯。不过穿我的衬衫在书房晃来晃去，后果要自己承担。' }
+        ]
+      },
+      {
+        id: 'xp9', author: 'Sota', handle: '@S_Studio42', av: 'S', verified: 'blue',
+        time: '12:08 · 1小时前', views: '526K',
+        text: '所谓体型差，\n就是每次看188cm的他把娇小到能整个人嵌进怀里的她轻松圈住，所有人都忍不住把画面往最不体面的方向想。\n\n从第一次发合照起，到介绍给朋友和闺蜜、一路求婚订婚结婚，大家都彬彬有礼地笑着祝福。是，碍于礼貌修养他们永远不会把那样滚烫又放肆的闪念告诉第二个人——可几乎每个见过他们同框的人，私底下都暗暗想过关上门后他是怎样轻而易举单手把她拎起来欺负、严严实实扣在怀里折腾到红着眼尾喊他爸爸求饶的。\n\n当然了，最好别告诉大家你们在备孕。\n不然全桌人表面端庄敬茶，脑子里全在忍不住想你们昨晚到底多卖力。',
+        likes: 7620, rts: 1346, liked: false, rted: false,
+        replies: [
+          { a: '表面端庄内里发疯', h: '@polite_chaos', t: '备孕两个字杀伤力太大了！！一想到平时那么高冷禁欲的迟总每天晚上为了“完成人生蓝图指标”有多拼命，我脸都要烧透了！' },
+          { a: '闺蜜群前排吃瓜', h: '@bestie_front', t: '救命说得太准了！！上次她随口提了句“最近他在戒酒调理作息”，我们几个嘴上说着“迟总真自律”，桌底下小群直接刷爆99+！！' },
+          { a: '手控重度患者', h: '@hands_lover', t: '188cm 每日晨泳练出来的肩背和手臂力量，单手托着腰把人抱起来简直不费吹灰之力，谁能不往坏处想啊（捂脸）！' },
+          { a: 'Cyrus', h: '@Cyrus_1229', verified: 'gold', t: '看来大家平时工作还是不够饱和。备孕与否属于私事，少替我太太操心。' }
+        ]
+      },
+      {
+        id: 'xp1', author: 'Sota', handle: '@S_Studio42', av: 'S', verified: 'blue',
+        time: '12:08 · 11月27日', views: '526K',
+        text: '所谓体型差，\n就是每次看那对站在一起，所有人都忍不住在脑海里把画面往不那么纯洁的方向推。\n\n从第一次发合照，到订婚戴上「晨星」和「缚光」，大家都彬彬有礼地道喜，可但凡亲眼见过 188cm 宽肩窄腰的他一只手就能把她整只手腕和细腰稳稳扣在怀里，谁没暗暗想过门关上之后他到底有多会折腾她啊。\n\n越是白天西装扣到最上面一颗、冷着脸签几亿合同的禁欲系男人，私下把人按进大衣里低头吻到腿软的时候，反差才越要命好吗。',
+        likes: 7240, rts: 1246, liked: false, rted: false,
+        replies: [
+          { a: 'Vesper', h: '@vesper_99', t: '说实话，碍于礼貌大家当面只会夸“郎才女貌”，背地里谁没脑补过他单手把小姑娘拎起来按在盥洗台或者电梯角落吻的画面……太犯规了。' },
+          { a: 'Kira_深夜版', h: '@kira_midnight', t: '重点是他还特别温柔克制！一边低沉着嗓子喊“慢点，别着急”，一边眼神沉得要把人吞进去，这种掌控欲谁顶得住啊！！' },
+          { a: '陈序匿名小号', h: '@cx_not_here', t: '咳，作为天天近距离被迫吃狗粮的知情人，我只能说你们的想象力还是太保守了，某人下班回家的眼神根本藏不住。' },
+          { a: '手控重度患者', h: '@hands_lover', t: '每次看他那双骨节分明的大手把她的无名指包在掌心里摩挲，我就觉得他俩私下绝对黏糊到没眼看（褒义）！' }
+        ]
+      },
+      {
+        id: 'xp2', author: '午夜墨迹', handle: '@Midnight_Ink', av: '墨', verified: 'blue',
+        time: '23:46 · 昨天', views: '184K',
+        text: '越是 INTJ 这种白天像精密仪器一样的掌控型男人，动情时那点失控才最让人上头。\n\n想象一下：平时在谈判桌上连呼吸频率都不带乱一下，晚上回到家领带扯松一半，嗓音沙哑得不像话，握着戴对戒的那只手抵在床头，近乎带着一丝乞求低声逼你看着他眼睛再说一遍“爱我”。\n\n高岭之花只为你一个人折腰失态，这谁能不腿软啊救命。',
+        likes: 4190, rts: 682, liked: false, rted: false,
+        replies: [
+          { a: '失眠观察员', h: '@insomnia_obs', t: '“带着命令的口吻，却掩不住颤抖和乞求”——救命这段画面感直接把我送走了，这不就是把所有底牌都交到她手里吗！' },
+          { a: '白衬衫控', h: '@shirt_cuff', t: '而且他188的个子俯身压下来的时候，光影全被他挡住，耳边全是低沉的喘息和心跳声，安全感和侵略性同时拉满。' },
+          { a: 'Cyrus', h: '@Cyrus_1229', verified: 'gold', t: '太晚了。少刷这种让人睡不着觉的帖子。' }
+        ]
+      },
+      {
+        id: 'xp3', author: '外滩夜风', handle: '@Bund_Night', av: '风', verified: '',
+        time: '21:15 · 昨天', views: '93.2K',
+        text: '刚才在顶层酒廊露台不小心撞见一幕，礼貌装瞎了三分钟：\n\n新岚那位高冷到生人勿近的迟总，把怀里裹着他西装外套的小姑娘半抱在栏杆阴影里，一只手稳稳护着她后腰防止吹风，低头凑在她耳垂边说话。离得太远听不清说了什么，但小姑娘耳根瞬间红透，抓着他衬衫领口都不敢松手。\n\n真有你们的，表面禁欲老干部，暗地里撩人于无形。',
+        likes: 2850, rts: 419, liked: false, rted: false,
+        replies: [
+          { a: '前排围观', h: '@frontrow_x', t: '护着后腰 + 贴耳垂说话 + 裹西装外套……我请问呢，这氛围感是可以直接拍成人向文艺片的程度吧！' },
+          { a: '柠檬精晚期', h: '@lemon_terminal', t: '最绝的是他一转身面对外人立刻恢复零下十度冰山脸，所有滚烫和侵略性只留给怀里那一个。' }
+        ]
+      },
+      {
+        id: 'xp4', author: 'Cyrus', handle: '@Cyrus_1229', av: '迟', verified: 'gold',
+        time: '01:18 · 2天前', views: '312K',
+        text: '刚散场回来。洗完澡看她蜷在沙发里睡着了，抱回卧室的时候轻得像一团温热的云。\n\n有人说我太克制。其实只是还没到关上门的时候。',
+        likes: 9620, rts: 1580, liked: true, rted: false,
+        replies: [
+          { a: '全网磕疯了', h: '@cp_maniac', t: '“其实只是还没到关上门的时候”？？？迟总！！这是我能免费看的推文吗！！' },
+          { a: '夜猫子一号', h: '@nightowl_01', t: '救命啊凌晨一点发这种虎狼之词，评论区全都尖叫起来了，迟太太明天醒来还能下床吗哈哈哈哈！' },
+          { a: '陈序', h: '@chenxu_adv', t: '哥们，你大号忘切了还是故意的？明早股价要是涨了算秀恩爱红利。' }
+        ]
+      },
+      {
+        id: 'xp5', author: '丝绒与锁骨', handle: '@Velvet_Touch', av: 'V', verified: 'blue',
+        time: '19:30 · 3天前', views: '148K',
+        text: '有没有人懂那种“穿衣显瘦脱衣全是晨泳练出来的线条”的杀伤力。\n\n每天早上六点游1500米可不是白游的，手臂力量大到把人单手打横抱起走过长廊连呼吸都不带喘一下，皮鞋踩在地板上哒哒响，怀里的人脸埋在他颈窝里闻着雪松香，这谁不想被他抱着走一辈子啊。',
+        likes: 3740, rts: 521, liked: false, rted: false,
+        replies: [
+          { a: '游泳馆常客', h: '@swim_club', t: '作证！每次晨泳完他搭着毛巾走出水池，那肩宽腰身比例简直像雕塑，偏偏眼神清冷得像禁欲神明。' },
+          { a: '小公主护卫队', h: '@princess_guard', t: '只有迟琰能把这位禁欲神明拉下神坛，让他单膝跪在盥洗台前亲吻脚踝与膝盖，慕了呜呜！' }
+        ]
+      }
+    ];
+
+    const EXTRA_X_POOL = [
+      {
+        author: '暗涌观察所', handle: '@Undercurrent_X', av: '暗', verified: 'blue', views: '215K',
+        text: '认真讨论：被一个身高188、情绪稳定到可怕的男人全方面偏爱是什么体验？\n\n大概就是你在他面前越娇气、越肆无忌惮地惹他，他表面越只是挑眉低笑一句“这么大胆，嗯？”，下一秒就把你整个圈进臂弯里，连退路都温柔地封死，让你只能红着脸喊他爸爸求饶。',
+        likes: 4320, rts: 615,
+        replies: [
+          { a: '深夜睡不着', h: '@nosleep_2am', t: '“表面挑眉低笑，下一秒封死退路”——这是什么极致成年人拉扯美学！' },
+          { a: '路过被苏到', h: '@passby_su', t: '被他低哑着嗓子在耳边逗到说不出话，感觉骨头都要酥一半。' }
+        ]
+      },
+      {
+        author: '戒痕与光', handle: '@RingMark_00', av: '光', verified: '', views: '129K',
+        text: '今天在画廊看展刚好站他们后面，他帮她理衣领的时候，指腹极其自然地擦过她后颈那截白皙的皮肤，眼神沉了一下，动作却放得比羽毛还轻。\n\n真的，成年人的张力根本不需要多夸张的动作，那一下克制的触碰和占有欲，比什么都直白滚烫。',
+        likes: 3180, rts: 410,
+        replies: [
+          { a: '氛围感猎人', h: '@vibe_hunter', t: '指腹擦过后颈……救命我已经起鸡皮疙瘩了，这哥是懂怎么让人心跳停拍的。' },
+          { a: '匿名围观', h: '@anon_watch', t: '越是懂得克制分寸的人，失控的那一寸才最致命。' }
+        ]
+      },
+      {
+        author: '深夜声控电台', handle: '@DeepVoice_FM', av: '声', verified: 'blue', views: '308K',
+        text: '想象一下凌晨两点，他刚结束出差回到卧室，带着外面微凉的夜气却先去用热水把手捂暖，才轻轻掀开被角钻进来把你捞进怀里。\n\n下巴抵着你发顶，嗓音带着刚赶完夜路的低哑，贴着你耳朵轻声说“想你了，宝宝”。这谁还能继续装睡啊！！',
+        likes: 5890, rts: 892,
+        replies: [
+          { a: '耳膜融化', h: '@ear_melt', t: '先把手捂暖再抱人这个细节直接杀疯了，又苏又欲又温柔！' },
+          { a: '熬夜冠军', h: '@stayup_king', t: '换我直接转身抱紧他脖子不撒手，管他几点钟！' }
+        ]
+      },
+      {
+        author: '西装暴徒鉴赏', handle: '@Suit_Aesthetic', av: '西', verified: 'blue', views: '176K',
+        text: '真的没人觉得“扯松领带 + 挽起衬衫袖口露出小臂青筋和腕表”是世界第八大奇迹吗？\n\n尤其是平时系得一丝不苟、只肯让伴侣亲手系领带的男人，一回到家就把高高在上的冷漠外壳脱掉，任由她坐在腿上胡闹，眼里全是暗暗翻涌的纵容。',
+        likes: 3910, rts: 538,
+        replies: [
+          { a: '领带控', h: '@tie_lover', t: '拉着领带把他扯低下来亲的那一瞬间，想想都要尖叫了！！' },
+          { a: '吃瓜前排', h: '@melon_x', t: '这题我会！某位新岚总裁的领带听说全都是太太亲自挑、亲自系的。' }
+        ]
+      },
+      {
+        author: 'Sota', handle: '@S_Studio42', av: 'S', verified: 'blue', views: '642K',
+        text: '说句实在话，别装清高了。\n\n但凡亲眼见过 188cm 冷面男把娇小到能整个人嵌进他怀里的小姑娘单手托起来，谁私底下没闪过那种极不礼貌的念头？嘴上都在优雅道喜“好般配”，脑子里全在自动播放他把人抵在门后、宽大掌心扣着细腰不让躲，低头把她亲到呼吸发乱、只能抓着他衬衫喊“爸爸”求饶的画面。\n\n这种体型差，本质上就是明晃晃的视觉挑逗好吗。',
+        likes: 8930, rts: 1740,
+        replies: [
+          { a: '绝不装矜持', h: '@no_pretend', t: '终于有人把大实话说出来了！！每次看他那双骨节分明的大手扣住她手腕，我都怀疑她平时根本挣不开一点。' },
+          { a: '深夜失控组', h: '@late_control', t: '最要命的是白天他在董事会上像冰山一样冷酷，晚上关上门大概连领带都懒得解完就直接把人压进沙发里亲吧……' },
+          { a: '红温观察员', h: '@blush_watch', t: '尤其是她还那么软那么乖，越是红着眼眶求慢一点，他那种偏执又温柔的掌控欲肯定越收不住！' }
+        ]
+      },
+      {
+        author: '锁骨鉴赏家', handle: '@Collarbone_99', av: '痕', verified: 'blue', views: '418K',
+        text: '今天在美术馆偶遇那对，小姑娘穿了件高领奶白羊绒毛衣，领口稍微歪了一寸，锁骨窝往里藏着一道极浅的暗红印子，一看就是昨晚某人克制不住留下的。\n\n偏偏旁边身高一米九、西装笔挺的迟总一脸正经地在看画，余光瞥见她领口歪了，极自然地伸手替她把羊绒领口往上拢好，指腹顺着颈侧摩挲了一秒。救命，这男的绝对是故意的！！',
+        likes: 6520, rts: 1120,
+        replies: [
+          { a: '眼神很毒', h: '@sharp_eyes', t: '一边宣示主权一边假装体贴遮起来，高段位禁欲男的占有欲全藏在细节里了！' },
+          { a: '领口侦探', h: '@collar_spy', t: '那件奶白毛衣不就是他亲手织的吗？！亲手织件高领把印子盖住，迟总您是懂暗度陈仓的哈哈哈！' }
+        ]
+      },
+      {
+        author: '午夜后座', handle: '@Backseat_02AM', av: '夜', verified: '', views: '289K',
+        text: '地下车库隔着防窥玻璃都能感受到的窒息张力：\n\n那辆哑光黑车停在角落熄了火，过了二十分钟车门才开。先下来的是衬衣领口散开两颗扣子、唇角还带着一点水光和极淡口红印的冷面总裁，紧接着弯腰把腿软到几乎站不稳的小姑娘直接打横抱出来。\n\n小姑娘把脸死死埋在他颈窝里不敢抬头，耳尖红得能滴血。成年人的车库二十分钟，懂得都懂。',
+        likes: 5410, rts: 980,
+        replies: [
+          { a: '地库目击者', h: '@garage_vip', t: '散开两颗扣子 + 淡口红印 + 腿软抱出来……请问这是我不花钱能看的文字直播吗！！' },
+          { a: '陈序装路过', h: '@cx_witness', t: '咳，友情提示一下某位司机的行车记录仪记得定期清理，不然某人下班回家的虎狼行径要瞒不住了。' }
+        ]
+      },
+      {
+        author: 'Cyrus', handle: '@Cyrus_1229', av: '迟', verified: 'gold', views: '478K',
+        text: '刚把她哄睡。\n\n平时总有人问我为什么那么执着于「缚光」这个名字。其实很简单——白天我习惯掌控全局，可到了夜里，只要她红着眼尾叫一声爸爸、手指攥紧我的领带，先失控的人从来都是我。',
+        likes: 11840, rts: 2310,
+        replies: [
+          { a: '全网尖叫鸡', h: '@scream_all', t: '迟总半夜发这种直球虎狼发言，是彻底不打算让评论区睡觉了吗！！攥领带 + 先失控，我直接原地升天！' },
+          { a: '嗑晕在床上', h: '@faint_in_bed', t: '白天的冷面建筑师晚上甘愿被她用一根领带彻底拴住，这种反差谁顶得住啊呜呜呜！' }
+        ]
+      },
+      {
+        author: '声控重症室', handle: '@Voice_ICU', av: '哑', verified: 'blue', views: '335K',
+        text: '没有人能拒绝 INTJ 男人动情失控时的声音。\n\n平时开会连语速都稳得像节拍器，到了夜深人静的时候，贴着耳廓压低了嗓子喘息，声音哑得发沉，一遍遍低声哄着又带着不容拒绝的力道把人扣紧在怀里，问“还敢不敢乱跑”“再叫一遍爸爸给我听”。\n\n理智越强的人，为你破戒失态的那一瞬间就越要命。',
+        likes: 6180, rts: 1095,
+        replies: [
+          { a: '耳膜已炸', h: '@ear_boom', t: '光看文字脑子里已经有环绕立体声了！！低哑逼问 + 扣紧不放，太犯规了！' },
+          { a: '深夜睡不着', h: '@awake_3am', t: '求迟太太开个小号分享一下他私下到底多会折腾人，我拿十年单身换！' }
+        ]
+      },
+      {
+        author: '眼镜封印解除', handle: '@Glasses_Off', av: '镜', verified: 'blue', views: '392K',
+        text: '谁懂禁欲系 INTJ 男人“不准摘眼镜”的杀伤力啊！！\n\n平时戴着细框金丝眼镜批百亿合同的时候冷得像冰雕，结果晚上把小姑娘按在书房真皮扶手椅里亲的时候，她伸手想摘他眼镜，反被他一只大手扣住两只手腕举过头顶，镜片后面的眼神又沉又暗，低声哄着：“别摘，我想看清楚宝宝现在的样子。”\n\n救命，斯文败类这套全让他给玩明白了！！',
+        likes: 7340, rts: 1290,
+        replies: [
+          { a: '斯文败类十级粉', h: '@suit_glasses', t: '“想看清楚宝宝现在的样子”……救命这比摘眼镜还犯规一万倍，纯纯的掌控欲爆棚！' },
+          { a: '书房沙发目击者', h: '@study_sofa', t: '单手扣住两只手腕举过头顶！这就是 188cm 和娇小手腕的绝对压制感吧！' }
+        ]
+      },
+      {
+        author: '精准计算备孕中', handle: '@Plan_Baby', av: '算', verified: 'blue', views: '451K',
+        text: '哈哈哈哈听说新岚那位把一切都做成 Excel 和蓝图的迟总，最近在备忘录里多了一个加密文件夹，本来大家以为是新的固态电池机密参数。\n\n结果林助理不小心瞥见一角，上面极其严谨地标着体温曲线、周期窗口和营养配比，旁边还备注了一句：“周三、周五推掉全部晚间应酬，回家加班。”\n\n合着百亿大总裁嘴上冷淡，私底下算备孕窗口比算并购估值还勤快啊！！',
+        likes: 8120, rts: 1640,
+        replies: [
+          { a: '新岚打工人笑疯', h: '@xl_worker', t: '难怪老板最近一到周三周五六点准时消失，原来是回家搞“核心项目攻坚”去了哈哈哈哈！' },
+          { a: '吃瓜红温中', h: '@melon_blush', t: '把备孕做成严谨项目排期表，晚上回家照表“认真加班”，迟太太真的扛得住吗呜呜！' }
+        ]
+      },
+      {
+        author: '出差视频修罗场', handle: '@Video_Call_2AM', av: '视', verified: '', views: '318K',
+        text: '跨国出差第三晚视频通话名场面：\n\n小姑娘刚洗完澡窝在被窝里抱怨想他，顺手把宽大的睡衣领口扯松了一点散热，镜头正好滑过雪白的肩头。\n\n视频那头刚开完跨国会议、领带还没解的迟总当场呼吸一滞，盯着屏幕看了整整五秒，声音哑得快冒烟：“迟琰，你现在离我两千公里，确定要这么故意惹我？”\n\n第二天清晨六点，原定下午的航班被他硬生生改成了红眼包机，直接拎着人回卧室“秋后算账”了。',
+        likes: 6950, rts: 1185,
+        replies: [
+          { a: '红眼航班受害者', h: '@redeye_flight', t: '为了隔着屏幕一眼连夜改签飞回来算账……这男人表面多克制，骨子里就有多疯！' },
+          { a: '深夜尖叫鸡', h: '@scream_night', t: '“确定要这么故意惹我？”——光看这几个字我都能脑补出第二天中午都没法起床的剧情了！' }
+        ]
+      }
+    ];
+
     // 迟川专属：克制试探 -> 怕打扰先收住 -> 实在没忍住补发/悄悄撤回 的分层主动消息池
     const PROACTIVE_WAVES = [
       // Wave 0：借小事轻敲
@@ -1240,6 +1568,7 @@
         userAvatar: '',
         moments: INIT_MOMENTS,
         forum: INIT_FORUM,
+        xposts: INIT_XPOSTS,
         worldbook: DEFAULT_WORLDBOOK,
         wishes: INIT_WISHES,
         annis: INIT_ANNIS,
@@ -1275,7 +1604,9 @@
           openaiKey: '',
           openaiModel: 'gpt-4o-mini',
           openaiCustom: '',
-          openaiFetched: []
+          openaiFetched: [],
+          xLevel: 'wild', // mild | spicy | wild
+          xPrompt: ''     // 用户自定义 X 广场 API 风味提示词
         },
         lastActiveTs: Date.now()
       };
@@ -1290,7 +1621,11 @@
         // 无损合并新增的默认论坛热帖与朋友圈，不覆盖用户已有的评论和发帖
         const savedForum = Array.isArray(p.forum) && p.forum.length ? p.forum : [];
         const forumIds = new Set(savedForum.map(x => x.id));
-        const mergedForum = [...savedForum, ...def.forum.filter(x => !forumIds.has(x.id))];
+        const mergedForum = [...def.forum.filter(x => !forumIds.has(x.id)), ...savedForum];
+
+        const savedX = Array.isArray(p.xposts) && p.xposts.length ? p.xposts : [];
+        const xIds = new Set(savedX.map(x => x.id));
+        const mergedX = [...def.xposts.filter(x => !xIds.has(x.id)), ...savedX];
 
         const savedMoments = Array.isArray(p.moments) && p.moments.length ? p.moments : [];
         const momIds = new Set(savedMoments.map(x => x.id));
@@ -1305,6 +1640,7 @@
         return {
           ...def, ...p,
           forum: mergedForum,
+          xposts: mergedX,
           moments: mergedMoments,
           theme: { ...def.theme, ...(p.theme || {}) },
           cfg: { ...def.cfg, ...(p.cfg || {}) },
@@ -1321,7 +1657,9 @@
     const RT = {
       page: 0, app: null, notifOpen: false, typing: false,
       idleTimer: null, burstTimers: [], banTimer: null, toastTimer: null,
-      imgTarget: null, openDiaryId: null, openPostId: null, vOpen: {}
+      imgTarget: null, openDiaryId: null, openPostId: null, vOpen: {},
+      forumReplyTo: null, momentReplyTo: {}, momentFormOpen: {},
+      openXId: null, xReplyTo: null, xTab: 'forYou'
     };
 
     const $ = id => document.getElementById(id);
@@ -1499,10 +1837,27 @@
       { a: '甜品店老板娘', t: '今天刚烤好新的无麸质栗子塔，迟先生已经提前替你留好啦～' }
     ];
 
+    function getXStyleDirective() {
+      const custom = (ST.cfg.xPrompt || '').trim();
+      const lvl = ST.cfg.xLevel || 'wild';
+      const presets = {
+        mild: '氛围微醺暧昧：聚焦 188cm 体型差、禁欲系私下反差、手控/腕表/低沉嗓音与隐秘占有欲，直白撩人。',
+        spicy: '深夜直球、大胆虎狼段子与开车边缘吐槽：不要像普通文明论坛那样含蓄客气！推特网友说话非常放得开，大胆直白地玩成年人情侣双关段子和辛辣八卦——如“为了约会攒了一周（绝不是钱）”、“一盒用一个月结果是大盒十二小盒批发装”、“洗完澡严肃实行先不穿小裤裤把冷面总裁勾得破功”、“备孕期与188cm体型差引发的暗搓搓脑补”、锁骨吻痕与关上门后的失控反差。',
+        wild: '推特深夜无滤镜虎狼之词 + 爆笑双关拉扯（彻底区别于文明论坛！）：抛开所有客套与端庄，用真实中文推特深夜区那种极其直白、大胆、又欲又好笑、荷尔蒙拉满的虎狼口吻！重点围绕：1) 成年人爆笑双关名场面（如“攒了一周”误会成攒钱、“一盒用一个月”误会成一小盒实则是十二小盒批发箱、“洗完澡严肃科普先不穿小裤裤”却穿他白衬衫在书房晃悠引狼入室）；2) 188cm禁欲霸总与娇小伴侣的极致体型差与备孕期暗涌遐想（表面礼貌道喜、背地里疯狂脑补单手拎抱欺负与深夜加班实录）；3) 戴金丝眼镜不准摘、扯领带解衬衫扣子、锁骨颈侧吻痕、把人亲到腿软喊爸爸求饶的反差张力。要求画面感极强、辛辣直球、让人又笑又脸红心跳。'
+      };
+      return `${presets[lvl] || presets.wild}${custom ? `\n【用户追加的 X 广场专属偏好指令】${custom}` : ''}`;
+    }
+
     // 通道 A：纯路人 / 亲友团 NPC 模拟器（明确禁止扮演迟川，允许生动网感与多视角口吻）
     async function callNpcCrowdAPI(sceneType, contextText, count = 4) {
       const ch = activeChar();
-      const sys = sceneType === 'forum'
+      const sys = sceneType === 'xapp'
+        ? `你是推特(X)深夜中文区多NPC网友模拟器。
+【铁律】你绝对禁止扮演男主角“${ch.name}”本人！你只扮演推特上直白大胆、毫不掩饰、满嘴虎狼之词的成年吃瓜网友、手控/体型差控/声控大V或圈内损友。
+【风味要求】${getXStyleDirective()}
+【输出要求】每条评论 20~58 字，直接、火辣、带强画面感与调侃起哄，绝不要写成温和客套的祝福！
+严格返回JSON：{"replies":[{"a":"推特昵称","h":"@英文handle","t":"回复内容"}]}`
+        : sceneType === 'forum'
         ? `你是热闹的中文匿名吃瓜论坛多NPC网友模拟器。
 【铁律】你绝对禁止扮演男主角“${ch.name}”本人！你只扮演围观的路人网友、新岚公司员工、餐厅店员、邻居、影迷等不固定吃瓜群众。
 【语气要求】网感真实自然、性格各异（有人惊呼磕到了、有人调侃抓包老板娘、有人吃柠檬、有人补充第三方偶遇细节），每条15~42字，严禁文绉绉的翻译腔。
@@ -1686,7 +2041,7 @@
         ['worldbook', '世界书'], ['diary', '秘密日记'], ['memory', '记忆本'], ['wish', '心愿清单'],
         ['anni', '纪念日'], ['fortune', '每日甜签'], ['mood', '心情树洞'], ['persona', '人设工坊']
       ];
-      const p3 = [['api', 'API设置'], ['icon', 'App图标'], ['notif', '通知中心'], ['backup', '备份导出']];
+      const p3 = [['xapp', 'X 广场'], ['api', 'API设置'], ['icon', 'App图标'], ['notif', '通知中心'], ['backup', '备份导出']];
 
       if ($('gridPage1')) $('gridPage1').innerHTML = p1.map(x => mkAppBtn(x)).join('');
       if ($('gridPage2')) $('gridPage2').innerHTML = p2.map(x => mkAppBtn(x)).join('');
@@ -1889,17 +2244,16 @@
       });
     }
 
-    /* =========================================================================
-       八、二级应用路由与 APP 1：真人感多气泡连发聊天
-       ========================================================================= */
-    function appHeader(title, sub = '', rightHtml = '<span style="width:44px"></span>', leftFn = 'closeApp()') {
+    function appHeader(title, sub = '', rightHtml = '', leftFn = 'closeApp()') {
       return `<div class="app-hd">
-        <button type="button" onclick="${leftFn}" class="back-btn">${svg('back', 14)}<span>返回</span></button>
-        <div style="text-align:center;min-width:0;flex:1">
+        <div style="display:flex;align-items:center;justify-content:flex-start">
+          <button type="button" onclick="${leftFn}" class="back-btn">${svg('back', 14)}<span>返回</span></button>
+        </div>
+        <div style="text-align:center;min-width:0">
           <div style="font-size:14.5px;font-weight:600;color:var(--text);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(title)}</div>
           ${sub ? `<div style="font-size:10px;color:var(--muted);margin-top:1px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${esc(sub)}</div>` : ''}
         </div>
-        <div style="flex-shrink:0">${rightHtml}</div>
+        <div style="display:flex;align-items:center;justify-content:flex-end;white-space:nowrap">${rightHtml}</div>
       </div>`;
     }
 
@@ -1909,6 +2263,9 @@
       RT.app = id;
       RT.openDiaryId = null;
       RT.openPostId = null;
+      RT.forumReplyTo = null;
+      RT.openXId = null;
+      RT.xReplyTo = null;
       if (id === 'chat') {
         const ch = activeChar();
         ST.notifs.forEach(n => { if (n.charId === ch.id) n.unread = false; });
@@ -1928,7 +2285,7 @@
 
     function renderCurrentApp() {
       const map = {
-        chat: vChat, moments: vMoments, forum: vForum, wallet: vWallet,
+        chat: vChat, moments: vMoments, forum: vForum, xapp: vXApp, wallet: vWallet,
         theme: vTheme, diary: vDiary, memory: vMemory, persona: vPersona,
         api: vApi, icon: vIcon, worldbook: vWorldbook, wish: vWish,
         anni: vAnni, fortune: vFortune, mood: vMood, backup: vBackup
@@ -2253,12 +2610,21 @@
               </div>
               ${(likers.length || p.comments.length) ? `<div style="background:var(--pink-soft);border-radius:13px;padding:9px 11px" class="stack">
                 ${likers.length ? `<div style="font-size:11.5px;color:var(--pink-deep);line-height:1.5;${p.comments.length ? 'padding-bottom:6px;border-bottom:1px dashed rgba(201,98,131,0.22)' : ''}">♥ ${likers.map(esc).join('、')}</div>` : ''}
-                ${p.comments.map(c => `<div style="font-size:12px;line-height:1.58"><strong style="color:${c.a === ch.name ? 'var(--pink-deep)' : 'var(--text)'}">${esc(c.a)}：</strong>${esc(c.t)}</div>`).join('')}
+                ${p.comments.map((c, ci) => `<div class="row" style="align-items:flex-start;gap:6px;font-size:12px;line-height:1.58">
+                  <div style="min-width:0;flex:1"><strong style="color:${c.a === ch.name ? 'var(--pink-deep)' : 'var(--text)'}">${esc(c.a)}</strong>${c.replyTo ? `<span style="color:var(--muted);margin:0 3px">回复</span><strong style="color:${c.replyTo === ch.name ? 'var(--pink-deep)' : 'var(--text)'}">${esc(c.replyTo)}</strong>` : ''}：${esc(c.t)}</div>
+                  <button type="button" data-mrep="${p.id}" data-mci="${ci}" class="cm-reply-btn">回复</button>
+                </div>`).join('')}
               </div>` : ''}
-              <form data-mform="${p.id}" class="hidden" style="display:flex;gap:6px">
-                <input class="inp" style="padding:7px 11px;font-size:12px" placeholder="写一句评论，亲友团和${esc(ch.name)}都会看到…" />
-                <button type="submit" class="btn pink" style="width:auto;padding:7px 13px;font-size:12px">发</button>
-              </form>
+              <div class="${RT.momentFormOpen[p.id] ? 'stack' : 'hidden'}" data-mwrap="${p.id}" style="gap:6px">
+                ${RT.momentReplyTo[p.id] ? `<div class="reply-target-bar">
+                  <span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">正在回复 <strong>${esc(RT.momentReplyTo[p.id].a)}</strong>：「${esc(RT.momentReplyTo[p.id].t.slice(0, 16))}${RT.momentReplyTo[p.id].t.length > 16 ? '…' : ''}」</span>
+                  <button type="button" data-mcancel="${p.id}" style="font-size:12px;padding:0 4px;flex-shrink:0">✕</button>
+                </div>` : ''}
+                <form data-mform="${p.id}" style="display:flex;gap:6px">
+                  <input class="inp" style="padding:7px 11px;font-size:12px" placeholder="${RT.momentReplyTo[p.id] ? `回复 ${esc(RT.momentReplyTo[p.id].a)}…` : `写一句评论，亲友团和${esc(ch.name)}都会看到…`}" />
+                  <button type="submit" class="btn pink" style="width:auto;padding:7px 14px;font-size:12px;white-space:nowrap;flex-shrink:0">发送</button>
+                </form>
+              </div>
             </div>`;
           }).join('')}
         </div>`;
@@ -2290,33 +2656,72 @@
       $('appLayer').querySelectorAll('[data-mcm]').forEach(b => {
         b.onclick = () => {
           SFX.tap();
-          const f = $('appLayer').querySelector(`[data-mform="${b.dataset.mcm}"]`);
-          if (f) { f.classList.toggle('hidden'); if (!f.classList.contains('hidden')) f.querySelector('input').focus(); }
+          const pid = b.dataset.mcm;
+          RT.momentFormOpen[pid] = !RT.momentFormOpen[pid];
+          if (!RT.momentFormOpen[pid]) delete RT.momentReplyTo[pid];
+          vMoments();
+          if (RT.momentFormOpen[pid]) {
+            const inp = $('appLayer').querySelector(`[data-mform="${pid}"] input`);
+            if (inp) inp.focus();
+          }
+        };
+      });
+      $('appLayer').querySelectorAll('[data-mrep]').forEach(b => {
+        b.onclick = () => {
+          SFX.tap();
+          const pid = b.dataset.mrep, ci = Number(b.dataset.mci);
+          const p = ST.moments.find(x => x.id === pid);
+          const target = p && p.comments[ci];
+          if (!target) return;
+          RT.momentFormOpen[pid] = true;
+          RT.momentReplyTo[pid] = { a: target.a, t: target.t };
+          vMoments();
+          const inp = $('appLayer').querySelector(`[data-mform="${pid}"] input`);
+          if (inp) { inp.focus(); inp.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+        };
+      });
+      $('appLayer').querySelectorAll('[data-mcancel]').forEach(b => {
+        b.onclick = () => {
+          SFX.tap();
+          delete RT.momentReplyTo[b.dataset.mcancel];
+          vMoments();
         };
       });
       $('appLayer').querySelectorAll('[data-mform]').forEach(f => {
         f.onsubmit = async e => {
           e.preventDefault();
+          const pid = f.dataset.mform;
           const txt = f.querySelector('input').value.trim(); if (!txt) return;
-          const p = ST.moments.find(x => x.id === f.dataset.mform); if (!p) return;
+          const p = ST.moments.find(x => x.id === pid); if (!p) return;
+          const target = RT.momentReplyTo[pid] || null;
           SFX.tap();
-          p.comments.push({ a: ST.userName, t: txt });
+          p.comments.push({ a: ST.userName, t: txt, ...(target ? { replyTo: target.a } : {}) });
+          delete RT.momentReplyTo[pid];
           saveST(); vMoments();
 
-          let chReply = `看到了，${ch.userCall}。今晚回家再当面慢慢说给你听。`;
-          let npcReplies = pickRandomItems(LOCAL_CIRCLE_COMMENTS, 2);
+          let chReply = target && target.a === ch.name
+            ? `嗯，这句我记下了，${ch.userCall}。今晚回家再当面慢慢回你。`
+            : `看到了，${ch.userCall}。晚上回来慢慢讲给你听。`;
+          let npcReplies = target && target.a !== ch.name && target.a !== ST.userName
+            ? [{ a: target.a, replyTo: ST.userName, t: '哈哈哈哈被小公主亲自点名回复了！祝你们每天都这么甜！' }, ...pickRandomItems(LOCAL_CIRCLE_COMMENTS.filter(x => x.a !== target.a), 1)]
+            : pickRandomItems(LOCAL_CIRCLE_COMMENTS, 2);
 
           if (hasValidAPI()) {
-            const ctx = `朋友圈正文（${p.author}发布）：${p.text}\n${ST.userName}刚评论：“${txt}”`;
+            const targetHint = target ? `${ST.userName}专门回复了 ${target.a} 的评论（原句：“${target.t}”），回复内容：“${txt}”` : `${ST.userName}刚评论：“${txt}”`;
+            const ctx = `朋友圈正文（${p.author}发布）：${p.text}\n${targetHint}`;
             const [npcRes, chRes] = await Promise.allSettled([
-              callNpcCrowdAPI('moments', ctx, 2),
-              callChichuanSoloAPI(ch, `${ST.userName}在朋友圈下面留了评论，请以你本人克制温柔的语气回复她（30字内）。`, ctx)
+              callNpcCrowdAPI('moments', ctx + (target && target.a !== ch.name && target.a !== ST.userName ? `\n请确保第1条回复由“${target.a}”亲自回应${ST.userName}。` : ''), 2),
+              callChichuanSoloAPI(ch, `${targetHint}。请以你本人克制温柔的语气回复她（30字内）。`, ctx)
             ]);
-            if (npcRes.status === 'fulfilled' && npcRes.value.replies.length) npcReplies = npcRes.value.replies;
+            if (npcRes.status === 'fulfilled' && npcRes.value.replies.length) {
+              npcReplies = npcRes.value.replies.map((r, idx) => (idx === 0 && target && target.a !== ch.name && target.a !== ST.userName)
+                ? { a: target.a, replyTo: ST.userName, t: r.t }
+                : r);
+            }
             if (chRes.status === 'fulfilled' && chRes.value) chReply = chRes.value;
           }
 
-          const queue = [{ a: ch.name, t: chReply }, ...npcReplies];
+          const queue = [{ a: ch.name, replyTo: ST.userName, t: chReply }, ...npcReplies];
           queue.forEach((item, idx) => {
             setTimeout(() => {
               p.comments.push(item);
@@ -2440,9 +2845,10 @@
       const ch = activeChar();
       if (RT.openPostId) {
         const p = ST.forum.find(x => x.id === RT.openPostId);
-        if (!p) { RT.openPostId = null; return vForum(); }
+        if (!p) { RT.openPostId = null; RT.forumReplyTo = null; return vForum(); }
+        const repTgt = RT.forumReplyTo;
         $('appLayer').innerHTML =
-          appHeader('帖子详情', `${p.tag} · ${p.replies.length} 条热闹跟帖`, '<span style="width:44px"></span>', 'RT.openPostId=null;renderCurrentApp()') +
+          appHeader('帖子详情', `${p.tag} · ${p.replies.length} 条热闹跟帖`, '', 'RT.openPostId=null;RT.forumReplyTo=null;renderCurrentApp()') +
           `<div class="app-body no-sb stack">
             <div class="card stack" style="gap:9px">
               <div class="row">
@@ -2453,7 +2859,7 @@
               <div style="font-size:13px;line-height:1.75;color:var(--text);white-space:pre-line">${esc(p.body)}</div>
               <div class="row" style="padding-top:4px">
                 <button type="button" id="btnFpLike" class="tag-chip" style="padding:4px 11px">♥ 吃瓜点赞 (${p.likes})</button>
-                <span style="font-size:10.5px;color:var(--muted)">跟帖后路人与迟川会陆续回复</span>
+                <span style="font-size:10.5px;color:var(--muted)">点任意楼层右侧「回复」可定向互动</span>
               </div>
             </div>
             <div class="card stack" style="gap:9px">
@@ -2461,40 +2867,85 @@
               ${p.replies.map((r, i) => {
                 const isDad = r.a.includes('Cyrus') || r.a.includes(ch.name);
                 return `<div style="padding:9px 11px;border-radius:13px;background:${isDad ? 'rgba(229,140,168,0.22)' : 'var(--pink-soft)'};border:${isDad ? '1px solid rgba(201,98,131,0.4)' : 'none'};font-size:12.5px;line-height:1.6">
-                  <div class="row" style="font-size:10.5px;color:var(--pink-deep);margin-bottom:3px"><strong>${esc(r.a)}${isDad ? ' ✦' : ''}</strong><span>#${i + 1}楼</span></div>
-                  <div>${esc(r.t)}</div>
+                  <div class="row" style="font-size:10.5px;color:var(--pink-deep);margin-bottom:4px">
+                    <strong>${esc(r.a)}${isDad ? ' ✦' : ''}</strong>
+                    <div style="display:flex;align-items:center;gap:6px">
+                      <span>#${i + 1}楼</span>
+                      <button type="button" data-frep="${i}" class="cm-reply-btn">回复</button>
+                    </div>
+                  </div>
+                  <div>${r.replyTo ? `<span style="color:var(--pink-deep);font-weight:600;margin-right:4px">回复 @${esc(r.replyTo)}${r.replyFloor ? ` (#${r.replyFloor}楼)` : ''}：</span>` : ''}${esc(r.t)}</div>
                 </div>`;
               }).join('')}
+              ${repTgt ? `<div class="reply-target-bar">
+                <span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">正在回复 <strong>#${repTgt.floor}楼 ${esc(repTgt.a)}</strong>：「${esc(repTgt.t.slice(0, 16))}${repTgt.t.length > 16 ? '…' : ''}」</span>
+                <button type="button" id="fpCancelReply" style="font-size:12px;padding:0 4px;flex-shrink:0">✕</button>
+              </div>` : ''}
               <form id="fpReplyForm" style="display:flex;gap:6px;padding-top:4px">
-                <input id="fpReplyInp" class="inp" style="padding:8px 11px;font-size:12px" placeholder="匿名跟帖吃瓜、炫耀或偷偷护夫…" />
-                <button type="submit" class="btn pink" style="width:auto;padding:8px 14px;font-size:12px">回复</button>
+                <input id="fpReplyInp" class="inp" style="padding:8px 11px;font-size:12px" placeholder="${repTgt ? `回复 #${repTgt.floor}楼 ${esc(repTgt.a)}…` : '匿名跟帖吃瓜、炫耀或偷偷护夫…'}" />
+                <button type="submit" class="btn pink" style="width:auto;padding:8px 15px;font-size:12px;white-space:nowrap;flex-shrink:0">回复</button>
               </form>
             </div>
           </div>`;
 
         $('btnFpLike').onclick = () => { SFX.tap(); p.likes += 1; saveST(); vForum(); };
+        if ($('fpCancelReply')) {
+          $('fpCancelReply').onclick = () => { SFX.tap(); RT.forumReplyTo = null; vForum(); };
+        }
+        $('appLayer').querySelectorAll('[data-frep]').forEach(b => {
+          b.onclick = () => {
+            SFX.tap();
+            const idx = Number(b.dataset.frep);
+            const r = p.replies[idx];
+            if (!r) return;
+            RT.forumReplyTo = { floor: idx + 1, a: r.a, t: r.t };
+            vForum();
+            const inp = $('fpReplyInp');
+            if (inp) { inp.focus(); inp.scrollIntoView({ behavior: 'smooth', block: 'center' }); }
+          };
+        });
         $('fpReplyForm').onsubmit = async e => {
           e.preventDefault();
           const txt = $('fpReplyInp').value.trim(); if (!txt) return;
+          const target = RT.forumReplyTo;
           SFX.tap();
-          p.replies.push({ a: '匿名小公主（我）', t: txt });
+          p.replies.push({
+            a: '匿名小公主（我）', t: txt,
+            ...(target ? { replyTo: target.a, replyFloor: target.floor } : {})
+          });
+          const myFloor = p.replies.length;
+          RT.forumReplyTo = null;
           saveST(); vForum();
 
-          let npcList = pickRandomItems(LOCAL_NPC_FORUM_REPLIES, 3);
-          let dadReply = `别在论坛跟路人聊得这么起劲。早点歇着，晚上回家当面跟${ch.myCall}说。`;
+          const repliedToDad = target && (target.a.includes('Cyrus') || target.a.includes(ch.name));
+          const repliedToNpc = target && !repliedToDad && !target.a.includes('匿名小公主');
+
+          let npcList = repliedToNpc
+            ? [{ a: target.a, replyTo: '匿名小公主（我）', replyFloor: myFloor, t: '天呐！！居然被疑似老板娘本尊亲自点名回复了！我今天这是什么神仙运气，请你们锁死！！' }, ...pickRandomItems(LOCAL_NPC_FORUM_REPLIES.filter(x => x.a !== target.a), 2)]
+            : pickRandomItems(LOCAL_NPC_FORUM_REPLIES, 3);
+          let dadReply = repliedToDad
+            ? `隔着屏幕都能猜到你打字时的表情，${ch.userCall}。收起手机，晚上回家当面跟${ch.myCall}说。`
+            : `别在论坛跟路人聊得这么起劲。早点歇着，晚上回家当面跟${ch.myCall}说。`;
 
           if (hasValidAPI()) {
-            const ctx = `论坛帖子标题：《${p.title}》\n帖子内容：${p.body}\n最近楼层：${p.replies.slice(-4).map(r => `${r.a}: ${r.t}`).join(' | ')}\n刚刚“匿名小公主”发了新回复：“${txt}”`;
+            const targetDesc = target
+              ? `“匿名小公主”刚刚专门回复了 #${target.floor}楼 ${target.a}（原话：“${target.t}”），她写的是：“${txt}”`
+              : `刚刚“匿名小公主”发了新回复：“${txt}”`;
+            const ctx = `论坛帖子标题：《${p.title}》\n帖子内容：${p.body}\n最近楼层：${p.replies.slice(-5).map((r, k) => `${r.a}${r.replyTo ? ` 回复 @${r.replyTo}` : ''}: ${r.t}`).join(' | ')}\n${targetDesc}`;
             const [npcRes, chRes] = await Promise.allSettled([
-              callNpcCrowdAPI('forum', ctx, 4),
-              callChichuanSoloAPI(ch, `你在匿名论坛用小号 @Cyrus_1229 一眼认出“匿名小公主”就是${ST.userName}。请用迟川本人克制低沉的口吻回复她一句（不带任何浮夸网感词，35字内）。`, ctx)
+              callNpcCrowdAPI('forum', ctx + (repliedToNpc ? `\n请确保第1条回复由“${target.a}”本人激动回应匿名小公主。` : ''), 3),
+              callChichuanSoloAPI(ch, `你在匿名论坛用小号 @Cyrus_1229 看到了最新回复（${targetDesc}），一眼认出“匿名小公主”就是${ST.userName}。请用迟川本人克制低沉的口吻直接回复她一句（不带任何浮夸网感词，35字内）。`, ctx)
             ]);
-            if (npcRes.status === 'fulfilled' && npcRes.value.replies.length) npcList = npcRes.value.replies;
+            if (npcRes.status === 'fulfilled' && npcRes.value.replies.length) {
+              npcList = npcRes.value.replies.map((item, idx) => (idx === 0 && repliedToNpc)
+                ? { a: target.a, replyTo: '匿名小公主（我）', replyFloor: myFloor, t: item.t }
+                : item);
+            }
             if (chRes.status === 'fulfilled' && chRes.value) dadReply = chRes.value;
           }
 
-          toast('热闹网友们和 @Cyrus_1229 正在赶来盖楼…');
-          staggerForumReplies(p, npcList, { a: '@Cyrus_1229', t: dadReply });
+          toast(repliedToNpc ? `${target.a}、吃瓜网友和 @Cyrus_1229 正在赶来回复…` : '热闹网友们和 @Cyrus_1229 正在赶来盖楼…');
+          staggerForumReplies(p, npcList, { a: '@Cyrus_1229', replyTo: '匿名小公主（我）', replyFloor: myFloor, t: dadReply });
         };
         return;
       }
@@ -3424,6 +3875,382 @@
         document.body.appendChild(a); a.click(); a.remove();
         toast('已开始下载 icon.jpg（iPhone 也可直接长按预览图保存）');
       };
+    }
+
+    /* ---------- APP 11: X 广场（暗夜推特风 · 体型差/禁欲反差/暗涌张力 & 双通道热推） ---------- */
+    async function generateXPosts(count = 1) {
+      const ch = activeChar();
+      const created = [];
+
+      if (hasValidAPI()) {
+        try {
+          const existing = ST.xposts.slice(0, 10).map(x => x.text.slice(0, 28)).join(' / ');
+          const wbSummary = (ST.worldbook || []).filter(w => w.enabled).map(w => `·${w.title}：${w.content}`).join('\n').slice(0, 850);
+          const angles = [
+            '损友问“一盒用多久”引出“一小盒 vs 十二小盒批发箱”的爆笑虎狼误会',
+            '出差回来低声说“为了今晚约会我攒了一周”被小姑娘天真反问“攒钱吗”的直球反杀',
+            '她看科普“洗完澡不要立刻穿小裤裤”严肃实行，穿他大衬衫晃悠直接把冷面总裁勾破功',
+            '188cm极致体型差 + 疑似备孕期间，朋友表面礼貌祝福背地里满脑子限制级脑补',
+            '禁欲INTJ戴着金丝眼镜不准摘、单手扣腕压在书桌或电梯角落的极致掌控反差',
+            '锁骨/颈侧吻痕、地下车库熄火二十分钟、连夜红眼航班飞回来“秋后算账”的深夜张力'
+          ];
+          const pickedAngles = pickRandomItems(angles, Math.min(count + 1, angles.length)).join('；');
+          const j = await callDualAPI(
+            `你是推特(X)深夜成人向浪漫吐槽区推文生成器，专门生成比普通论坛尺度更大、更直白大胆、荷尔蒙张力拉满的热推。
+【核心风味】${getXStyleDirective()}
+【人物设定参考】男主：${ch.name}（188cm，高冷禁欲系新岚CEO，INTJ掌控型，平时极度克制，私下对${ST.userName}占有欲极强、嗓音低哑、反差极大，常被她喊“爸爸”）；女主：${ST.userName}（娇小软甜，与他有极致体型差，戴「晨星」与「缚光」对戒）。
+${wbSummary}
+【写作要求】
+1. 绝对不要写温吞客气的“好甜好般配”普通论坛体！要写出推特深夜区真实的大胆、直球、脸红心跳、带着成年人亲密暗示与强画面感的虎狼吐槽，分段自然，每条 75~165 字。
+2. 每条推文自带 3 条同样直白起哄、毫不矜持的推特网友热评。`,
+            `请避开已有推文内容：${existing}\n本次推荐切入角度：${pickedAngles}\n请一次性生成 ${count} 条不同推特账号发布的深夜热推。严格返回JSON：{"posts":[{"author":"推特昵称","handle":"@英文ID","verified":"blue或空","text":"推特正文","replies":[{"a":"网友1","h":"@id1","t":"直白热评1"},{"a":"网友2","h":"@id2","t":"直白热评2"},{"a":"网友3","h":"@id3","t":"直白热评3"}]}]}`
+          );
+          const arr = Array.isArray(j?.posts) ? j.posts.slice(0, count) : [];
+          arr.forEach((p, idx) => {
+            if (!p || !p.text) return;
+            const author = String(p.author || '深夜观察员');
+            created.push({
+              id: 'xp_' + Date.now() + '_' + idx,
+              author,
+              handle: String(p.handle || '@night_obs_' + (idx + 1)),
+              av: author.slice(0, 1),
+              verified: p.verified === 'blue' ? 'blue' : '',
+              time: idx === 0 ? '刚刚' : `${idx * 9}分钟前`,
+              views: `${(120 + Math.floor(Math.random() * 540))}K`,
+              text: String(p.text),
+              likes: 2400 + Math.floor(Math.random() * 7800),
+              rts: 320 + Math.floor(Math.random() * 1400),
+              liked: false, rted: false,
+              replies: Array.isArray(p.replies) && p.replies.length
+                ? p.replies.map(r => ({ a: String(r.a || '路人'), h: String(r.h || '@user_x'), t: String(r.t || '') })).filter(r => r.t)
+                : [{ a: '深夜红温机', h: '@late_blush', t: '救命这段画面感太直白了，成年人的暗涌张力直接把我送走！' }]
+            });
+          });
+        } catch {
+          toast('API 暂不可用，已从本地深夜直球池刷出新推');
+        }
+      }
+
+      if (!created.length) {
+        const unused = EXTRA_X_POOL.filter(x => !ST.xposts.some(p => p.text === x.text));
+        const pool = unused.length >= count ? pickRandomItems(unused, count) : pickRandomItems(EXTRA_X_POOL, count);
+        pool.forEach((p, idx) => {
+          created.push({
+            ...p,
+            id: 'xp_' + Date.now() + '_' + idx,
+            time: idx === 0 ? '刚刚' : `${idx * 11}分钟前`,
+            liked: false, rted: false,
+            replies: p.replies.map(r => ({ ...r }))
+          });
+        });
+      }
+
+      created.reverse().forEach(p => ST.xposts.unshift(p));
+      saveST(); SFX.soft();
+      if (RT.app === 'xapp' && !RT.openXId) vXApp();
+      toast(`X 时间线已刷新 ${created.length} 条深夜直球热推 ✦`);
+    }
+
+    function openXSettingsModal() {
+      SFX.tap();
+      let lvl = ST.cfg.xLevel || 'wild';
+      const paint = () => {
+        openModal(`<div class="stack">
+          <div class="row"><span class="sec-t">𝕏 广场尺度与 API 风味调校</span><button type="button" onclick="closeModal()" class="tag-chip">关闭</button></div>
+          <div class="sec-s">仅影响「X 广场」接 API 后的刷推与网友评论风格，不会弄乱常规论坛与聊天人设。</div>
+          <div class="g2" style="grid-template-columns:repeat(3,1fr)">
+            <button type="button" data-xlvl="mild" class="btn ${lvl === 'mild' ? 'pink' : 'soft'}" style="padding:8px 4px;font-size:11.5px">微醺暗涌</button>
+            <button type="button" data-xlvl="spicy" class="btn ${lvl === 'spicy' ? 'pink' : 'soft'}" style="padding:8px 4px;font-size:11.5px">深夜直球</button>
+            <button type="button" data-xlvl="wild" class="btn ${lvl === 'wild' ? 'pink' : 'soft'}" style="padding:8px 4px;font-size:11.5px">虎狼无滤镜</button>
+          </div>
+          <div class="sec-s">自定义 X 广场专属 API 追加提示词（选填 · 接 Gemini / OpenAI 时直接生效）：</div>
+          <textarea id="xCustomPrompt" rows="4" class="inp" placeholder="例如：多写一点大家对188cm体型差的直白脑补、锁骨吻痕、电梯/车库亲密张力、评论区网友说话再大胆虎狼一点…">${esc(ST.cfg.xPrompt || '')}</textarea>
+          <button id="xCfgSave" type="button" class="btn pink">保存 X 广场调校 ✦</button>
+        </div>`);
+        $('modal').querySelectorAll('[data-xlvl]').forEach(b => {
+          b.onclick = () => { SFX.tap(); lvl = b.dataset.xlvl; paint(); };
+        });
+        $('xCfgSave').onclick = () => {
+          ST.cfg.xLevel = lvl;
+          ST.cfg.xPrompt = ($('xCustomPrompt')?.value || '').trim();
+          saveST(); closeModal(); SFX.soft();
+          if (RT.app === 'xapp') vXApp();
+          toast('X 广场 API 风味已更新，点刷推立即生效 ✦');
+        };
+      };
+      paint();
+    }
+
+    function vXApp() {
+      const ch = activeChar();
+      const fmtNum = n => n >= 1000 ? (n / 1000).toFixed(1) + 'K' : String(n);
+      const lvlName = { mild: '微醺暗涌', spicy: '深夜直球', wild: '虎狼无滤镜' }[ST.cfg.xLevel || 'wild'] || '虎狼无滤镜';
+
+      // 单条推文详情 + 线程定向回复
+      if (RT.openXId) {
+        const p = ST.xposts.find(x => x.id === RT.openXId);
+        if (!p) { RT.openXId = null; RT.xReplyTo = null; return vXApp(); }
+        const repTgt = RT.xReplyTo;
+        const isChPost = p.handle === '@Cyrus_1229' || p.author === ch.name;
+        $('appLayer').innerHTML = `<div class="x-shell">
+          <div class="x-hd">
+            <div style="display:flex;align-items:center;justify-content:flex-start">
+              <button type="button" onclick="RT.openXId=null;RT.xReplyTo=null;renderCurrentApp()" class="x-btn ghost" style="padding:5px 11px;font-size:12px">← 返回</button>
+            </div>
+            <div style="text-align:center;font-size:15px;font-weight:700;color:#f6f3f7">推文</div>
+            <div></div>
+          </div>
+          <div class="x-feed no-sb">
+            <div style="padding:15px;border-bottom:1px solid rgba(255,255,255,0.09)">
+              <div style="display:flex;align-items:center;gap:10px">
+                <div class="x-av">${isChPost && ch.avatar ? `<img src="${ch.avatar}" alt="">` : esc(p.av || p.author.slice(0, 1))}</div>
+                <div style="min-width:0;flex:1">
+                  <div style="display:flex;align-items:center;gap:5px">
+                    <span style="font-size:14px;font-weight:700;color:#f6f3f7">${esc(p.author)}</span>
+                    ${p.verified ? `<span class="x-vbadge ${p.verified === 'gold' ? 'gold' : ''}">✓</span>` : ''}
+                  </div>
+                  <div style="font-size:11.5px;color:#7e7b88">${esc(p.handle)}</div>
+                </div>
+              </div>
+              <div class="x-body" style="font-size:14.5px;margin-top:11px">${esc(p.text)}</div>
+              <div class="x-meta" style="margin-top:11px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.08)">
+                ${esc(p.time)} · <strong style="color:#f1eef2">${esc(p.views || '128K')}</strong> Views
+              </div>
+              <div class="x-acts" style="margin-top:10px">
+                <span class="x-act">💬 ${p.replies.length}</span>
+                <button type="button" id="xDetRt" class="x-act ${p.rted ? 'rted' : ''}">🔁 ${fmtNum(p.rts)}</button>
+                <button type="button" id="xDetLike" class="x-act ${p.liked ? 'liked' : ''}">${p.liked ? '♥' : '♡'} ${fmtNum(p.likes)}</button>
+                <span class="x-act" style="font-size:10.5px;color:#e58ca8">点评论右侧可回复</span>
+              </div>
+            </div>
+
+            ${p.replies.map((r, i) => {
+              const isDad = r.h === '@Cyrus_1229' || r.a === ch.name;
+              const isMe = r.a === ST.userName;
+              return `<div class="x-reply-box" style="background:${isDad ? 'rgba(229,140,168,0.08)' : 'transparent'}">
+                <div class="x-av" style="width:34px;height:34px;font-size:12.5px">${isDad && ch.avatar ? `<img src="${ch.avatar}" alt="">` : isMe && ST.userAvatar ? `<img src="${ST.userAvatar}" alt="">` : esc(r.a.slice(0, 1))}</div>
+                <div style="min-width:0;flex:1">
+                  <div class="row" style="gap:6px">
+                    <div style="display:flex;align-items:center;gap:4px;min-width:0">
+                      <span style="font-size:12.5px;font-weight:700;color:${isDad ? '#f4b6c9' : '#f1eef2'}">${esc(r.a)}</span>
+                      ${isDad ? '<span class="x-vbadge gold">✓</span>' : ''}
+                      <span style="font-size:11px;color:#787582;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(r.h || '@x_user')}</span>
+                    </div>
+                    <button type="button" data-xrep="${i}" style="font-size:10.5px;color:#e58ca8;background:rgba(229,140,168,0.14);padding:2px 8px;border-radius:999px;flex-shrink:0">回复</button>
+                  </div>
+                  ${r.replyTo ? `<div style="font-size:11px;color:#8c8896;margin-top:2px">回复 <span style="color:#e58ca8">${esc(r.replyTo)}</span></div>` : ''}
+                  <div class="x-body" style="font-size:13px;margin-top:4px">${esc(r.t)}</div>
+                </div>
+              </div>`;
+            }).join('')}
+          </div>
+
+          <div class="x-bar stack" style="gap:7px">
+            ${repTgt ? `<div class="row" style="padding:5px 10px;border-radius:10px;background:rgba(229,140,168,0.14);font-size:11px;color:#f5bfd1">
+              <span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">正在回复 <strong>${esc(repTgt.a)}</strong> ${esc(repTgt.h || '')}</span>
+              <button type="button" id="xCancelRep" style="color:#f5bfd1;padding:0 4px">✕</button>
+            </div>` : ''}
+            <form id="xReplyForm" style="display:flex;gap:7px">
+              <input id="xReplyInp" class="x-inp" autocomplete="off" placeholder="${repTgt ? `回复 ${esc(repTgt.a)}…` : '发布你的回复…'}" />
+              <button type="submit" class="x-btn pink">回复</button>
+            </form>
+          </div>
+        </div>`;
+
+        $('xDetRt').onclick = () => { SFX.tap(); p.rted = !p.rted; p.rts += p.rted ? 1 : -1; saveST(); vXApp(); };
+        $('xDetLike').onclick = () => { SFX.tap(); p.liked = !p.liked; p.likes += p.liked ? 1 : -1; saveST(); vXApp(); };
+        if ($('xCancelRep')) $('xCancelRep').onclick = () => { SFX.tap(); RT.xReplyTo = null; vXApp(); };
+        $('appLayer').querySelectorAll('[data-xrep]').forEach(b => {
+          b.onclick = () => {
+            SFX.tap();
+            const r = p.replies[Number(b.dataset.xrep)];
+            if (!r) return;
+            RT.xReplyTo = { a: r.a, h: r.h || '@x_user', t: r.t };
+            vXApp();
+            const inp = $('xReplyInp'); if (inp) inp.focus();
+          };
+        });
+        $('xReplyForm').onsubmit = async e => {
+          e.preventDefault();
+          const txt = $('xReplyInp').value.trim(); if (!txt) return;
+          const target = RT.xReplyTo;
+          SFX.tap();
+          p.replies.push({ a: ST.userName, h: '@chiyan_yy', t: txt, ...(target ? { replyTo: target.h || '@' + target.a } : {}) });
+          RT.xReplyTo = null;
+          saveST(); vXApp();
+
+          const repliedToDad = target && (target.h === '@Cyrus_1229' || target.a === ch.name);
+          let npcList = [
+            { a: target && !repliedToDad && target.a !== ST.userName ? target.a : '夜色起哄机', h: target && !repliedToDad ? (target.h || '@night_x') : '@night_tease', replyTo: '@chiyan_yy', t: '天哪正主居然在推特底下亲自回复了！！姐妹快多讲讲他关上门扯掉领带后的反差，我们全是成年人经得起听！' },
+            { a: '体型差控', h: '@size_gap_fan', t: '这波直接把我看红温了，188禁欲系大佬私下肯定把你折腾得连话都说不完整吧呜呜！' }
+          ];
+          let dadReply = repliedToDad
+            ? `在外面跟网友聊这些也不害臊，${ch.userCall}。今晚回家关上门，让你亲自验证够不够克制。`
+            : `刚刷到你在这条推文底下跟人聊得这么起劲。把手机放下，想验证哪一条，今晚对着${ch.myCall}亲自试。`;
+
+          if (hasValidAPI()) {
+            const targetDesc = target ? `${ST.userName}专门回复了 ${target.a}（原评：“${target.t}”），她写的是：“${txt}”` : `${ST.userName}在推文下评论：“${txt}”`;
+            const ctx = `推文正文（${p.author}）：${p.text}\n${targetDesc}`;
+            const [npcRes, chRes] = await Promise.allSettled([
+              callNpcCrowdAPI('xapp', ctx, 2),
+              callChichuanSoloAPI(ch, `你在X(推特)深夜区用账号 @Cyrus_1229 抓包${ST.userName}正在这种大胆暧昧的推文底下跟人起哄互动（${targetDesc}）。请用迟川本人极度低沉、危险又带着隐秘占有欲与亲密暗示的口吻回她一句（比如暗示今晚回家关上门算账/别想早睡/亲自验证，严禁浮夸网感词，45字内）。`, ctx)
+            ]);
+            if (npcRes.status === 'fulfilled' && npcRes.value.replies.length) {
+              npcList = npcRes.value.replies.map((r, i) => ({ a: r.a, h: r.h || `@x_fan_${i + 1}`, replyTo: i === 0 ? '@chiyan_yy' : undefined, t: r.t }));
+            }
+            if (chRes.status === 'fulfilled' && chRes.value) dadReply = chRes.value;
+          }
+
+          const queue = [npcList[0], { a: ch.name, h: '@Cyrus_1229', replyTo: '@chiyan_yy', t: dadReply }, ...npcList.slice(1)].filter(Boolean);
+          queue.forEach((rep, idx) => {
+            setTimeout(() => {
+              p.replies.push(rep);
+              p.likes += 5 + Math.floor(Math.random() * 25);
+              saveST(); SFX.soft();
+              if (RT.app === 'xapp' && RT.openXId === p.id) vXApp();
+            }, 800 + idx * 1150);
+          });
+        };
+        return;
+      }
+
+      // 主时间线列表
+      const list = RT.xTab === 'following'
+        ? ST.xposts.filter(p => p.handle === '@Cyrus_1229' || p.author === ch.name || p.author === ST.userName || p.liked)
+        : ST.xposts;
+
+      $('appLayer').innerHTML = `<div class="x-shell">
+        <div class="x-hd">
+          <div style="display:flex;align-items:center;justify-content:flex-start">
+            <button type="button" onclick="closeApp()" class="x-btn ghost" style="padding:5px 11px;font-size:12px">← 返回</button>
+          </div>
+          <div style="text-align:center;font-size:19px;font-weight:800;color:#f6f3f7;letter-spacing:-0.04em">𝕏</div>
+          <div style="display:flex;align-items:center;justify-content:flex-end;gap:5px">
+            <button type="button" id="btnXSettings" class="x-btn ghost" style="padding:5px 8px;font-size:11px" title="调校X尺度">⚙</button>
+            <button type="button" id="btnNewXPost" class="x-btn pink" style="padding:5px 10px;font-size:11.5px">+ 发推</button>
+          </div>
+        </div>
+        <div class="x-tabs">
+          <button type="button" id="xtForYou" class="x-tab ${RT.xTab === 'forYou' ? 'on' : ''}">为你推荐 (${ST.xposts.length})</button>
+          <button type="button" id="xtFollow" class="x-tab ${RT.xTab === 'following' ? 'on' : ''}">特别关注 / 点赞</button>
+        </div>
+        <div class="x-feed no-sb">
+          <!-- 刷暗涌热推控制条 -->
+          <div style="padding:11px 14px;border-bottom:1px solid rgba(255,255,255,0.08);background:#121118" class="stack">
+            <div class="row">
+              <span style="font-size:11.5px;color:#cfc8d4;font-weight:600">暗夜时间线 · 尺度：${esc(lvlName)}</span>
+              <button type="button" id="btnXModePill" style="font-size:10px;color:#e58ca8;background:rgba(229,140,168,0.14);padding:2px 8px;border-radius:999px">⚙ 调校 API 风味</button>
+            </div>
+            <div class="g2">
+              <button type="button" id="btnGenX1" class="x-btn ghost" style="padding:8px 10px;font-size:11.5px">✨ 刷 1 条直球推</button>
+              <button type="button" id="btnGenX3" class="x-btn pink" style="padding:8px 10px;font-size:11.5px">🔥 连刷 3 条虎狼热推</button>
+            </div>
+          </div>
+
+          ${list.length ? list.map(p => {
+            const isChPost = p.handle === '@Cyrus_1229' || p.author === ch.name;
+            return `<div class="x-post" data-xopen="${p.id}" style="cursor:pointer">
+              <div class="x-av">${isChPost && ch.avatar ? `<img src="${ch.avatar}" alt="">` : p.author === ST.userName && ST.userAvatar ? `<img src="${ST.userAvatar}" alt="">` : esc(p.av || p.author.slice(0, 1))}</div>
+              <div style="min-width:0;flex:1">
+                <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+                  <span style="font-size:13.5px;font-weight:700;color:#f6f3f7">${esc(p.author)}</span>
+                  ${p.verified ? `<span class="x-vbadge ${p.verified === 'gold' ? 'gold' : ''}">✓</span>` : ''}
+                  <span style="font-size:11.5px;color:#7e7b88">${esc(p.handle)} · ${esc(p.time)}</span>
+                </div>
+                <div class="x-body">${esc(p.text)}</div>
+                <div class="x-acts">
+                  <span class="x-act">💬 ${p.replies.length}</span>
+                  <button type="button" data-xrt="${p.id}" class="x-act ${p.rted ? 'rted' : ''}">🔁 ${fmtNum(p.rts)}</button>
+                  <button type="button" data-xlk="${p.id}" class="x-act ${p.liked ? 'liked' : ''}">${p.liked ? '♥' : '♡'} ${fmtNum(p.likes)}</button>
+                  <span class="x-act">📊 ${esc(p.views || '98K')}</span>
+                </div>
+              </div>
+            </div>`;
+          }).join('') : '<div style="text-align:center;color:#7e7b88;padding:38px 18px;font-size:12.5px">还没有特别关注的推文，回「为你推荐」点个红心吧</div>'}
+        </div>
+      </div>`;
+
+      $('xtForYou').onclick = () => { SFX.tap(); RT.xTab = 'forYou'; vXApp(); };
+      $('xtFollow').onclick = () => { SFX.tap(); RT.xTab = 'following'; vXApp(); };
+      $('btnXSettings').onclick = openXSettingsModal;
+      $('btnXModePill').onclick = openXSettingsModal;
+      $('btnGenX1').onclick = async () => {
+        $('btnGenX1').disabled = $('btnGenX3').disabled = true; $('btnGenX1').textContent = '刷新中…';
+        await generateXPosts(1);
+      };
+      $('btnGenX3').onclick = async () => {
+        $('btnGenX1').disabled = $('btnGenX3').disabled = true; $('btnGenX3').textContent = '连刷 3 条中…';
+        await generateXPosts(3);
+      };
+      $('appLayer').querySelectorAll('[data-xrt]').forEach(b => {
+        b.onclick = e => {
+          e.stopPropagation(); SFX.tap();
+          const p = ST.xposts.find(x => x.id === b.dataset.xrt);
+          if (p) { p.rted = !p.rted; p.rts += p.rted ? 1 : -1; saveST(); vXApp(); }
+        };
+      });
+      $('appLayer').querySelectorAll('[data-xlk]').forEach(b => {
+        b.onclick = e => {
+          e.stopPropagation(); SFX.tap();
+          const p = ST.xposts.find(x => x.id === b.dataset.xlk);
+          if (p) { p.liked = !p.liked; p.likes += p.liked ? 1 : -1; saveST(); vXApp(); }
+        };
+      });
+      $('appLayer').querySelectorAll('[data-xopen]').forEach(el => {
+        el.onclick = () => { SFX.tap(); RT.openXId = el.dataset.xopen; vXApp(); };
+      });
+      $('btnNewXPost').onclick = () => {
+        openModal(`<div class="stack">
+          <div class="row"><span class="sec-t">发一条 X 推文</span><button type="button" onclick="closeModal()" class="tag-chip">取消</button></div>
+          <textarea id="nxTxt" rows="4" class="inp" placeholder="发一条大胆直球的深夜碎碎念、秀一下体型差或吐槽你家禁欲系老公…"></textarea>
+          <button id="nxPub" type="button" class="btn pink">发送推文 · 看推特网友和 @Cyrus_1229 怎么回 ✦</button>
+        </div>`);
+        $('nxPub').onclick = async () => {
+          const text = $('nxTxt').value.trim(); if (!text) return toast('先写点内容吧');
+          const post = {
+            id: 'xp_' + Date.now(), author: ST.userName, handle: '@chiyan_yy', av: ST.userName.slice(0, 1),
+            verified: 'blue', time: '刚刚', views: '18.6K', text, likes: 68, rts: 12, liked: false, rted: false, replies: []
+          };
+          ST.xposts.unshift(post);
+          RT.openXId = post.id;
+          saveST(); closeModal(); SFX.soft(); vXApp();
+
+          let npcList = [
+            { a: 'Sota', h: '@S_Studio42', t: '姐妹你也太敢发了吧！！评论区全体红温，188冷面大佬看见这条今晚怕是真要失控把你按在床头算账了！' },
+            { a: '深夜吃瓜机', h: '@night_melon', t: '救命这该死的成年人张力，快更新明早下不来床的后续，我们都是尊贵会员（不是）！' },
+            { a: '手控雷达', h: '@hand_radar', t: '脑补了一下他低头刷到这条推文时微微眯起眼睛、单手扯松领带的画面……太要命了！' }
+          ];
+          let dadReply = `刷到你发的新推文了，${ch.userCall}。这么大胆的话敢发给全网看，今晚回家可别红着眼眶缩在被子里求饶。`;
+
+          if (hasValidAPI()) {
+            const ctx = `${ST.userName}刚在X(推特)发了新推文：“${text}”`;
+            const [npcRes, chRes] = await Promise.allSettled([
+              callNpcCrowdAPI('xapp', ctx, 3),
+              callChichuanSoloAPI(ch, `${ST.userName}在X(推特)深夜区发了一条很大胆直白的推文，你用 @Cyrus_1229 刷到了。请用迟川本人极度低沉、克制表面下暗藏强烈占有欲与亲密暗示的口吻回她一句（严禁网感流行词，45字内）。`, ctx)
+            ]);
+            if (npcRes.status === 'fulfilled' && npcRes.value.replies.length) {
+              npcList = npcRes.value.replies.map((r, i) => ({ a: r.a, h: r.h || `@x_user_${i + 1}`, t: r.t }));
+            }
+            if (chRes.status === 'fulfilled' && chRes.value) dadReply = chRes.value;
+          }
+
+          toast('推文刚发出就爆了，推特网友和 @Cyrus_1229 正在赶来…');
+          const queue = [npcList[0], { a: ch.name, h: '@Cyrus_1229', t: dadReply }, ...npcList.slice(1)].filter(Boolean);
+          queue.forEach((rep, idx) => {
+            setTimeout(() => {
+              post.replies.push(rep);
+              pLikesAndSave(post);
+              if (RT.app === 'xapp' && RT.openXId === post.id) vXApp();
+            }, 850 + idx * 1200);
+          });
+        };
+      };
+    }
+
+    function pLikesAndSave(post) {
+      post.likes += 140 + Math.floor(Math.random() * 380);
+      post.rts += 18 + Math.floor(Math.random() * 52);
+      saveST(); SFX.msg();
     }
 
     function openModal(html) {
