@@ -4647,6 +4647,570 @@ ${wbSummary}
   }
 })();
 </script>
+<style>
+  .x-vbadge.cynder {
+    background: linear-gradient(135deg, #ff99c2, #e56b9a);
+    color: #fff;
+    box-shadow: 0 0 8px rgba(255, 153, 194, 0.48);
+  }
+  .x-btn.cyrus-post {
+    background: linear-gradient(135deg, rgba(207, 160, 94, 0.24), rgba(229, 140, 168, 0.22));
+    color: #f7dec0;
+    border: 1px solid rgba(207, 160, 94, 0.52);
+  }
+</style>
+<script>
+(function () {
+  const X_ME_NAME = 'Cynder';
+  const X_ME_HANDLE = '@Cynder';
 
+  const CYRUS_X_POOL = [
+    {
+      text: '刚注意到某位小朋友把账号改成了 Cynder。\n\n和 Cyrus 排在一起倒是很顺眼。至少现在全平台都知道，她是谁的人了。',
+      likes: 12480, rts: 2640, views: '518K',
+      replies: [
+        { a: '全网磕疯了', h: '@cp_maniac', t: 'Cyrus × Cynder！！救命这是什么情侣头缀暗戳戳官宣，迟总占有欲藏都不藏了！' },
+        { a: '陈序', h: '@chenxu_adv', t: '刚开完并购复盘就刷到你在推特宣示主权，老迟你真是越来越不装高冷了。' },
+        { a: '玫瑰金认证粉', h: '@rose_vip', t: '一个金标一个粉金标，连名字前两个字母都配成一对，酸死我得了呜呜呜！' }
+      ]
+    },
+    {
+      text: '凌晨一点半，书房灯还亮着。\n\n某人嘴上说着困了先睡，结果在 X 广场上连续点了十二个赞。给你三分钟放下手机，不然我亲自过去收。',
+      likes: 10920, rts: 1980, views: '432K',
+      replies: [
+        { a: '熬夜抓包现场', h: '@night_caught', t: '哈哈哈哈正主亲自查岗！！Cynder 姐妹快跑，迟总已经合上笔记本往卧室走了！' },
+        { a: '声控重症室', h: '@Voice_ICU', t: '脑补了一下他低着嗓子敲开卧室门把人连手机带被子一起捞进怀里的画面，太苏了！' },
+        { a: '深夜围观员', h: '@late_watch', t: '嘴上说着要收手机，其实只是想顺理成章把人抱回怀里哄睡吧（懂的都懂）。' }
+      ]
+    },
+    {
+      text: '散会整理大衣口袋，摸到一只粉色绒面小发夹。\n\n大概是昨晚靠在我肩上打盹时掉进去的。不打算还了，就放我西装内袋里。',
+      likes: 9860, rts: 1720, views: '376K',
+      replies: [
+        { a: '新岚总裁办匿名', h: '@xl_secret', t: '怪不得刚才递文件时看见迟总低头对着一只小发夹笑得那么温柔，全组差点以为看错了！' },
+        { a: '反差控晚期', h: '@gap_moe', t: '冷面高定西装内袋里藏着太太的粉色绒面发夹，这反差杀伤力也太犯规了！' },
+        { a: '柠檬树常驻', h: '@lemon_tree', t: '“不打算还了”——霸道得这么云淡风轻，请问这谁顶得住啊！' }
+      ]
+    },
+    {
+      text: '六点游完一千五百米回来，窗帘透进一点微光。\n\n她还裹着我的宽大白衬衫缩在被子里没醒。把上午九点的例会往后推了一小时，此刻什么项目都没有陪她多睡一会儿重要。',
+      likes: 11340, rts: 2150, views: '465K',
+      replies: [
+        { a: '林助理在线加班', h: '@lin_asst', t: '收到迟总，九点例会已顺延至十点，顺便把您的无麸质早餐和太太的温牛奶安排妥当了。' },
+        { a: '陈序', h: '@chenxu_adv', t: '以前连迟到三分钟都要冷脸的人，现在为了陪太太赖床主动推会，双标得明明白白。' },
+        { a: '白衬衫美学', h: '@shirt_vibe', t: '裹着 188cm 老公的宽大白衬衫赖床……光看文字我都已经替她感到幸福了！' }
+      ]
+    },
+    {
+      text: '出差第四天。\n\n原本觉得一周很快，结果每天晚上翻完备忘录还是觉得房间空得过分。机票改签提前了，明早落地直接回家，某位小朋友欠我的拥抱记得加倍还。',
+      likes: 13210, rts: 2890, views: '594K',
+      replies: [
+        { a: '前排吃瓜', h: '@frontrow_x', t: '提前改签飞回来要“加倍拥抱”……姐妹你明早记得提前做好心理准备哈哈哈！' },
+        { a: '戒痕与光', h: '@RingMark_00', t: '冷静克制的 INTJ 一旦想念超标，执行力全用来连夜改签飞回太太身边了呜呜！' },
+        { a: '夜猫子一号', h: '@nightowl_01', t: '明天的热搜标题我都想好了：《关于迟总提前结束出差回家算账这件事》。' }
+      ]
+    },
+    {
+      text: '刚路过她最爱的那家甜品店，把最后一盒低糖栗子塔买下了。\n\n顺便提醒某位刚在评论区跟网友聊得起劲的 @Cynder：甜品可以吃，但今晚的解释逃不掉。',
+      likes: 10450, rts: 1840, views: '410K',
+      replies: [
+        { a: '甜品店目击者', h: '@cake_eye', t: '刚才真是迟总本人来买的！站在柜台前还仔细核对配料表，又宠又讲究！' },
+        { a: '吃瓜前排', h: '@melon_x', t: '一边买她最爱的栗子塔，一边点名 @Cynder 回家解释，又甜又撩太会拿捏了！' },
+        { a: '手控雷达', h: '@hand_radar', t: '公开 @Cynder 点名算账，这就是传说中的高段位明目张胆偏爱吗！' }
+      ]
+    }
+  ];
+
+  function isMePost(p) {
+    if (!p) return false;
+    return p.handle === X_ME_HANDLE || p.handle === '@chiyan_yy' ||
+      p.author === X_ME_NAME || p.author === ST.userName || p.author === '迟琰';
+  }
+  function isMeReply(r) {
+    if (!r) return false;
+    return r.h === X_ME_HANDLE || r.h === '@chiyan_yy' ||
+      r.a === X_ME_NAME || r.a === ST.userName || r.a === '迟琰';
+  }
+  function isDadPost(p, ch) {
+    if (!p) return false;
+    return p.handle === '@Cyrus_1229' || p.author === ch.name || p.author === 'Cyrus';
+  }
+  function isDadReply(r, ch) {
+    if (!r) return false;
+    return r.h === '@Cyrus_1229' || r.a === ch.name || r.a === 'Cyrus';
+  }
+  function fmtReplyTo(rt) {
+    if (!rt) return '';
+    return rt === '@chiyan_yy' ? X_ME_HANDLE : rt;
+  }
+  function badgeHTML(verified, isMe, isDad) {
+    if (isMe || verified === 'cynder') return '<span class="x-vbadge cynder">✓</span>';
+    if (isDad || verified === 'gold') return '<span class="x-vbadge gold">✓</span>';
+    if (verified === 'blue') return '<span class="x-vbadge">✓</span>';
+    return '';
+  }
+
+  // 自动把历史 X 广场里的旧称呼同步升级成 Cynder 专属认证
+  function syncCynderIdentity() {
+    if (!Array.isArray(ST.xposts)) return;
+    let changed = false;
+    ST.xposts.forEach(p => {
+      if (isMePost(p)) {
+        if (p.author !== X_ME_NAME || p.handle !== X_ME_HANDLE || p.verified !== 'cynder') {
+          p.author = X_ME_NAME;
+          p.handle = X_ME_HANDLE;
+          p.av = 'C';
+          p.verified = 'cynder';
+          changed = true;
+        }
+      }
+      if (Array.isArray(p.replies)) {
+        p.replies.forEach(r => {
+          if (isMeReply(r)) {
+            if (r.a !== X_ME_NAME || r.h !== X_ME_HANDLE || r.verified !== 'cynder') {
+              r.a = X_ME_NAME;
+              r.h = X_ME_HANDLE;
+              r.verified = 'cynder';
+              changed = true;
+            }
+          }
+          if (r.replyTo === '@chiyan_yy') {
+            r.replyTo = X_ME_HANDLE;
+            changed = true;
+          }
+        });
+      }
+    });
+    if (changed) saveST();
+  }
+
+  // 新增：让迟川本人（@Cyrus_1229）发一条 X 推文
+  window.generateCyrusXPost = async function () {
+    const ch = activeChar();
+    let newPost = null;
+
+    if (hasValidAPI()) {
+      try {
+        const existing = ST.xposts
+          .filter(p => isDadPost(p, ch))
+          .slice(0, 8)
+          .map(p => p.text.slice(0, 26))
+          .join(' / ');
+        const sys = buildCharSystemPrompt(ch) + `
+【X 广场迟川本人发推规则】
+1. 你正用个人实名金标账号 Cyrus (@Cyrus_1229) 在 X 广场发一条深夜/日常随笔推文。
+2. 保持低沉、克制、有分寸感但暗藏强烈占有欲与偏爱的 INTJ 口吻，可以自然提到她的新 ID「Cynder」或日常相处的暧昧瞬间（如晨泳、西装口袋、对戒「晨星/缚光」、催她早睡、提前结束出差回家等）。
+3. 严禁出现浮夸网络热词（如“家人们/笑死/绝绝子/yyds”），分段干净，长度 45~115 字。
+严格返回JSON：{"text":"推文正文"}`;
+        const j = await callDualAPI(sys, `已有推文摘要（请避开重复）：${existing}\n当前时间：${fmtDateCN()} ${nowHM()}。请生成 1 条全新的 Cyrus (@Cyrus_1229) 原创推文。`);
+        const txt = j && (j.text || j.post || j.content || Object.values(j).find(v => typeof v === 'string'));
+        if (txt && String(txt).trim()) {
+          let replies = [
+            { a: '全网磕疯了', h: '@cp_maniac', t: '迟总大号又营业了！！表面云淡风轻，字字句句都在暗戳戳宣示主权啊！' },
+            { a: '陈序', h: '@chenxu_adv', t: '刚散会就刷到你在这秀恩爱，明早董事会我替你多喝两杯咖啡醒神。' }
+          ];
+          try {
+            await new Promise(r => setTimeout(r, 650));
+            const nr = await callNpcCrowdAPI('xapp', `Cyrus (@Cyrus_1229) 刚刚在 X 广场发了新推文（他太太在 X 的 ID 是 ${X_ME_NAME} ${X_ME_HANDLE}）：\n${String(txt).trim()}`, 3);
+            if (nr && nr.replies && nr.replies.length) {
+              replies = nr.replies.map((r, i) => ({ a: r.a, h: r.h || `@x_fan_${i + 1}`, t: r.t }));
+            }
+          } catch {}
+          newPost = {
+            id: 'xp_cyrus_' + Date.now(),
+            author: 'Cyrus',
+            handle: '@Cyrus_1229',
+            av: ch.name.slice(0, 1),
+            verified: 'gold',
+            time: '刚刚',
+            views: `${180 + Math.floor(Math.random() * 420)}K`,
+            text: String(txt).trim(),
+            likes: 6200 + Math.floor(Math.random() * 7500),
+            rts: 980 + Math.floor(Math.random() * 1600),
+            liked: false,
+            rted: false,
+            replies
+          };
+        }
+      } catch {
+        toast('API 暂不可用，已从迟川专属推文池更新');
+      }
+    }
+
+    if (!newPost) {
+      const unused = CYRUS_X_POOL.filter(x => !ST.xposts.some(p => p.text === x.text));
+      const pool = unused.length ? unused : CYRUS_X_POOL;
+      const pick = pool[Math.floor(Math.random() * pool.length)];
+      newPost = {
+        id: 'xp_cyrus_' + Date.now(),
+        author: 'Cyrus',
+        handle: '@Cyrus_1229',
+        av: ch.name.slice(0, 1),
+        verified: 'gold',
+        time: '刚刚',
+        views: pick.views,
+        text: pick.text,
+        likes: pick.likes,
+        rts: pick.rts,
+        liked: false,
+        rted: false,
+        replies: pick.replies.map(r => ({ ...r }))
+      };
+    }
+
+    ST.xposts.unshift(newPost);
+    saveST();
+    SFX.msg();
+    if (RT.app === 'xapp' && !RT.openXId) vXApp();
+    toast('Cyrus (@Cyrus_1229) 刚刚发了一条新推文 ✦');
+  };
+
+  // 重写 vXApp：升级 Cynder 专属颜色+粉金认证标，并加入「让迟川发推」按钮
+  window.vXApp = function () {
+    syncCynderIdentity();
+    const ch = activeChar();
+    const fmtNum = n => n >= 1000 ? (n / 1000).toFixed(1) + 'K' : String(n);
+    const lvlName = { mild: '微醺暗涌', spicy: '深夜直球', wild: '虎狼无滤镜' }[ST.cfg.xLevel || 'wild'] || '虎狼无滤镜';
+
+    // 单条推文详情页
+    if (RT.openXId) {
+      const p = ST.xposts.find(x => x.id === RT.openXId);
+      if (!p) { RT.openXId = null; RT.xReplyTo = null; return vXApp(); }
+      const repTgt = RT.xReplyTo;
+      const isChPost = isDadPost(p, ch);
+      const isUserPost = isMePost(p);
+      const dispAuthor = isUserPost ? X_ME_NAME : p.author;
+      const dispHandle = isUserPost ? X_ME_HANDLE : p.handle;
+      const nameColor = isUserPost ? '#ff9ec6' : (isChPost ? '#f4b6c9' : '#f6f3f7');
+
+      $('appLayer').innerHTML = `<div class="x-shell">
+        <div class="x-hd">
+          <div style="display:flex;align-items:center;justify-content:flex-start">
+            <button type="button" onclick="RT.openXId=null;RT.xReplyTo=null;renderCurrentApp()" class="x-btn ghost" style="padding:5px 11px;font-size:12px">← 返回</button>
+          </div>
+          <div style="text-align:center;font-size:15px;font-weight:700;color:#f6f3f7">推文</div>
+          <div></div>
+        </div>
+        <div class="x-feed no-sb">
+          <div style="padding:15px;border-bottom:1px solid rgba(255,255,255,0.09);background:${isUserPost ? 'rgba(255,158,198,0.07)' : isChPost ? 'rgba(229,140,168,0.06)' : 'transparent'}">
+            <div style="display:flex;align-items:center;gap:10px">
+              <div class="x-av">${isChPost && ch.avatar ? `<img src="${ch.avatar}" alt="">` : isUserPost && ST.userAvatar ? `<img src="${ST.userAvatar}" alt="">` : esc(p.av || dispAuthor.slice(0, 1))}</div>
+              <div style="min-width:0;flex:1">
+                <div style="display:flex;align-items:center;gap:5px">
+                  <span style="font-size:14px;font-weight:700;color:${nameColor}">${esc(dispAuthor)}</span>
+                  ${badgeHTML(p.verified, isUserPost, isChPost)}
+                </div>
+                <div style="font-size:11.5px;color:#7e7b88">${esc(dispHandle)}</div>
+              </div>
+            </div>
+            <div class="x-body" style="font-size:14.5px;margin-top:11px">${esc(p.text)}</div>
+            <div class="x-meta" style="margin-top:11px;padding-bottom:10px;border-bottom:1px solid rgba(255,255,255,0.08)">
+              ${esc(p.time)} · <strong style="color:#f1eef2">${esc(p.views || '128K')}</strong> Views
+            </div>
+            <div class="x-acts" style="margin-top:10px">
+              <span class="x-act">💬 ${p.replies.length}</span>
+              <button type="button" id="xDetRt" class="x-act ${p.rted ? 'rted' : ''}">🔁 ${fmtNum(p.rts)}</button>
+              <button type="button" id="xDetLike" class="x-act ${p.liked ? 'liked' : ''}">${p.liked ? '♥' : '♡'} ${fmtNum(p.likes)}</button>
+              <span class="x-act" style="font-size:10.5px;color:#e58ca8">点评论右侧可回复</span>
+            </div>
+          </div>
+
+          ${p.replies.map((r, i) => {
+            const isDad = isDadReply(r, ch);
+            const isMe = isMeReply(r);
+            const rName = isMe ? X_ME_NAME : r.a;
+            const rHandle = isMe ? X_ME_HANDLE : (r.h || '@x_user');
+            const rBg = isMe ? 'rgba(255,158,198,0.09)' : (isDad ? 'rgba(229,140,168,0.08)' : 'transparent');
+            const rColor = isMe ? '#ff9ec6' : (isDad ? '#f4b6c9' : '#f1eef2');
+            return `<div class="x-reply-box" style="background:${rBg}">
+              <div class="x-av" style="width:34px;height:34px;font-size:12.5px">${isDad && ch.avatar ? `<img src="${ch.avatar}" alt="">` : isMe && ST.userAvatar ? `<img src="${ST.userAvatar}" alt="">` : esc(rName.slice(0, 1))}</div>
+              <div style="min-width:0;flex:1">
+                <div class="row" style="gap:6px">
+                  <div style="display:flex;align-items:center;gap:4px;min-width:0">
+                    <span style="font-size:12.5px;font-weight:700;color:${rColor}">${esc(rName)}</span>
+                    ${badgeHTML(r.verified, isMe, isDad)}
+                    <span style="font-size:11px;color:#787582;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">${esc(rHandle)}</span>
+                  </div>
+                  <button type="button" data-xrep="${i}" style="font-size:10.5px;color:#e58ca8;background:rgba(229,140,168,0.14);padding:2px 8px;border-radius:999px;flex-shrink:0">回复</button>
+                </div>
+                ${r.replyTo ? `<div style="font-size:11px;color:#8c8896;margin-top:2px">回复 <span style="color:#ff9ec6">${esc(fmtReplyTo(r.replyTo))}</span></div>` : ''}
+                <div class="x-body" style="font-size:13px;margin-top:4px">${esc(r.t)}</div>
+              </div>
+            </div>`;
+          }).join('')}
+        </div>
+
+        <div class="x-bar stack" style="gap:7px">
+          ${repTgt ? `<div class="row" style="padding:5px 10px;border-radius:10px;background:rgba(229,140,168,0.14);font-size:11px;color:#f5bfd1">
+            <span style="min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">正在回复 <strong>${esc(repTgt.a)}</strong> ${esc(repTgt.h || '')}</span>
+            <button type="button" id="xCancelRep" style="color:#f5bfd1;padding:0 4px">✕</button>
+          </div>` : ''}
+          <form id="xReplyForm" style="display:flex;gap:7px">
+            <input id="xReplyInp" class="x-inp" autocomplete="off" placeholder="${repTgt ? `回复 ${esc(repTgt.a)}…` : '以 Cynder 的身份发布回复…'}" />
+            <button type="submit" class="x-btn pink">回复</button>
+          </form>
+        </div>
+      </div>`;
+
+      $('xDetRt').onclick = () => { SFX.tap(); p.rted = !p.rted; p.rts += p.rted ? 1 : -1; saveST(); vXApp(); };
+      $('xDetLike').onclick = () => { SFX.tap(); p.liked = !p.liked; p.likes += p.liked ? 1 : -1; saveST(); vXApp(); };
+      if ($('xCancelRep')) $('xCancelRep').onclick = () => { SFX.tap(); RT.xReplyTo = null; vXApp(); };
+      $('appLayer').querySelectorAll('[data-xrep]').forEach(b => {
+        b.onclick = () => {
+          SFX.tap();
+          const r = p.replies[Number(b.dataset.xrep)];
+          if (!r) return;
+          const isMe = isMeReply(r);
+          RT.xReplyTo = { a: isMe ? X_ME_NAME : r.a, h: isMe ? X_ME_HANDLE : (r.h || '@x_user'), t: r.t };
+          vXApp();
+          const inp = $('xReplyInp'); if (inp) inp.focus();
+        };
+      });
+
+      $('xReplyForm').onsubmit = async e => {
+        e.preventDefault();
+        if (RT._xSending) return toast('正在等 @Cyrus_1229 和网友回复，稍等几秒哦～');
+        const txt = $('xReplyInp').value.trim(); if (!txt) return;
+        const target = RT.xReplyTo;
+        RT._xSending = true;
+        SFX.tap();
+        p.replies.push({
+          a: X_ME_NAME, h: X_ME_HANDLE, verified: 'cynder', t: txt,
+          ...(target ? { replyTo: target.h || '@' + target.a } : {})
+        });
+        RT.xReplyTo = null;
+        saveST(); vXApp();
+        toast('已发送！@Cyrus_1229 和推特网友正在赶来…');
+
+        try {
+          const repliedToDad = target && (target.h === '@Cyrus_1229' || target.a === ch.name || target.a === 'Cyrus');
+          const repliedToOther = target && !repliedToDad && target.h !== X_ME_HANDLE;
+          let npcList = [
+            {
+              a: repliedToOther ? target.a : '夜色起哄机',
+              h: repliedToOther ? (target.h || '@night_x') : '@night_tease',
+              replyTo: X_ME_HANDLE,
+              t: '天哪 @Cynder 亲自下场回复了！！连粉金认证标都和迟总配成情侣款，这波糖我先磕为敬！'
+            },
+            { a: '体型差控', h: '@size_gap_fan', t: '快看 @Cyrus_1229 的反应，每次 Cynder 一冒头他十秒内必赶到现场抓包哈哈哈！' }
+          ];
+          let dadReply = repliedToDad
+            ? `在评论区这么能说会道，${ch.userCall}。手机先放一边，晚上回家对着${ch.myCall}慢慢说。`
+            : `刚刷到 @Cynder 在这条推文底下聊得这么起劲。把手机放下，想说什么今晚回家跟${ch.myCall}当面讲。`;
+
+          if (hasValidAPI()) {
+            const targetDesc = target
+              ? `${ST.userName}（X 广场 ID：${X_ME_NAME} ${X_ME_HANDLE}）专门回复了 ${target.a}（原评：“${target.t}”），她写的是：“${txt}”`
+              : `${ST.userName}（X 广场 ID：${X_ME_NAME} ${X_ME_HANDLE}）在推文下评论：“${txt}”`;
+            const ctx = `推文正文（${p.author}）：${p.text}\n${targetDesc}`;
+            // 优先让迟川拿 API 通道，隔 700ms 再请求路人，防止并发冲突掉人机
+            try {
+              const chText = await callChichuanSoloAPI(
+                ch,
+                `你在 X(推特)用金标账号 @Cyrus_1229 看到${ST.userName}（她在 X 的 ID 是 ${X_ME_NAME}）刚刚发了这条回复（${targetDesc}）。请紧扣她刚说的话，用迟川本人低沉克制、暗藏占有欲与纵容的口吻回复她一句（严禁浮夸网感词，45字内）。`,
+                ctx
+              );
+              if (chText) dadReply = chText;
+            } catch {}
+            try {
+              await new Promise(r => setTimeout(r, 700));
+              const nr = await callNpcCrowdAPI('xapp', ctx, 2);
+              if (nr && nr.replies && nr.replies.length) {
+                npcList = nr.replies.map((r, i) => ({
+                  a: r.a, h: r.h || `@x_fan_${i + 1}`,
+                  replyTo: i === 0 ? X_ME_HANDLE : undefined, t: r.t
+                }));
+              }
+            } catch {}
+          }
+
+          const queue = [
+            npcList[0],
+            { a: 'Cyrus', h: '@Cyrus_1229', verified: 'gold', replyTo: X_ME_HANDLE, t: dadReply },
+            ...npcList.slice(1)
+          ].filter(Boolean);
+
+          queue.forEach((rep, idx) => {
+            setTimeout(() => {
+              p.replies.push(rep);
+              p.likes += 5 + Math.floor(Math.random() * 25);
+              saveST(); SFX.soft();
+              if (RT.app === 'xapp' && RT.openXId === p.id) vXApp();
+            }, 800 + idx * 1150);
+          });
+        } finally {
+          RT._xSending = false;
+        }
+      };
+      return;
+    }
+
+    // 主时间线列表
+    const list = RT.xTab === 'following'
+      ? ST.xposts.filter(p => isDadPost(p, ch) || isMePost(p) || p.liked)
+      : ST.xposts;
+
+    $('appLayer').innerHTML = `<div class="x-shell">
+      <div class="x-hd">
+        <div style="display:flex;align-items:center;justify-content:flex-start">
+          <button type="button" onclick="closeApp()" class="x-btn ghost" style="padding:5px 11px;font-size:12px">← 返回</button>
+        </div>
+        <div style="text-align:center;font-size:19px;font-weight:800;color:#f6f3f7;letter-spacing:-0.04em">𝕏</div>
+        <div style="display:flex;align-items:center;justify-content:flex-end;gap:5px">
+          <button type="button" id="btnXSettings" class="x-btn ghost" style="padding:5px 8px;font-size:11px" title="调校X尺度">⚙</button>
+          <button type="button" id="btnNewXPost" class="x-btn pink" style="padding:5px 10px;font-size:11.5px">+ 发推</button>
+        </div>
+      </div>
+      <div class="x-tabs">
+        <button type="button" id="xtForYou" class="x-tab ${RT.xTab === 'forYou' ? 'on' : ''}">为你推荐 (${ST.xposts.length})</button>
+        <button type="button" id="xtFollow" class="x-tab ${RT.xTab === 'following' ? 'on' : ''}">特别关注 / 点赞</button>
+      </div>
+      <div class="x-feed no-sb">
+        <div style="padding:11px 14px;border-bottom:1px solid rgba(255,255,255,0.08);background:#121118" class="stack">
+          <div class="row">
+            <span style="font-size:11.5px;color:#cfc8d4;font-weight:600">暗夜时间线 · 尺度：${esc(lvlName)}</span>
+            <button type="button" id="btnXModePill" style="font-size:10px;color:#e58ca8;background:rgba(229,140,168,0.14);padding:2px 8px;border-radius:999px">⚙ 调校 API 风味</button>
+          </div>
+          <div class="g2">
+            <button type="button" id="btnGenX1" class="x-btn ghost" style="padding:8px 10px;font-size:11.5px">✨ 刷 1 条直球推</button>
+            <button type="button" id="btnGenX3" class="x-btn pink" style="padding:8px 10px;font-size:11.5px">🔥 连刷 3 条虎狼热推</button>
+          </div>
+          <button type="button" id="btnGenCyrusX" class="x-btn cyrus-post" style="width:100%;padding:8.5px 12px;font-size:12px">✦ 让迟川发 1 条推文（@Cyrus_1229）</button>
+        </div>
+
+        ${list.length ? list.map(p => {
+          const isChPost = isDadPost(p, ch);
+          const isUserPost = isMePost(p);
+          const dispAuthor = isUserPost ? X_ME_NAME : p.author;
+          const dispHandle = isUserPost ? X_ME_HANDLE : p.handle;
+          const nameColor = isUserPost ? '#ff9ec6' : (isChPost ? '#f4b6c9' : '#f6f3f7');
+          const rowBg = isUserPost ? 'rgba(255,158,198,0.06)' : (isChPost ? 'rgba(229,140,168,0.05)' : 'transparent');
+          return `<div class="x-post" data-xopen="${p.id}" style="cursor:pointer;background:${rowBg}">
+            <div class="x-av">${isChPost && ch.avatar ? `<img src="${ch.avatar}" alt="">` : isUserPost && ST.userAvatar ? `<img src="${ST.userAvatar}" alt="">` : esc(p.av || dispAuthor.slice(0, 1))}</div>
+            <div style="min-width:0;flex:1">
+              <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap">
+                <span style="font-size:13.5px;font-weight:700;color:${nameColor}">${esc(dispAuthor)}</span>
+                ${badgeHTML(p.verified, isUserPost, isChPost)}
+                <span style="font-size:11.5px;color:#7e7b88">${esc(dispHandle)} · ${esc(p.time)}</span>
+              </div>
+              <div class="x-body">${esc(p.text)}</div>
+              <div class="x-acts">
+                <span class="x-act">💬 ${p.replies.length}</span>
+                <button type="button" data-xrt="${p.id}" class="x-act ${p.rted ? 'rted' : ''}">🔁 ${fmtNum(p.rts)}</button>
+                <button type="button" data-xlk="${p.id}" class="x-act ${p.liked ? 'liked' : ''}">${p.liked ? '♥' : '♡'} ${fmtNum(p.likes)}</button>
+                <span class="x-act">📊 ${esc(p.views || '98K')}</span>
+              </div>
+            </div>
+          </div>`;
+        }).join('') : '<div style="text-align:center;color:#7e7b88;padding:38px 18px;font-size:12.5px">还没有特别关注的推文，回「为你推荐」点个红心吧</div>'}
+      </div>
+    </div>`;
+
+    const lockBtns = (busyTextBtn, txt) => {
+      ['btnGenX1', 'btnGenX3', 'btnGenCyrusX'].forEach(id => {
+        const el = $(id);
+        if (el) el.disabled = true;
+      });
+      if ($(busyTextBtn)) $(busyTextBtn).textContent = txt;
+    };
+
+    $('xtForYou').onclick = () => { SFX.tap(); RT.xTab = 'forYou'; vXApp(); };
+    $('xtFollow').onclick = () => { SFX.tap(); RT.xTab = 'following'; vXApp(); };
+    $('btnXSettings').onclick = openXSettingsModal;
+    $('btnXModePill').onclick = openXSettingsModal;
+    $('btnGenX1').onclick = async () => {
+      lockBtns('btnGenX1', '刷新中…');
+      await generateXPosts(1);
+    };
+    $('btnGenX3').onclick = async () => {
+      lockBtns('btnGenX3', '连刷 3 条中…');
+      await generateXPosts(3);
+    };
+    $('btnGenCyrusX').onclick = async () => {
+      lockBtns('btnGenCyrusX', 'Cyrus 正在编辑推文…');
+      await generateCyrusXPost();
+    };
+    $('appLayer').querySelectorAll('[data-xrt]').forEach(b => {
+      b.onclick = e => {
+        e.stopPropagation(); SFX.tap();
+        const p = ST.xposts.find(x => x.id === b.dataset.xrt);
+        if (p) { p.rted = !p.rted; p.rts += p.rted ? 1 : -1; saveST(); vXApp(); }
+      };
+    });
+    $('appLayer').querySelectorAll('[data-xlk]').forEach(b => {
+      b.onclick = e => {
+        e.stopPropagation(); SFX.tap();
+        const p = ST.xposts.find(x => x.id === b.dataset.xlk);
+        if (p) { p.liked = !p.liked; p.likes += p.liked ? 1 : -1; saveST(); vXApp(); }
+      };
+    });
+    $('appLayer').querySelectorAll('[data-xopen]').forEach(el => {
+      el.onclick = () => { SFX.tap(); RT.openXId = el.dataset.xopen; vXApp(); };
+    });
+
+    $('btnNewXPost').onclick = () => {
+      openModal(`<div class="stack">
+        <div class="row"><span class="sec-t">以 Cynder 身份发一条 X 推文</span><button type="button" onclick="closeModal()" class="tag-chip">取消</button></div>
+        <textarea id="nxTxt" rows="4" class="inp" placeholder="发一条深夜碎碎念、秀一下体型差或吐槽你家禁欲系老公…"></textarea>
+        <button id="nxPub" type="button" class="btn pink">发送推文 · 看推特网友和 @Cyrus_1229 怎么回 ✦</button>
+      </div>`);
+      $('nxPub').onclick = async () => {
+        const text = $('nxTxt').value.trim(); if (!text) return toast('先写点内容吧');
+        const post = {
+          id: 'xp_' + Date.now(), author: X_ME_NAME, handle: X_ME_HANDLE, av: 'C',
+          verified: 'cynder', time: '刚刚', views: '18.6K', text,
+          likes: 68, rts: 12, liked: false, rted: false, replies: []
+        };
+        ST.xposts.unshift(post);
+        RT.openXId = post.id;
+        saveST(); closeModal(); SFX.soft(); vXApp();
+
+        let npcList = [
+          { a: 'Sota', h: '@S_Studio42', t: 'Cynder 终于亲自发推了！！这粉金认证标和 @Cyrus_1229 简直绝配，坐等迟总秒来抓包！' },
+          { a: '深夜吃瓜机', h: '@night_melon', t: '前排围观正主撒糖，感觉评论区马上就要迎来迟总低气压巡逻了哈哈！' },
+          { a: '手控雷达', h: '@hand_radar', t: 'Cyrus × Cynder 情侣前缀锁死，单身网友先酸为敬！' }
+        ];
+        let dadReply = `刷到 @Cynder 发的新推文了，${ch.userCall}。这么大胆的话都敢往外发，今晚回家可别缩在被子里装睡。`;
+
+        if (hasValidAPI()) {
+          const ctx = `${ST.userName}（X 广场 ID：${X_ME_NAME} ${X_ME_HANDLE}）刚发了新推文：“${text}”`;
+          try {
+            const chText = await callChichuanSoloAPI(
+              ch,
+              `${ST.userName}在 X(推特)用她的认证账号 ${X_ME_NAME} 发了这条新推文，你用 @Cyrus_1229 刷到了。请用迟川本人低沉克制、暗藏占有欲与偏爱的口吻回复她一句（严禁浮夸网感词，45字内）。`,
+              ctx
+            );
+            if (chText) dadReply = chText;
+          } catch {}
+          try {
+            await new Promise(r => setTimeout(r, 700));
+            const nr = await callNpcCrowdAPI('xapp', ctx, 3);
+            if (nr && nr.replies && nr.replies.length) {
+              npcList = nr.replies.map((r, i) => ({ a: r.a, h: r.h || `@x_user_${i + 1}`, t: r.t }));
+            }
+          } catch {}
+        }
+
+        toast('推文刚发出就火了，网友和 @Cyrus_1229 正在赶来…');
+        const queue = [
+          npcList[0],
+          { a: 'Cyrus', h: '@Cyrus_1229', verified: 'gold', replyTo: X_ME_HANDLE, t: dadReply },
+          ...npcList.slice(1)
+        ].filter(Boolean);
+
+        queue.forEach((rep, idx) => {
+          setTimeout(() => {
+            post.replies.push(rep);
+            pLikesAndSave(post);
+            if (RT.app === 'xapp' && RT.openXId === post.id) vXApp();
+          }, 850 + idx * 1200);
+        });
+      };
+    };
+  };
+
+  syncCynderIdentity();
+})();
+</script>
 </body>
 </html>
