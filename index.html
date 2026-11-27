@@ -5370,5 +5370,134 @@ ${existingSnippets || '（暂无）'}
   syncCynderIdentity();
 })();
 </script>
+<script>
+(function () {
+  window.vBackup = function () {
+    $('appLayer').innerHTML =
+      appHeader('数据备份与恢复', '支持 .json 文件直接导出与导入') +
+      `<div class="app-body no-sb stack">
+        <div class="card stack" style="gap:10px">
+          <div class="sec-t">随时备份你的粉嫩小手机</div>
+          <div class="sec-s">完整包含所有角色人设、世界书、聊天记录、朋友圈、X 广场、心愿清单、纪念日、壁纸头像与心情树洞（导出时自动剔除 API 密钥保护隐私）。</div>
+          <button id="bkAppFile" type="button" class="btn pink">导出完整备份文件 (.json)</button>
+          <button id="bkImportFile" type="button" class="btn soft">从文件直接导入备份 (.json) ✦</button>
+          <button id="bkAppCode" type="button" class="btn" style="font-size:12px;color:var(--muted)">备用：复制 / 粘贴文字备份码</button>
+          <input id="bkJsonPicker" type="file" accept=".json,application/json,text/plain" class="hidden" />
+        </div>
+      </div>`;
+
+    const makeClean = stripImg => {
+      const clean = JSON.parse(JSON.stringify(ST));
+      clean.cfg.geminiKey = '';
+      clean.cfg.openaiKey = '';
+      if (stripImg) {
+        clean.theme.wallpaper = '';
+        clean.theme.chatBg = '';
+      }
+      return clean;
+    };
+
+    const applyRestore = rawText => {
+      const obj = JSON.parse(String(rawText || '').trim());
+      if (!obj || !Array.isArray(obj.chars)) throw new Error('文件里没有找到小手机存档数据');
+      const def = defaultState();
+      ST = {
+        ...def,
+        ...obj,
+        theme: { ...def.theme, ...(obj.theme || {}) },
+        cfg: {
+          ...def.cfg,
+          ...ST.cfg,
+          ...(obj.cfg || {}),
+          geminiKey: ST.cfg.geminiKey || (obj.cfg && obj.cfg.geminiKey) || '',
+          openaiKey: ST.cfg.openaiKey || (obj.cfg && obj.cfg.openaiKey) || ''
+        }
+      };
+      saveST();
+      applyThemeVisuals();
+      renderHomeWidgets();
+      SFX.soft();
+      toast('✦ 完整备份已成功导入恢复！');
+    };
+
+    $('bkAppFile').onclick = async () => {
+      const content = JSON.stringify(makeClean(false), null, 2);
+      const fileName = `迟川小手机备份_${new Date().toISOString().slice(0, 10)}.json`;
+      const blob = new Blob([content], { type: 'application/json' });
+
+      // iPhone 桌面图标模式优先调起系统分享菜单，可直接点「存储到“文件”」
+      try {
+        const file = new File([blob], fileName, { type: 'application/json' });
+        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+          await navigator.share({ files: [file], title: fileName });
+          toast('已调起保存面板，点「存储到“文件”」即可');
+          return;
+        }
+      } catch (err) {
+        if (err && err.name === 'AbortError') return;
+      }
+
+      const u = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = u;
+      a.download = fileName;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(u), 1500);
+      toast('已开始导出 .json 完整备份文件');
+    };
+
+    $('bkImportFile').onclick = () => {
+      SFX.tap();
+      const picker = $('bkJsonPicker');
+      picker.value = '';
+      picker.click();
+    };
+
+    $('bkJsonPicker').onchange = e => {
+      const file = e.target.files && e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onerror = () => toast('读取文件失败，请重试');
+      reader.onload = () => {
+        try {
+          applyRestore(reader.result);
+        } catch (err) {
+          toast('导入失败：' + (err.message || '不是有效的备份文件'));
+        }
+      };
+      reader.readAsText(file, 'utf-8');
+    };
+
+    $('bkAppCode').onclick = () => {
+      const code = JSON.stringify(makeClean(true));
+      openModal(`<div class="stack">
+        <div class="row"><span class="sec-t">复制 / 粘贴备份码</span><button type="button" onclick="closeModal()" class="tag-chip">关闭</button></div>
+        <button id="bkCopy2" type="button" class="btn pink">一键复制备份码</button>
+        <textarea id="bkPaste2" rows="4" class="inp" placeholder="需要恢复时在此粘贴旧备份码或 .json 全文…"></textarea>
+        <button id="bkApply2" type="button" class="btn soft">立即恢复数据</button>
+      </div>`);
+      $('bkCopy2').onclick = () => {
+        const ta = document.createElement('textarea');
+        ta.value = code;
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        ta.remove();
+        toast('已复制备份码，可粘贴进备忘录保存');
+      };
+      $('bkApply2').onclick = () => {
+        try {
+          applyRestore($('bkPaste2').value);
+          closeModal();
+        } catch {
+          toast('备份码格式不正确');
+        }
+      };
+    };
+  };
+})();
+</script>
 </body>
 </html>
