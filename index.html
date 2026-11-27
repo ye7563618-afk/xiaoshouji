@@ -4509,5 +4509,144 @@ ${wbSummary}
       }
     };
   </script>
+  <script>
+(function () {
+  // 1. 给全站 API 加上「自动排队 + 18秒超时 + 失败重试」，彻底解决迟川和路人抢通道掉人机
+  let _apiQueue = Promise.resolve();
+  const _sleep = ms => new Promise(r => setTimeout(r, ms));
+
+  window.callDualAPI = function (sysPrompt, userPrompt) {
+    const run = async () => {
+      const model = getActiveModel();
+      let lastErr;
+      for (let attempt = 0; attempt < 2; attempt++) {
+        const ctrl = new AbortController();
+        const timer = setTimeout(() => ctrl.abort(), 18000);
+        try {
+          let raw = '';
+          if (ST.cfg.provider === 'gemini') {
+            const key = ST.cfg.geminiKey.trim();
+            if (!key) throw new Error('未填写 Gemini API Key');
+            const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`;
+            const res = await fetch(url, {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              signal: ctrl.signal,
+              body: JSON.stringify({
+                contents: [{ role: 'user', parts: [{ text: userPrompt }] }],
+                systemInstruction: { parts: [{ text: sysPrompt }] },
+                generationConfig: { responseMimeType: 'application/json', temperature: 0.88 }
+              })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data?.error?.message || `HTTP ${res.status}`);
+            raw = data?.candidates?.[0]?.content?.parts?.[0]?.text || '';
+          } else {
+            const key = ST.cfg.openaiKey.trim();
+            const base = (ST.cfg.openaiUrl || 'https://api.openai.com/v1').trim().replace(/\/+$/, '');
+            if (!key) throw new Error('未填写 OpenAI 兼容 API Key');
+            const res = await fetch(`${base}/chat/completions`, {
+              method: 'POST',
+              signal: ctrl.signal,
+              headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
+              body: JSON.stringify({
+                model, temperature: 0.88,
+                messages: [
+                  { role: 'system', content: sysPrompt + '\n严格只返回合法JSON，禁止任何多余解释或Markdown标记。' },
+                  { role: 'user', content: userPrompt }
+                ]
+              })
+            });
+            const data = await res.json();
+            if (!res.ok) throw new Error(data?.error?.message || `HTTP ${res.status}`);
+            raw = data?.choices?.[0]?.message?.content || '';
+          }
+          const cleaned = raw.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/```\s*$/i, '').trim();
+          const m = cleaned.match(/\{[\s\S]*\}/);
+          return JSON.parse(m ? m[0] : cleaned);
+        } catch (e) {
+          lastErr = e;
+          if (attempt === 0) await _sleep(1500);
+        } finally {
+          clearTimeout(timer);
+        }
+      }
+      throw lastErr;
+    };
+    const task = _apiQueue.then(run, run);
+    _apiQueue = task.then(() => _sleep(850), () => _sleep(850));
+    return task;
+  };
+
+  // 2. 加强迟川回复解析，精准接你的具体撒娇/吐槽，绝不轻易掉离线套话
+  window.callChichuanSoloAPI = async function (ch, sceneDesc, contextText) {
+    const sys = buildCharSystemPrompt(ch, contextText) + `
+【防串味绝对铁律】
+1. 此条通道仅输出你（${ch.name}）本人的单条简短回应，绝对不要模仿网友语气！
+2. 严禁出现“家人们/谁懂啊/笑死/绝绝子/磕到了/哈哈哈/yyds/吃瓜”等浮夸网络热词或连续感叹号。
+3. 必须紧扣她刚刚说的具体内容（比如提的要求、撒娇或吐槽）来回应，不要说泛泛的敷衍套话。
+4. 保持低沉、克制、不动声色的纵容与偏爱（1~2句，20~55字内）。
+严格返回JSON：{"r":"你本人的回复"}`;
+    const j = await callDualAPI(sys, `${sceneDesc}\n上下文：\n${contextText}`);
+    const txt = j && (j.r || j.reply || j.text || j.content || Object.values(j).find(v => typeof v === 'string'));
+    return txt ? String(txt).trim() : '';
+  };
+
+  // 3. 补回「回复 @匿名小公主 (#X楼)」定向标记
+  window.staggerForumReplies = function (post, npcList, chReplyObj) {
+    const queue = [...npcList];
+    if (chReplyObj && chReplyObj.t) {
+      const insertAt = Math.min(queue.length, Math.max(1, Math.floor(queue.length / 2)));
+      queue.splice(insertAt, 0, chReplyObj);
+    }
+    queue.forEach((rep, idx) => {
+      setTimeout(() => {
+        post.replies.push({
+          a: String(rep.a || '匿名吃瓜人'),
+          t: String(rep.t),
+          ...(rep.replyTo ? { replyTo: rep.replyTo } : {}),
+          ...(rep.replyFloor ? { replyFloor: rep.replyFloor } : {})
+        });
+        post.likes += 1 + Math.floor(Math.random() * 4);
+        saveST();
+        SFX.soft();
+        if (RT.app === 'forum' && RT.openPostId === post.id) vForum();
+      }, 700 + idx * 1050);
+    });
+  };
+
+  // 4. 顺手去掉双 @@，并防止回复还在加载时手快连发两条
+  const _origVForum = window.vForum;
+  if (typeof _origVForum === 'function') {
+    window.vForum = function () {
+      _origVForum();
+      document.querySelectorAll('#appLayer span').forEach(sp => {
+        if (sp.textContent && sp.textContent.includes('回复 @@')) {
+          sp.textContent = sp.textContent.replace(/回复 @@/g, '回复 @');
+        }
+      });
+      const form = document.getElementById('fpReplyForm');
+      if (form && !form.dataset.patched) {
+        form.dataset.patched = '1';
+        const origSubmit = form.onsubmit;
+        form.onsubmit = async function (e) {
+          e.preventDefault();
+          const inp = document.getElementById('fpReplyInp');
+          if (!inp || !inp.value.trim()) return;
+          if (RT._forumSending) return toast('正在等 @Cyrus_1229 和网友回复，稍等几秒哦～');
+          RT._forumSending = true;
+          toast('已发送！正在排队等 @Cyrus_1229 和网友赶来…');
+          try {
+            if (origSubmit) await origSubmit.call(this, e);
+          } finally {
+            RT._forumSending = false;
+          }
+        };
+      }
+    };
+  }
+})();
+</script>
+
 </body>
 </html>
