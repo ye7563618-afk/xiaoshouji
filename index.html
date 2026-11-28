@@ -9126,6 +9126,638 @@ ${stolenList ? `- 你偷偷长按收藏的她发过的表情包（偶尔直接�
   }, 260);
 })();
 </script>
+<style>
+  .uni-del-pill {
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 600;
+    color: #a38691;
+    background: rgba(255, 255, 255, 0.76);
+    border: 1px solid rgba(229, 140, 168, 0.28);
+    cursor: pointer;
+    flex-shrink: 0;
+    transition: all 0.14s ease;
+    line-height: 1.4;
+  }
+  .uni-del-pill:active { transform: scale(0.94); }
+  .uni-del-pill.armed {
+    color: #fff;
+    background: linear-gradient(135deg, #f06d8b, #dc4c70);
+    border-color: transparent;
+  }
+</style>
+<script>
+(function () {
+  const showToast = msg => { try { if (typeof toast === 'function') toast(msg); } catch {} };
+  const playTap = () => { try { if (typeof SFX !== 'undefined' && SFX.tap) SFX.tap(); } catch {} };
+  const playSoft = () => { try { if (typeof SFX !== 'undefined' && SFX.soft) SFX.soft(); } catch {} };
+  const _sleep = ms => new Promise(r => setTimeout(r, ms));
 
+  const NO_GLASSES_RULE = `\n【迟川外貌最高铁律】迟川（Cyrus）绝对不戴眼镜！他平时和私下都从不戴金丝眼镜或任何眼镜。他的形象是背头带几缕微垂额前碎发、锋利剑眉与深眸、微敞领口黑衬衫与黑大衣。严禁出现戴眼镜、推眼镜、镜片等描写。`;
+
+  function sanitizeGlasses(text) {
+    if (typeof text !== 'string' || !/眼镜/.test(text)) return text;
+    return text
+      .replace(/戴着?一副?(金丝|银丝|无框|半框)?眼镜/g, '背头带微垂碎发、剑眉冷眸')
+      .replace(/(金丝|银丝|无框|半框)眼镜/g, '背头微垂碎发、剑眉冷眸');
+  }
+
+  // 1. 通用高容错 JSON 解析器（兼容 <think> 标签、Markdown 代码块与字符串内换行）
+  function extractJsonLoose(raw) {
+    const cleaned = String(raw || '')
+      .replace(/<think>[\s\S]*?<\/think>/gi, '')
+      .replace(/^```json\s*/i, '')
+      .replace(/^```\s*/i, '')
+      .replace(/```\s*$/i, '')
+      .trim();
+
+    const tryParse = str => {
+      try { return JSON.parse(str); } catch {}
+      try {
+        const fixed = str.replace(/"((?:[^"\\]|\\.)*)"/g, m => m.replace(/\r?\n/g, '\\n'));
+        return JSON.parse(fixed);
+      } catch {}
+      return null;
+    };
+
+    let obj = tryParse(cleaned);
+    if (obj) return obj;
+
+    const i = cleaned.indexOf('{');
+    const j = cleaned.lastIndexOf('}');
+    if (i !== -1 && j > i) {
+      obj = tryParse(cleaned.slice(i, j + 1));
+      if (obj) return obj;
+    }
+
+    const ai = cleaned.indexOf('[');
+    const aj = cleaned.lastIndexOf(']');
+    if (ai !== -1 && aj > ai) {
+      obj = tryParse(cleaned.slice(ai, aj + 1));
+      if (obj) return obj;
+    }
+    return null;
+  }
+
+  // 2. 统一底层 45 秒高耐受请求函数（同时服务 X 广场、匿名论坛、朋友圈与私聊）
+  async function rawModelRequest(sysPrompt, userPrompt, temp = 0.88) {
+    const model = typeof getActiveModel === 'function' ? getActiveModel() : '';
+    let sp = sanitizeGlasses(String(sysPrompt || ''));
+    if (!sp.includes('绝对不戴眼镜')) sp += NO_GLASSES_RULE;
+    const up = sanitizeGlasses(String(userPrompt || ''));
+
+    let lastErr = null;
+    for (let attempt = 0; attempt < 2; attempt++) {
+      const ctrl = new AbortController();
+      const timer = setTimeout(() => ctrl.abort(), 45000);
+      try {
+        let raw = '';
+        if (ST.cfg.provider === 'gemini') {
+          const key = (ST.cfg.geminiKey || '').trim();
+          if (!key) throw new Error('未填写 Gemini API Key');
+          const url = `https://generativelanguage.googleapis.com/v1beta/models/${encodeURIComponent(model)}:generateContent?key=${encodeURIComponent(key)}`;
+          const res = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            signal: ctrl.signal,
+            body: JSON.stringify({
+              contents: [{ role: 'user', parts: [{ text: up }] }],
+              systemInstruction: { parts: [{ text: sp }] },
+              generationConfig: { responseMimeType: 'application/json', temperature: temp }
+            })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data?.error?.message || `HTTP ${res.status}`);
+          const parts = data?.candidates?.[0]?.content?.parts || [];
+          const realParts = parts.filter(p => p && !p.thought && typeof p.text === 'string');
+          raw = (realParts.length ? realParts : parts)
+            .map(p => (p && p.text) || '')
+            .join('\n')
+            .trim();
+        } else {
+          const key = (ST.cfg.openaiKey || '').trim();
+          const base = (ST.cfg.openaiUrl || 'https://api.openai.com/v1').trim().replace(/\/+$/, '');
+          if (!key) throw new Error('未填写 OpenAI 兼容 API Key');
+          const res = await fetch(`${base}/chat/completions`, {
+            method: 'POST',
+            signal: ctrl.signal,
+            headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${key}` },
+            body: JSON.stringify({
+              model,
+              temperature: temp,
+              messages: [
+                { role: 'system', content: sp + '\n严格只返回单个合法JSON，禁止多余解释或Markdown代码块。' },
+                { role: 'user', content: up }
+              ]
+            })
+          });
+          const data = await res.json();
+          if (!res.ok) throw new Error(data?.error?.message || `HTTP ${res.status}`);
+          raw = String(data?.choices?.[0]?.message?.content || '').trim();
+        }
+        if (raw) return raw;
+        throw new Error('接口返回空内容');
+      } catch (err) {
+        lastErr = err;
+        if (attempt === 0) await _sleep(1200);
+      } finally {
+        clearTimeout(timer);
+      }
+    }
+    throw lastErr || new Error('API 请求失败');
+  }
+
+  // 升级全站 window.callDualAPI：X 广场、匿名论坛、私聊、朋友圈全部自动受益！
+  let _uniApiQueue = Promise.resolve();
+  window.callDualAPI = function (sysPrompt, userPrompt) {
+    const run = async () => {
+      const raw = await rawModelRequest(sysPrompt, userPrompt, 0.88);
+      const parsed = extractJsonLoose(raw);
+      if (parsed !== null) return parsed;
+      // 如果模型直接回了纯文本（如单句回复），也兜底包装成对象避免白白失败
+      const plain = raw.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+      if (plain) return { r: plain, text: plain, reply: plain };
+      throw new Error('模型返回内容无法解析为 JSON');
+    };
+    const task = _uniApiQueue.then(run, run);
+    _uniApiQueue = task.then(() => _sleep(700), () => _sleep(700));
+    return task;
+  };
+
+  // 3. 共同好友朋友圈生成（100% 紧扣指定主题，告别栗子蛋糕重复兜底）
+  const NPC_CAST = [
+    {
+      name: '陈序', av: '陈',
+      color: 'linear-gradient(135deg, #4b6888, #2d4057)',
+      role: '新岚顾问 · 迟川多年损友',
+      bio: '看报表和看老迟双标，是我唯二的业余爱好。',
+      style: '毒舌风趣、一针见血、爱拿迟川恋爱后极度双标和三句不离太太打趣吐槽，鲜活有梗'
+    },
+    {
+      name: '林助理', av: '林',
+      color: 'linear-gradient(135deg, #746b8e, #4a4261)',
+      role: '总裁办首席特助',
+      bio: '专业、高效、已熟练掌握“老板因陪太太临时改会”的应急预案。',
+      style: '冷静克制的职场精英风，带点欲言又止的打工人幽默，常发日程统筹与总裁办插曲'
+    },
+    {
+      name: '孙遇', av: '孙',
+      color: 'linear-gradient(135deg, #528976, #315c4e)',
+      role: '新岚研发部负责人',
+      bio: '理性分析一切，唯独分析不懂某人谈恋爱后的脑回路。',
+      style: '理工科冷幽默，关注技术、咖啡浓度与实验室趣事，一本正经吐槽感情特别好笑'
+    },
+    {
+      name: '周墨教授', av: '周',
+      color: 'linear-gradient(135deg, #a27e66, #6f523f)',
+      role: '美院前辈 · 亦师亦友',
+      bio: '一盏清茶，半卷旧画，看风雅也看人间烟火。',
+      style: '温润儒雅、有书卷气，常发画展、写生、煮茶或偶遇迟琰画画的欣慰感叹'
+    },
+    {
+      name: 'Sota', av: 'S',
+      color: 'linear-gradient(135deg, #c77996, #914965)',
+      role: '画室搭子 · 艺术圈密友',
+      bio: '颜料、拿铁、以及南湾画室最新一线八卦。',
+      style: '鲜活松弛、审美敏锐、爱吃瓜起哄，常发画室日常或撞见迟川来接人的细节吐槽'
+    },
+    {
+      name: '苏晚', av: '晚',
+      color: 'linear-gradient(135deg, #de9978, #b56b4d)',
+      role: '迟琰闺蜜 · 甜品搭子',
+      bio: '逛街永不缺席，替闺蜜护短冲在第一线。',
+      style: '活泼贴心、爱分享探店下午茶与穿搭日常，偶尔发条被小两口秀到的酸柠檬吐槽'
+    }
+  ];
+
+  function findMomentsList() {
+    if (typeof ST === 'undefined' || !ST) return null;
+    for (const k of ['moments', 'pyq', 'circle', 'feed', 'posts']) {
+      if (Array.isArray(ST[k])) return ST[k];
+    }
+    return null;
+  }
+  function getPostText(m) { return String((m && (m.text || m.body || m.content)) || ''); }
+  function getPostAuthor(m) { return String((m && (m.author || m.name || m.who)) || '').trim(); }
+  function getPostComments(m) { return Array.isArray(m?.comments) ? m.comments : (Array.isArray(m?.replies) ? m.replies : []); }
+
+  function buildCompatibleNpcMoment(list, npc, payload) {
+    const sample = list.find(x => x && !x.isNpc) || list[0] || {};
+    const sampleCmt = (() => {
+      for (const item of list) {
+        const arr = getPostComments(item);
+        if (arr.length && arr[0] && typeof arr[0] === 'object') return arr[0];
+      }
+      return null;
+    })();
+
+    const textKey = ('text' in sample) ? 'text' : ('body' in sample) ? 'body' : ('content' in sample) ? 'content' : 'text';
+    const tagKey = ('tag' in sample) ? 'tag' : ('mood' in sample) ? 'mood' : ('topic' in sample) ? 'topic' : 'tag';
+    const cmtKey = Array.isArray(sample.comments) ? 'comments' : (Array.isArray(sample.replies) ? 'replies' : 'comments');
+
+    const mapComment = c => {
+      const a = String(c.a || '好友').trim();
+      const t = String(c.t || '').trim();
+      if (!sampleCmt) return { a, t };
+      const obj = {};
+      if ('author' in sampleCmt) obj.author = a;
+      else if ('name' in sampleCmt) obj.name = a;
+      else if ('by' in sampleCmt) obj.by = a;
+      else if ('u' in sampleCmt) obj.u = a;
+      else obj.a = a;
+
+      if ('text' in sampleCmt) obj.text = t;
+      else if ('content' in sampleCmt) obj.content = t;
+      else if ('msg' in sampleCmt) obj.msg = t;
+      else if ('c' in sampleCmt) obj.c = t;
+      else obj.t = t;
+      return obj;
+    };
+
+    const nowTs = Date.now();
+    const likerArr = Array.isArray(payload.likers) && payload.likers.length ? payload.likers : ['林助理', '孙遇', 'Sota'];
+    const cmtArr = Array.isArray(payload.comments) ? payload.comments.filter(c => c && c.t).map(mapComment) : [];
+
+    const m = {
+      id: 'm_npc_' + nowTs,
+      author: npc.name,
+      isMe: false,
+      isNpc: true,
+      from: 'npc',
+      npcAv: npc.av || npc.name.slice(0, 1),
+      npcColor: npc.color || 'linear-gradient(135deg, #8b859c, #5d576e)',
+      npcRole: npc.role || '共同好友',
+      npcBio: npc.bio || '记录生活里的吉光片羽 ✨',
+      time: '刚刚',
+      ts: nowTs,
+      liked: false
+    };
+    if ('name' in sample) m.name = npc.name;
+    if ('who' in sample) m.who = npc.name;
+    if ('vis' in sample) m.vis = '公开';
+    if ('scope' in sample) m.scope = '公开';
+    if ('privacy' in sample) m.privacy = '公开';
+    m[textKey] = String(payload.text || '').trim();
+    m[tagKey] = String(payload.tag || '好友动态').trim();
+    if (Array.isArray(sample.likes)) m.likes = likerArr;
+    else {
+      m.likes = likerArr.length;
+      if (Array.isArray(sample.likedBy)) m.likedBy = likerArr;
+      else m.likers = likerArr;
+    }
+    m[cmtKey] = cmtArr;
+    return m;
+  }
+
+  window.generateNpcMoment = async function (targetNpc, customTopic = '') {
+    const list = findMomentsList();
+    if (!list) return showToast('未找到朋友圈数据');
+    const ch = typeof activeChar === 'function' ? activeChar() : { name: '迟川', avatar: '' };
+    const myName = (typeof ST !== 'undefined' && ST.userName) ? ST.userName : '迟琰';
+    const topic = String(customTopic || '').trim();
+
+    let npc = targetNpc;
+    if (!npc) {
+      const recentAuthors = list.slice(0, 4).map(getPostAuthor);
+      const fresh = NPC_CAST.filter(x => !recentAuthors.includes(x.name));
+      const pool = fresh.length ? fresh : NPC_CAST;
+      npc = pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    if (typeof hasValidAPI !== 'function' || !hasValidAPI()) {
+      return showToast('请先在设置里填好 API Key，再让好友实时写朋友圈哦～');
+    }
+
+    const recentSnippets = list
+      .slice(0, 10)
+      .map((x, i) => `${i + 1}. [${getPostAuthor(x) || '动态'}] ${getPostText(x).replace(/\s+/g, ' ').slice(0, 38)}`)
+      .join('\n');
+    const wbSummary = (Array.isArray(ST.worldbook) ? ST.worldbook : [])
+      .filter(w => w.enabled)
+      .map(w => `·${w.title}：${w.content}`)
+      .join('\n')
+      .slice(0, 650);
+    const otherFriends = NPC_CAST.filter(x => x.name !== npc.name).map(x => x.name).join('、');
+    const seed = `${Date.now().toString(36)}-${Math.floor(Math.random() * 9999)}`;
+    const timeStr = `${typeof fmtDateCN === 'function' ? fmtDateCN() : ''} ${typeof nowHM === 'function' ? nowHM() : ''}`.trim();
+
+    const sys = `你是微信朋友圈动态生成器，现在请完全代入共同好友「${npc.name}」发一条真实、有梗、有具体生活细节的朋友圈。
+【发布者人设】姓名：${npc.name}｜身份：${npc.role || '共同好友'}｜说话风格：${npc.style || '自然鲜活、有生活气息'}
+【圈子背景】共同好友里有 ${ch.name}（新岚能源CEO，28岁，188cm，外冷内热、从不戴眼镜、对伴侣占有欲与偏爱极强）与伴侣 ${myName}（娇小软甜、有梗可爱），以及其他好友：${otherFriends}。
+${wbSummary}
+【重要铁律】
+1. ${topic ? `用户亲自指定了核心主题：「${topic}」。整条朋友圈正文必须100%围绕这个主题展开，写出2~3个具体的有趣例子、细节或原话吐槽（80~160字），严禁跑题，严禁敷衍写“改天细说”！` : '自然鲜活地写一条全新的生活日常或圈内趣事（65~140字），绝不能与近期已有朋友圈撞梗。'}
+2. 迟川绝对不戴眼镜！严禁出现眼镜、推眼镜等描写。
+3. 附带 3~5 个点赞好友名，以及 2~3 条贴合这条主题的精彩好友评论（可包含 ${ch.name} 一句极克制简短的回应；严禁代替 ${myName} 评论，留给用户本人互动）。
+严格返回合法 JSON：{"tag":"2~5字小标签","text":"朋友圈正文","likers":["好友1","好友2","好友3"],"comments":[{"a":"评论人","t":"评论内容"}]}`;
+
+    const userPrompt = `【创意种子：${seed}｜时间：${timeStr}】
+${topic ? `【核心必写主题】请让「${npc.name}」展开细说并疯狂吐槽：${topic}\n` : ''}【近期已有朋友圈（严禁重复）】
+${recentSnippets || '（暂无）'}
+
+请立即生成「${npc.name}」的全新朋友圈 JSON：`;
+
+    try {
+      const raw = await rawModelRequest(sys, userPrompt, 0.9);
+      let obj = extractJsonLoose(raw);
+      let payload = null;
+      if (obj && typeof obj === 'object') {
+        const inner = obj.moment || obj.post || obj.data || obj.result || (Array.isArray(obj.posts) ? obj.posts[0] : null);
+        if (inner && typeof inner === 'object') obj = inner;
+        const text = obj.text || obj.body || obj.content || obj.caption || obj['正文'] || obj['朋友圈正文'] || '';
+        if (text && String(text).trim()) {
+          const rawLikers = Array.isArray(obj.likers) ? obj.likers : (Array.isArray(obj.likes) ? obj.likes : []);
+          const rawCmts = Array.isArray(obj.comments) ? obj.comments : (Array.isArray(obj.replies) ? obj.replies : []);
+          payload = {
+            tag: String(obj.tag || obj.topic || obj.mood || obj['标签'] || '好友动态').trim().slice(0, 8),
+            text: String(text).trim(),
+            likers: rawLikers.map(x => String(x || '').trim()).filter(x => x && x !== myName && x !== '迟琰' && x !== 'Cynder' && x !== npc.name),
+            comments: rawCmts
+              .map(c => ({ a: String((c && (c.a || c.author || c.name || c.user)) || '好友').trim(), t: String((c && (c.t || c.text || c.content || c.msg)) || '').trim() }))
+              .filter(c => c.t && c.a !== myName && c.a !== '迟琰' && c.a !== 'Cynder')
+          };
+        }
+      }
+      if (!payload) {
+        const plain = raw.replace(/<think>[\s\S]*?<\/think>/gi, '').trim();
+        if (plain.length >= 16 && !plain.startsWith('{')) {
+          payload = { tag: '好友动态', text: plain.slice(0, 380), likers: ['林助理', '孙遇', 'Sota'].filter(x => x !== npc.name), comments: [] };
+        }
+      }
+      if (!payload || !payload.text) throw new Error('模型返回内容无法解析');
+
+      const newMoment = buildCompatibleNpcMoment(list, npc, payload);
+      list.unshift(newMoment);
+      if (typeof saveST === 'function') saveST();
+      playSoft();
+      if (typeof window.renderCurrentApp === 'function') {
+        try { window.renderCurrentApp(); } catch {}
+      }
+      showToast(`${npc.name} 刚刚发了一条全新朋友圈 ✦`);
+    } catch (err) {
+      const reason = err && err.name === 'AbortError'
+        ? '接口响应超过 45 秒超时了'
+        : String(err?.message || '网络波动').slice(0, 42);
+      showToast(`生成失败（${reason}），请再点一次试试`);
+    }
+  };
+
+  // 4. 通用「两下防误触删除」按钮生成器
+  function createConfirmDeleteBtn(label, onDelete) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'uni-del-pill';
+    btn.textContent = label || '删除';
+    let armed = false;
+    let timer = null;
+    btn.onclick = e => {
+      e.stopPropagation();
+      e.preventDefault();
+      playTap();
+      if (!armed) {
+        armed = true;
+        btn.textContent = '确认删?';
+        btn.classList.add('armed');
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          armed = false;
+          btn.textContent = label || '删除';
+          btn.classList.remove('armed');
+        }, 2800);
+        return;
+      }
+      clearTimeout(timer);
+      onDelete();
+    };
+    return btn;
+  }
+
+  // 过滤已删除的内置动态/帖子，刷新不复活
+  function pruneDeletedItems() {
+    if (typeof ST === 'undefined' || !ST) return;
+    const mList = findMomentsList();
+    if (mList && Array.isArray(ST.deletedMomentIds) && ST.deletedMomentIds.length) {
+      const delSet = new Set(ST.deletedMomentIds);
+      for (let i = mList.length - 1; i >= 0; i--) {
+        if (mList[i] && mList[i].id && delSet.has(mList[i].id)) mList.splice(i, 1);
+      }
+    }
+    if (Array.isArray(ST.forum) && Array.isArray(ST.deletedForumIds) && ST.deletedForumIds.length) {
+      const delSet = new Set(ST.deletedForumIds);
+      for (let i = ST.forum.length - 1; i >= 0; i--) {
+        if (ST.forum[i] && ST.forum[i].id && delSet.has(ST.forum[i].id)) ST.forum.splice(i, 1);
+      }
+    }
+  }
+
+  // 5. 给朋友圈每条动态直接加「删除」按钮 + 修复陈序等好友头像可直接点进主页
+  function isMomentsActive() {
+    const layer = document.getElementById('appLayer');
+    if (!layer || !layer.innerHTML) return false;
+    if (typeof RT !== 'undefined' && ['moments', 'pyq', 'circle', 'feed'].includes(RT.app)) return true;
+    const hd = layer.querySelector('.app-hd, header, [class*="hd"]');
+    return !!(hd && hd.textContent && hd.textContent.includes('朋友圈'));
+  }
+
+  function injectMomentsDeleteAndAvatarFix() {
+    if (!isMomentsActive()) return;
+    pruneDeletedItems();
+    const layer = document.getElementById('appLayer');
+    const body = layer.querySelector('.app-body') || layer;
+    const list = findMomentsList();
+    if (!body || !list) return;
+
+    const ch = typeof activeChar === 'function' ? activeChar() : { name: '迟川' };
+    const myName = (typeof ST !== 'undefined' && ST.userName) ? ST.userName : '迟琰';
+    const norm = s => String(s || '').replace(/\s+/g, '');
+
+    const cards = Array.from(body.querySelectorAll('.card')).filter(c => {
+      if (c.closest('#mpTopPanel')) return false;
+      const t = c.textContent || '';
+      if (t.includes('发新朋友圈') && (t.includes('连发') || t.includes('API 实时生成'))) return false;
+      return true;
+    });
+
+    const used = new Set();
+
+    cards.forEach(card => {
+      const cardTextNorm = norm(card.textContent);
+      // 精准匹配该卡片对应的那条动态（支持两条内容一模一样的重复动态分别绑定！）
+      let matched = null;
+      for (const m of list) {
+        if (used.has(m)) continue;
+        const snippet = norm(getPostText(m)).slice(0, 20);
+        if (snippet.length >= 4 && cardTextNorm.includes(snippet)) {
+          matched = m;
+          break;
+        }
+      }
+      if (!matched) {
+        for (const m of list) {
+          if (used.has(m)) continue;
+          const snippet = norm(getPostText(m)).slice(0, 8);
+          if (snippet && cardTextNorm.includes(snippet)) {
+            matched = m;
+            break;
+          }
+        }
+      }
+      if (!matched) return;
+      used.add(matched);
+
+      // (A) 注入直接删除按钮（放在点赞/评论那一排，所有人的动态都能点两下删掉！）
+      if (!card.querySelector('.uni-moment-del')) {
+        const delBtn = createConfirmDeleteBtn('删除', () => {
+          const curIdx = list.indexOf(matched);
+          if (curIdx > -1) {
+            list.splice(curIdx, 1);
+            if (matched.id) {
+              if (!Array.isArray(ST.deletedMomentIds)) ST.deletedMomentIds = [];
+              if (!ST.deletedMomentIds.includes(matched.id)) ST.deletedMomentIds.push(matched.id);
+            }
+            if (typeof saveST === 'function') saveST();
+            if (typeof window.renderCurrentApp === 'function') {
+              try { window.renderCurrentApp(); } catch {}
+            }
+            showToast('已删除这条朋友圈 ✦');
+          }
+        });
+        delBtn.classList.add('uni-moment-del');
+
+        // 优先放到「点赞 / 评论」那一排中间偏右，界面最清爽
+        const actBtns = Array.from(card.querySelectorAll('button'));
+        const cmtBtn = actBtns.find(b => /评论/.test(b.textContent || '') && !b.closest('[class*="cmt"]'));
+        const likeBtn = actBtns.find(b => /点赞|已赞/.test(b.textContent || ''));
+        if (cmtBtn && cmtBtn.parentElement) {
+          const wrap = document.createElement('div');
+          wrap.style.cssText = 'display:inline-flex;align-items:center;gap:6px';
+          cmtBtn.parentElement.insertBefore(wrap, cmtBtn);
+          wrap.appendChild(delBtn);
+          wrap.appendChild(cmtBtn);
+        } else if (likeBtn && likeBtn.parentElement) {
+          likeBtn.parentElement.appendChild(delBtn);
+        } else {
+          const head = card.firstElementChild || card;
+          head.appendChild(delBtn);
+        }
+      }
+
+      // (B) 修复共同好友（陈序/林助理等）纯文字方块头像无法点进相册的问题
+      const author = getPostAuthor(matched);
+      const isNpc = matched.isNpc || matched.from === 'npc' ||
+        (author && author !== ch.name && author !== '迟川' && author !== myName && author !== '迟琰' && author !== 'Cynder' && author !== '我');
+      if (isNpc && typeof window.openMomentProfile === 'function' && !card.dataset.uniNpcAvFixed) {
+        card.dataset.uniNpcAvFixed = '1';
+        const who = 'npc:' + (author || '共同好友');
+        const head = card.firstElementChild || card;
+        const firstBox = head.querySelector('.mp-npc-av, [class*="av"], img') || head.firstElementChild;
+        if (firstBox && !firstBox.closest('button')) {
+          firstBox.style.cursor = 'pointer';
+          firstBox.addEventListener('click', e => {
+            e.stopPropagation();
+            window.openMomentProfile(who);
+          });
+        }
+      }
+    });
+  }
+
+  // 6. 给匿名论坛每篇帖子 + 详情页顶部加上「删除帖子」按钮
+  function injectForumDeleteBtns() {
+    if (typeof RT === 'undefined' || RT.app !== 'forum' || !Array.isArray(ST.forum)) return;
+    pruneDeletedItems();
+    const layer = document.getElementById('appLayer');
+    if (!layer) return;
+
+    const deletePostById = postId => {
+      const idx = ST.forum.findIndex(x => x.id === postId);
+      if (idx === -1) return;
+      ST.forum.splice(idx, 1);
+      if (!Array.isArray(ST.deletedForumIds)) ST.deletedForumIds = [];
+      if (!ST.deletedForumIds.includes(postId)) ST.deletedForumIds.push(postId);
+      if (RT.openPostId === postId) RT.openPostId = null;
+      if (typeof saveST === 'function') saveST();
+      if (typeof window.vForum === 'function') window.vForum();
+      showToast('已删除该条论坛帖子 ✦');
+    };
+
+    // 帖子详情页：在右上角（或正文标题旁）加「删帖」按钮
+    if (RT.openPostId) {
+      if (layer.querySelector('.uni-forum-det-del')) return;
+      const postId = RT.openPostId;
+      const delBtn = createConfirmDeleteBtn('删帖', () => deletePostById(postId));
+      delBtn.classList.add('uni-forum-det-del');
+      const hd = layer.querySelector('.app-hd, header, [class*="hd"]');
+      if (hd && hd.lastElementChild) {
+        hd.lastElementChild.appendChild(delBtn);
+      } else if (hd) {
+        hd.appendChild(delBtn);
+      }
+      return;
+    }
+
+    // 论坛列表页：给每一张帖子卡片加「删除」按钮
+    const body = layer.querySelector('.app-body') || layer;
+    const norm = s => String(s || '').replace(/\s+/g, '');
+    const cards = Array.from(body.querySelectorAll('.card, [data-fopen], [data-fp]'));
+
+    cards.forEach(card => {
+      if (card.querySelector('.uni-forum-del')) return;
+      let post = null;
+      const pid = card.dataset.fopen || card.dataset.fp || card.dataset.id;
+      if (pid) post = ST.forum.find(x => x.id === pid);
+      if (!post) {
+        const ct = norm(card.textContent);
+        post = ST.forum.find(x => x.title && ct.includes(norm(x.title).slice(0, 14)));
+      }
+      if (!post) return;
+
+      const delBtn = createConfirmDeleteBtn('删除', () => deletePostById(post.id));
+      delBtn.classList.add('uni-forum-del');
+
+      const topRow = card.querySelector('.row') || card.firstElementChild;
+      if (topRow && topRow.tagName !== 'IMG') {
+        topRow.appendChild(delBtn);
+      } else {
+        card.appendChild(delBtn);
+      }
+    });
+  }
+
+  function runAllInjections() {
+    injectMomentsDeleteAndAvatarFix();
+    injectForumDeleteBtns();
+  }
+
+  // 7. 挂钩渲染与 DOM 监听
+  ['vMoments', 'vPyq', 'vFeed', 'vCircle', 'vForum', 'renderCurrentApp'].forEach(fnName => {
+    const orig = window[fnName];
+    if (typeof orig === 'function' && !orig._uniFixWrapped) {
+      const wrapped = function () {
+        pruneDeletedItems();
+        const res = orig.apply(this, arguments);
+        setTimeout(runAllInjections, 25);
+        return res;
+      };
+      wrapped._uniFixWrapped = true;
+      window[fnName] = wrapped;
+    }
+  });
+
+  const layerEl = document.getElementById('appLayer');
+  if (layerEl && typeof MutationObserver !== 'undefined') {
+    let t = null;
+    const obs = new MutationObserver(() => {
+      clearTimeout(t);
+      t = setTimeout(runAllInjections, 45);
+    });
+    obs.observe(layerEl, { childList: true, subtree: false });
+  }
+
+  pruneDeletedItems();
+  setTimeout(runAllInjections, 200);
+})();
+</script>
 </body>
 </html>
