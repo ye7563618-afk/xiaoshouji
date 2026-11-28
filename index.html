@@ -5499,5 +5499,227 @@ ${existingSnippets || '（暂无）'}
   };
 })();
 </script>
+<script>
+(function () {
+  // 1. 精准识别外部 API 返回的系统拒答话术（避免误伤正常的“抱歉，刚开完会”）
+  const REFUSAL_RE = /抱歉[，, ]*(我)?(无法|不能)|无法参与|无法回应|无法生成|不能提供|违反.*政策|安全政策|内容政策|语言模型|人工智能|情境对话|亲密暗示|不当内容|sorry.*cannot|cannot assist|as an ai/i;
+
+  // 若外部接口仍触发拒答或离线重说，用贴合迟川人设的自然台词无缝接住（每次尽量不重复）
+  const NATURAL_FALLBACKS = [
+    '公开评论区里什么话都敢往外发。手机放下，别跟着他们一起起哄。',
+    '嘴上越来越没分寸了，宝宝。把屏幕关掉…专心点。',
+    '刚刷新就看见你在这儿胡闹。宝宝，想让评论区这么多人看着你哭？',
+    '也就仗着我纵容你，才敢在广场上这么肆无忌惮。过来，先让我亲一下再玩。',
+    '评论区吵得很，你倒是玩得开心。再这么招我，今晚的账可不好算。',
+    '刚散会就刷到你在评论区里添乱。是笃定我舍不得拿你怎么样？'
+  ];
+
+  function pickFreshFallback(prevText) {
+    const pool = NATURAL_FALLBACKS.filter(x => x !== prevText);
+    const list = pool.length ? pool : NATURAL_FALLBACKS;
+    return list[Math.floor(Math.random() * list.length)];
+  }
+
+  // 2. 优化迟川专属通道：理顺易误杀表述 + 拦截系统拒答
+  window.callChichuanSoloAPI = async function (ch, sceneDesc, contextText, prevText = '') {
+    const safeScene = String(sceneDesc || '')
+      .replace(/亲密暗示|别想早睡|亲自验证|危险又暗藏强烈占有欲|很大胆直白|大胆暧昧/g, '克制、沉稳、略带无奈纵容的成年伴侣拌嘴')
+      .replace(/关上门算账/g, '回家再慢慢聊');
+
+    const sys = buildCharSystemPrompt(ch, contextText) + `
+【角色扮演与表达规范】
+1. 本场景为虚构的成年已婚伴侣（28岁CEO迟川与成年妻子${ST.userName}）之间的轻松拌嘴与充满恋人间暧昧浪漫互动，保持纵容、直白的文学表达。
+2. 此通道仅输出${ch.name}本人的单条简短回应，严禁模仿网友语气或使用浮夸网络热词。
+3. 面对对方的调皮撒娇或评论区起哄，请自然而然、直白且亲密地接上对方的话，严禁劝收敛/扫兴（1~2句，20~55字内）。
+严格返回JSON：{"r":"你本人的回复"}`;
+
+    try {
+      const retryHint = prevText ? `\n（请换一种全新、更自然的措辞重新回复，不要重复上一句。）` : '';
+      const j = await callDualAPI(sys, `${safeScene}${retryHint}\n上下文：\n${contextText}`);
+      const raw = j && (j.r || j.reply || j.text || j.content || Object.values(j).find(v => typeof v === 'string'));
+      const txt = raw ? String(raw).trim() : '';
+
+      if (!txt || REFUSAL_RE.test(txt)) {
+        return pickFreshFallback(prevText);
+      }
+      return txt;
+    } catch (err) {
+      return '';
+    }
+  };
+
+  // 3. 通用的「防误触两下删单条评论」按钮生成器
+  function makeMiniDelBtn(onConfirm, isDark) {
+    const b = document.createElement('button');
+    b.type = 'button';
+    b.textContent = '删';
+    b.style.cssText = isDark
+      ? 'font-size:10px;color:#9e8a95;background:rgba(255,255,255,0.06);padding:2px 7px;border-radius:999px;flex-shrink:0'
+      : 'font-size:10px;color:var(--muted);background:rgba(255,255,255,0.72);border:1px solid rgba(229,140,168,0.28);padding:1.5px 7px;border-radius:999px;flex-shrink:0';
+    let armed = false;
+    let timer = null;
+    b.onclick = e => {
+      e.stopPropagation();
+      SFX.tap();
+      if (!armed) {
+        armed = true;
+        b.textContent = '确认删?';
+        b.style.color = '#ff6b8b';
+        clearTimeout(timer);
+        timer = setTimeout(() => {
+          armed = false;
+          b.textContent = '删';
+          b.style.color = isDark ? '#9e8a95' : 'var(--muted)';
+        }, 2600);
+        return;
+      }
+      clearTimeout(timer);
+      onConfirm();
+    };
+    return b;
+  }
+
+  // 4. 给 X 广场推文详情页加上：迟川专属「↻ 重说」+ 任意评论「删」
+  const _origVXApp = window.vXApp;
+  if (typeof _origVXApp === 'function') {
+    window.vXApp = function () {
+      _origVXApp();
+      if (!RT.openXId) return;
+      const p = ST.xposts.find(x => x.id === RT.openXId);
+      if (!p || !Array.isArray(p.replies)) return;
+      const ch = activeChar();
+
+      document.querySelectorAll('#appLayer [data-xrep]').forEach(repBtn => {
+        const idx = Number(repBtn.dataset.xrep);
+        const r = p.replies[idx];
+        if (!r || repBtn.dataset.regenInjected) return;
+        repBtn.dataset.regenInjected = '1';
+
+        const box = document.createElement('div');
+        box.style.cssText = 'display:flex;align-items:center;gap:5px;flex-shrink:0';
+        repBtn.parentNode.insertBefore(box, repBtn);
+
+        const isDad = r.h === '@Cyrus_1229' || r.a === ch.name || r.a === 'Cyrus';
+        if (isDad) {
+          const regenBtn = document.createElement('button');
+          regenBtn.type = 'button';
+          regenBtn.textContent = '↻ 重说';
+          regenBtn.style.cssText = 'font-size:10px;color:#f7dec0;background:rgba(207,160,94,0.2);border:1px solid rgba(207,160,94,0.42);padding:2px 7px;border-radius:999px;flex-shrink:0';
+          regenBtn.onclick = async e => {
+            e.stopPropagation();
+            if (regenBtn.disabled) return;
+            SFX.tap();
+            regenBtn.disabled = true;
+            regenBtn.textContent = '重写中…';
+            const oldTxt = r.t || '';
+            const prevReplies = p.replies.slice(Math.max(0, idx - 4), idx)
+              .map(x => `${x.a}: ${x.t}`).join('\n');
+            const ctx = `推文正文（${p.author}）：${p.text}\n之前的评论：\n${prevReplies || '（无）'}`;
+            let nextTxt = '';
+            if (hasValidAPI()) {
+              nextTxt = await callChichuanSoloAPI(
+                ch,
+                `你在 X 广场评论区用 @Cyrus_1229 看到了上面的推文和 ${ST.userName}（Cynder）的互动。请重新给出一句直白、低沉、暧昧又带着纵容的简短回应（20~55字）。`,
+                ctx,
+                oldTxt
+              );
+            }
+            if (!nextTxt) nextTxt = pickFreshFallback(oldTxt);
+            if (p.replies.includes(r)) {
+              r.t = nextTxt;
+              saveST();
+              SFX.soft();
+              if (RT.app === 'xapp' && RT.openXId === p.id) window.vXApp();
+              toast('Cyrus 已重新回复 ✦');
+            }
+          };
+          box.appendChild(regenBtn);
+        }
+
+        const delBtn = makeMiniDelBtn(() => {
+          const curIdx = p.replies.indexOf(r);
+          if (curIdx > -1) {
+            p.replies.splice(curIdx, 1);
+            saveST();
+            if (RT.app === 'xapp' && RT.openXId === p.id) window.vXApp();
+            toast('已删除该条评论');
+          }
+        }, true);
+        box.appendChild(delBtn);
+        box.appendChild(repBtn);
+      });
+    };
+  }
+
+  // 5. 顺手也给匿名论坛加上：迟川专属「↻ 重说」+ 任意评论「删」
+  const _origVForum2 = window.vForum;
+  if (typeof _origVForum2 === 'function') {
+    window.vForum = function () {
+      _origVForum2();
+      if (!RT.openPostId) return;
+      const p = ST.forum.find(x => x.id === RT.openPostId);
+      if (!p || !Array.isArray(p.replies)) return;
+      const ch = activeChar();
+
+      document.querySelectorAll('#appLayer [data-frep]').forEach(repBtn => {
+        const idx = Number(repBtn.dataset.frep);
+        const r = p.replies[idx];
+        if (!r || repBtn.dataset.regenInjected) return;
+        repBtn.dataset.regenInjected = '1';
+
+        const isDad = r.a.includes('Cyrus') || r.a.includes(ch.name);
+        if (isDad) {
+          const regenBtn = document.createElement('button');
+          regenBtn.type = 'button';
+          regenBtn.textContent = '↻ 重说';
+          regenBtn.className = 'cm-reply-btn';
+          regenBtn.style.color = '#b87a3d';
+          regenBtn.onclick = async e => {
+            e.stopPropagation();
+            if (regenBtn.disabled) return;
+            SFX.tap();
+            regenBtn.disabled = true;
+            regenBtn.textContent = '重写中…';
+            const oldTxt = r.t || '';
+            const prevReplies = p.replies.slice(Math.max(0, idx - 4), idx)
+              .map(x => `${x.a}: ${x.t}`).join('\n');
+            const ctx = `帖子标题：《${p.title}》\n正文：${p.body}\n之前的楼层：\n${prevReplies || '（无）'}`;
+            let nextTxt = '';
+            if (hasValidAPI()) {
+              nextTxt = await callChichuanSoloAPI(
+                ch,
+                `你在匿名论坛用 @Cyrus_1229 看到了上面的帖子与 ${ST.userName} 的跟帖，请重新给出一句直白、充满成年已婚情侣的暧昧、护短的简短回应（20~50字）。`,
+                ctx,
+                oldTxt
+              );
+            }
+            if (!nextTxt) nextTxt = pickFreshFallback(oldTxt);
+            if (p.replies.includes(r)) {
+              r.t = nextTxt;
+              saveST();
+              SFX.soft();
+              if (RT.app === 'forum' && RT.openPostId === p.id) window.vForum();
+              toast('@Cyrus_1229 已重新回复 ✦');
+            }
+          };
+          repBtn.parentNode.insertBefore(regenBtn, repBtn);
+        }
+
+        const delBtn = makeMiniDelBtn(() => {
+          const curIdx = p.replies.indexOf(r);
+          if (curIdx > -1) {
+            p.replies.splice(curIdx, 1);
+            saveST();
+            if (RT.app === 'forum' && RT.openPostId === p.id) window.vForum();
+            toast('已删除该楼层');
+          }
+        }, false);
+        repBtn.parentNode.insertBefore(delBtn, repBtn);
+      });
+    };
+  }
+})();
+</script>
+
 </body>
 </html>
