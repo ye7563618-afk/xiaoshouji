@@ -8245,6 +8245,828 @@ ${recentSnippets || '（暂无）'}
   setTimeout(enhanceChatUI, 180);
 })();
 </script>
+<style>
+  /* 迟川黑金表情包 & 偷存微标签样式 */
+  .dad-msg-sticker {
+    width: 118px;
+    height: 118px;
+    display: block;
+    border-radius: 14px;
+    cursor: pointer;
+    filter: drop-shadow(0 4px 10px rgba(24, 18, 28, 0.22));
+    transition: transform 0.14s ease;
+  }
+  .dad-msg-sticker:active { transform: scale(0.94); }
+  .dad-stolen-tag {
+    margin-top: 4px;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    font-size: 10px;
+    color: #9e818c;
+    background: rgba(255, 255, 255, 0.78);
+    border: 1px solid rgba(229, 140, 168, 0.22);
+    padding: 1.5px 7px;
+    border-radius: 999px;
+    line-height: 1.3;
+  }
 
+  /* 抽屉内「🖤 迟川」偷存偷看页 */
+  .dad-vault-hd {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    margin-bottom: 9px;
+    flex-wrap: wrap;
+  }
+  .dad-freq-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: wrap;
+  }
+  .dad-freq-pill {
+    padding: 3px 8px;
+    border-radius: 999px;
+    font-size: 10.5px;
+    font-weight: 600;
+    border: 1px solid rgba(207, 160, 94, 0.35);
+    background: #fff;
+    color: #7c6770;
+    cursor: pointer;
+  }
+  .dad-freq-pill.on {
+    background: linear-gradient(135deg, #2a2433, #4a3748);
+    color: #f7dec0;
+    border-color: transparent;
+  }
+  .dad-try-btn {
+    padding: 3px 9px;
+    border-radius: 999px;
+    font-size: 10.5px;
+    font-weight: 600;
+    border: none;
+    background: linear-gradient(135deg, #f3a4bd, #e283a2);
+    color: #fff;
+    cursor: pointer;
+  }
+  .dad-try-btn:active { transform: scale(0.94); }
+  .dad-sec-lbl {
+    font-size: 11px;
+    font-weight: 700;
+    color: #6b535d;
+    margin: 8px 0 6px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .dad-mini-card {
+    width: 100%;
+    height: 100%;
+    border-radius: 10px;
+    background: linear-gradient(145deg, #fff5f9, #fde6ef);
+    border: 1px solid rgba(229, 140, 168, 0.28);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 3px;
+    padding: 4px;
+    text-align: center;
+  }
+</style>
+<script>
+(function () {
+  const safeEsc = s => (typeof esc === 'function' ? esc(s) : String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])));
+  const playTap = () => { try { if (typeof SFX !== 'undefined' && SFX.tap) SFX.tap(); } catch {} };
+  const playMsg = () => { try { if (typeof SFX !== 'undefined' && (SFX.msg || SFX.soft)) (SFX.msg || SFX.soft)(); } catch {} };
+  const showToast = msg => { try { if (typeof toast === 'function') toast(msg); } catch {} };
+
+  const DAD_TOKEN_RE = /\[\[DADSTK:([^\]]+)\]\]/g;
+  const DAD_TOKEN_TEST = /\[\[DADSTK:[^\]]+\]\]/;
+  const AI_STK_RE = /<<STK:([a-zA-Z0-9_-]+)>>/g;
+  const USER_STK_RE = /\[\[STICKER:([^\]]+)\]\]/g;
+
+  // 1. 迟川专属 8 枚黑金极简「金丝眼镜黑猫」贴纸（与你的软甜小兔配成情侣反差）
+  function makeDadCatSvg(face, deco, caption) {
+    return `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="dadBg" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#1e1a26"/>
+          <stop offset="100%" stop-color="#312435"/>
+        </linearGradient>
+        <linearGradient id="dadGold" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#f5d9ad"/>
+          <stop offset="100%" stop-color="#d4a362"/>
+        </linearGradient>
+      </defs>
+      <rect x="6" y="6" width="128" height="128" rx="28" fill="url(#dadBg)" stroke="#cfa05e" stroke-width="2.2"/>
+      <!-- 猫耳 -->
+      <polygon points="36,52 44,22 62,40" fill="#14111a" stroke="#d8ad70" stroke-width="2.2" stroke-linejoin="round"/>
+      <polygon points="104,52 96,22 78,40" fill="#14111a" stroke="#d8ad70" stroke-width="2.2" stroke-linejoin="round"/>
+      <polygon points="42,46 46,30 56,41" fill="#463344"/>
+      <polygon points="98,46 94,30 84,41" fill="#463344"/>
+      <!-- 猫脸 -->
+      <ellipse cx="70" cy="69" rx="36" ry="30" fill="#14111a" stroke="#d8ad70" stroke-width="2.2"/>
+      <!-- 标志性金丝眼镜 -->
+      <circle cx="55" cy="67" r="10.5" fill="rgba(247,222,192,0.06)" stroke="#e6be82" stroke-width="1.8"/>
+      <circle cx="85" cy="67" r="10.5" fill="rgba(247,222,192,0.06)" stroke="#e6be82" stroke-width="1.8"/>
+      <line x1="65.5" y1="67" x2="74.5" y2="67" stroke="#e6be82" stroke-width="1.8"/>
+      <line x1="36" y1="64" x2="44.5" y2="66" stroke="#e6be82" stroke-width="1.5"/>
+      <line x1="104" y1="64" x2="95.5" y2="66" stroke="#e6be82" stroke-width="1.5"/>
+      ${face}
+      ${deco}
+      <rect x="18" y="105" width="104" height="22" rx="11" fill="url(#dadGold)"/>
+      <text x="70" y="120.5" text-anchor="middle" font-size="12.5" font-weight="800" fill="#211824" font-family="-apple-system,PingFang SC,sans-serif">${caption}</text>
+    </svg>`;
+  }
+
+  const DAD_STICKERS = [
+    {
+      id: 'dad_pat', label: '摸摸头', hint: '伸手轻轻摸摸你的头',
+      kw: /摸头|乖|别哭|委屈|哄|受气|辛苦|抱/,
+      svg: makeDadCatSvg(
+        `<path d="M50 67 Q55 63 60 67" fill="none" stroke="#f5d9ad" stroke-width="2.2" stroke-linecap="round"/><path d="M80 67 Q85 63 90 67" fill="none" stroke="#f5d9ad" stroke-width="2.2" stroke-linecap="round"/><path d="M66 78 Q70 82 74 78" fill="none" stroke="#f5d9ad" stroke-width="2" stroke-linecap="round"/>`,
+        `<path d="M56 20 Q70 12 84 20" fill="none" stroke="#f2a7c2" stroke-width="2.6" stroke-linecap="round"/><text x="105" y="42" font-size="14" fill="#f5d9ad">✦</text>`,
+        '摸摸头'
+      )
+    },
+    {
+      id: 'dad_come', label: '过来', hint: '低声勾手让你过来',
+      kw: /过来|回家|找我|想我|想你|见你|门口|接你/,
+      svg: makeDadCatSvg(
+        `<circle cx="55" cy="67" r="2.6" fill="#f5d9ad"/><circle cx="85" cy="67" r="2.6" fill="#f5d9ad"/><path d="M66 79 Q71 81 75 77" fill="none" stroke="#f5d9ad" stroke-width="2" stroke-linecap="round"/>`,
+        `<text x="104" y="44" font-size="15" fill="#f29cb9">♥</text><text x="20" y="44" font-size="12" fill="#e6be82">✦</text>`,
+        '过来'
+      )
+    },
+    {
+      id: 'dad_good', label: '乖一点', hint: '克制提醒你乖一点',
+      kw: /乖|听话|胡闹|不许|收敛|乱来|淘气/,
+      svg: makeDadCatSvg(
+        `<line x1="50" y1="67" x2="60" y2="67" stroke="#f5d9ad" stroke-width="2.2" stroke-linecap="round"/><line x1="80" y1="67" x2="90" y2="67" stroke="#f5d9ad" stroke-width="2.2" stroke-linecap="round"/><path d="M67 79 Q70 81 73 79" fill="none" stroke="#f5d9ad" stroke-width="2" stroke-linecap="round"/>`,
+        `<text x="106" y="45" font-size="13" fill="#e6be82">…</text>`,
+        '乖一点'
+      )
+    },
+    {
+      id: 'dad_busy', label: '在开会', hint: '在开会，忙完立刻找你',
+      kw: /开会|会议|忙|文件|报表|工作|加班|公司/,
+      svg: makeDadCatSvg(
+        `<circle cx="55" cy="68" r="2.5" fill="#f5d9ad"/><circle cx="85" cy="68" r="2.5" fill="#f5d9ad"/><line x1="66" y1="79" x2="74" y2="79" stroke="#f5d9ad" stroke-width="2" stroke-linecap="round"/>`,
+        `<rect x="101" y="25" width="18" height="14" rx="3" fill="none" stroke="#e6be82" stroke-width="1.8"/><line x1="105" y1="30" x2="115" y2="30" stroke="#e6be82" stroke-width="1.5"/><line x1="105" y1="34" x2="112" y2="34" stroke="#e6be82" stroke-width="1.5"/>`,
+        '在开会'
+      )
+    },
+    {
+      id: 'dad_sleep', label: '收手机睡觉', hint: '提醒你放下手机早点休息',
+      kw: /睡|晚安|熬夜|太晚|困|休息|被窝|明天/,
+      svg: makeDadCatSvg(
+        `<path d="M50 68 Q55 72 60 68" fill="none" stroke="#f5d9ad" stroke-width="2.2" stroke-linecap="round"/><path d="M80 68 Q85 72 90 68" fill="none" stroke="#f5d9ad" stroke-width="2.2" stroke-linecap="round"/><circle cx="70" cy="79" r="2.2" fill="#e6be82"/>`,
+        `<path d="M108 24 A9 9 0 1 0 118 35 A7 7 0 1 1 108 24 Z" fill="#f5d9ad"/>`,
+        '收手机睡觉'
+      )
+    },
+    {
+      id: 'dad_mine', label: '我的', hint: '按住小爱心暗暗宣示主权',
+      kw: /我的|醋|别人|不准|占有|只准|喜欢|爱/,
+      svg: makeDadCatSvg(
+        `<circle cx="55" cy="67" r="2.8" fill="#f5d9ad"/><circle cx="85" cy="67" r="2.8" fill="#f5d9ad"/><path d="M66 78 Q70 82 74 78" fill="none" stroke="#f5d9ad" stroke-width="2" stroke-linecap="round"/>`,
+        `<path d="M70 89 C66 83 58 86 60 92 C62 97 70 101 70 101 C70 101 78 97 80 92 C82 86 74 83 70 89Z" fill="#f082a7"/>`,
+        '我的'
+      )
+    },
+    {
+      id: 'dad_kiss', label: '亲一下', hint: '耳尖微红，克制地亲一下',
+      kw: /亲|吻|mua|贴贴|撒娇|想亲|奖励/,
+      svg: makeDadCatSvg(
+        `<path d="M50 67 Q55 63 60 67" fill="none" stroke="#f5d9ad" stroke-width="2.2" stroke-linecap="round"/><circle cx="85" cy="67" r="2.6" fill="#f5d9ad"/><ellipse cx="44" cy="76" rx="4.5" ry="2.6" fill="#f082a7" opacity="0.55"/><ellipse cx="96" cy="76" rx="4.5" ry="2.6" fill="#f082a7" opacity="0.55"/><path d="M68 78 Q71 80 68 82" fill="none" stroke="#f5d9ad" stroke-width="2" stroke-linecap="round"/>`,
+        `<path d="M108 55 C105 50 99 52 101 57 C103 61 108 64 108 64 C108 64 113 61 115 57 C117 52 111 50 108 55Z" fill="#ff7ba9"/>`,
+        '亲一下'
+      )
+    },
+    {
+      id: 'dad_sigh', label: '真拿你没办法', hint: '扶额无奈却满眼纵容',
+      kw: /没办法|纵容|惯着|宠|笑|笨|傻|气鼓鼓/,
+      svg: makeDadCatSvg(
+        `<path d="M50 66 L60 68" stroke="#f5d9ad" stroke-width="2.2" stroke-linecap="round"/><path d="M90 66 L80 68" stroke="#f5d9ad" stroke-width="2.2" stroke-linecap="round"/><path d="M65 80 Q70 77 75 80" fill="none" stroke="#f5d9ad" stroke-width="2" stroke-linecap="round"/>`,
+        `<text x="20" y="42" font-size="13" fill="#e6be82">✦</text><text x="106" y="44" font-size="13" fill="#f29cb9">♡</text>`,
+        '拿你没办法'
+      )
+    }
+  ];
+
+  // 2. 数据与消息辅助工具
+  function ensureDadVault() {
+    if (typeof ST === 'undefined' || !ST) return false;
+    if (!Array.isArray(ST.dadStickerVault)) ST.dadStickerVault = [];
+    if (!ST.cfg) ST.cfg = {};
+    if (!ST.cfg.dadStkFreq) ST.cfg.dadStkFreq = 'normal'; // off | rare | normal | often
+    return true;
+  }
+
+  function findChatMsgs(ch) {
+    if (!ch && typeof activeChar === 'function') ch = activeChar();
+    if (!ch) return null;
+    for (const k of ['msgs', 'messages', 'chat', 'history', 'logs']) {
+      if (Array.isArray(ch[k])) return ch[k];
+    }
+    if (typeof ST !== 'undefined' && ST) {
+      for (const k of ['chats', 'msgs', 'messages', 'chatHistory']) {
+        if (ST[k] && Array.isArray(ST[k][ch.id])) return ST[k][ch.id];
+      }
+      for (const k of ['msgs', 'messages', 'chat']) {
+        if (Array.isArray(ST[k])) return ST[k];
+      }
+    }
+    return null;
+  }
+
+  function getMsgTextKey(m) {
+    if (!m || typeof m !== 'object') return 'text';
+    if ('t' in m) return 't';
+    if ('text' in m) return 'text';
+    if ('content' in m) return 'content';
+    if ('msg' in m) return 'msg';
+    return 'text';
+  }
+  function getMsgText(m) { return String((m && m[getMsgTextKey(m)]) || ''); }
+  function isUserMsg(m) {
+    if (!m || typeof m !== 'object') return false;
+    if (m.isMe === true || m.me === true) return true;
+    const r = String(m.from || m.role || m.sender || m.who || m.by || '').toLowerCase();
+    return ['me', 'user', 'self', 'my', 'u'].includes(r);
+  }
+  function isCharMsg(m) {
+    if (!m || typeof m !== 'object') return false;
+    if (m.isMe === false || m.me === false) return true;
+    const r = String(m.from || m.role || m.sender || m.who || m.by || '').toLowerCase();
+    return ['him', 'char', 'assistant', 'ai', 'bot', 'dad', 'c', 'ch', 'other'].includes(r);
+  }
+  function makeMsgFingerprint(m, idx) {
+    return `${idx}:${m.id || ''}:${isUserMsg(m) ? 'u' : 'c'}:${getMsgText(m).slice(0, 28)}`;
+  }
+
+  // 把有效可发送的偷存表情过滤出来（确保用户删掉的自定义图不会裂图）
+  function getUsableVault() {
+    if (!ensureDadVault()) return [];
+    const customIds = new Set((ST.customStickers || []).map(x => x.id));
+    return ST.dadStickerVault.filter(v => !v.sid.startsWith('cs_') || customIds.has(v.sid));
+  }
+
+  // 3. 悄悄收藏你发的表情包
+  function stealStickersFromText(text) {
+    if (!text || !ensureDadVault()) return false;
+    const matches = [...String(text).matchAll(USER_STK_RE)];
+    if (!matches.length) return false;
+    let addedNew = false;
+    matches.forEach(m => {
+      const parts = m[1].split('|');
+      const sid = (parts[0] || '').trim();
+      const label = parts.slice(1).join('|').trim() || '可爱表情包';
+      if (!sid) return;
+      const exist = ST.dadStickerVault.find(x => x.sid === sid);
+      if (exist) {
+        exist.seenCount = (exist.seenCount || 1) + 1;
+        exist.lastSeenAt = Date.now();
+        if (label && label !== '可爱表情包') exist.label = label;
+      } else {
+        ST.dadStickerVault.unshift({
+          sid,
+          label,
+          stolenAt: Date.now(),
+          seenCount: 1,
+          usedCount: 0
+        });
+        if (ST.dadStickerVault.length > 28) ST.dadStickerVault.length = 28;
+        addedNew = true;
+      }
+    });
+    return addedNew;
+  }
+
+  // 4. 把 AI 输出的 <<STK:id>> 转为真实表情包标记
+  function resolveAiStickerId(id) {
+    const cleanId = String(id || '').trim();
+    const dad = DAD_STICKERS.find(x => x.id === cleanId);
+    if (dad) return `[[DADSTK:${dad.id}|${dad.label}]]`;
+    const vault = getUsableVault();
+    const stolen = vault.find(x => x.sid === cleanId);
+    if (stolen) {
+      stolen.usedCount = (stolen.usedCount || 0) + 1;
+      return `[[STICKER:${stolen.sid}|${stolen.label}]]`;
+    }
+    const cs = (ST.customStickers || []).find(x => x.id === cleanId);
+    if (cs) return `[[STICKER:${cs.id}|${cs.label || '表情包'}]]`;
+    if (cleanId.startsWith('bi_')) return `[[STICKER:${cleanId}|可爱贴纸]]`;
+    return '';
+  }
+
+  function convertAiStickerTokens(str) {
+    if (typeof str !== 'string' || !str.includes('<<STK:')) return str;
+    return str.replace(AI_STK_RE, (_, id) => resolveAiStickerId(id)).trim();
+  }
+
+  function deepConvertObjectTokens(obj) {
+    if (typeof obj === 'string') return convertAiStickerTokens(obj);
+    if (Array.isArray(obj)) return obj.map(deepConvertObjectTokens);
+    if (obj && typeof obj === 'object') {
+      Object.keys(obj).forEach(k => { obj[k] = deepConvertObjectTokens(obj[k]); });
+    }
+    return obj;
+  }
+
+  // 5. 为迟川挑选一枚贴合当下语境的表情包（优先混用他偷偷存的你的表情包 + 他的黑金贴纸）
+  function pickStickerForDad(replyText, preferStolen = null) {
+    const vault = getUsableVault();
+    const useStolen = preferStolen !== null
+      ? (preferStolen && vault.length > 0)
+      : (vault.length > 0 && Math.random() < 0.62);
+
+    if (useStolen) {
+      // 优先挑用得少或用户刚收藏的自定义图，避免总发同一个
+      const sorted = [...vault].sort((a, b) => {
+        const aScore = (a.usedCount || 0) - (a.sid.startsWith('cs_') ? 0.5 : 0);
+        const bScore = (b.usedCount || 0) - (b.sid.startsWith('cs_') ? 0.5 : 0);
+        return aScore - bScore;
+      });
+      const pool = sorted.slice(0, Math.min(4, sorted.length));
+      const pick = pool[Math.floor(Math.random() * pool.length)];
+      pick.usedCount = (pick.usedCount || 0) + 1;
+      return `[[STICKER:${pick.sid}|${pick.label}]]`;
+    }
+
+    const txt = String(replyText || '');
+    const matched = DAD_STICKERS.filter(s => s.kw.test(txt));
+    const pool = matched.length ? matched : DAD_STICKERS;
+    const pick = pool[Math.floor(Math.random() * pool.length)];
+    return `[[DADSTK:${pick.id}|${pick.label}]]`;
+  }
+
+  function makeCharStickerMsg(templateMsg, stickerToken) {
+    const tk = getMsgTextKey(templateMsg);
+    const clone = {};
+    ['from', 'role', 'sender', 'who', 'by', 'isMe', 'me', 'charId'].forEach(k => {
+      if (k in templateMsg) clone[k] = templateMsg[k];
+    });
+    if (!Object.keys(clone).length) clone.from = 'him';
+    clone[tk] = stickerToken;
+    if ('id' in templateMsg) clone.id = 'dstk_' + Date.now() + '_' + Math.floor(Math.random() * 999);
+    if ('time' in templateMsg) clone.time = (typeof nowHM === 'function') ? nowHM() : '';
+    if ('ts' in templateMsg) clone.ts = Date.now();
+    if ('createdAt' in templateMsg) clone.createdAt = Date.now();
+    clone._dadAutoStk = true;
+    return clone;
+  }
+
+  function rerenderChatSafely() {
+    if (typeof RT === 'undefined' || RT.app !== 'chat') return;
+    const layer = document.getElementById('appLayer');
+    const oldInp = layer ? layer.querySelector('input:not([type="file"]):not([type="hidden"]), textarea') : null;
+    const draft = oldInp ? oldInp.value : '';
+    const wasFocused = oldInp && document.activeElement === oldInp;
+
+    if (typeof window.vChat === 'function') window.vChat();
+    else if (typeof window.renderCurrentApp === 'function') window.renderCurrentApp();
+
+    if (draft) {
+      const newInp = layer ? layer.querySelector('input:not([type="file"]):not([type="hidden"]), textarea') : null;
+      if (newInp) {
+        newInp.value = draft;
+        if (wasFocused) newInp.focus();
+      }
+    }
+    setTimeout(enhanceDadStickerUI, 20);
+  }
+
+  function appendDadStickerNow(preferStolen = null, replyHint = '') {
+    const ch = typeof activeChar === 'function' ? activeChar() : null;
+    const msgs = findChatMsgs(ch);
+    if (!msgs || !msgs.length) return showToast('先和迟川聊一句再试试吧～');
+    const template = [...msgs].reverse().find(isCharMsg) || { from: 'him', text: '' };
+    const token = pickStickerForDad(replyHint || getMsgText(template), preferStolen);
+    const newMsg = makeCharStickerMsg(template, token);
+    msgs.push(newMsg);
+    if (typeof RT !== 'undefined') {
+      RT._dadTurnsSinceStk = 0;
+      RT._dadLastSeenFp = makeMsgFingerprint(newMsg, msgs.length - 1);
+    }
+    if (typeof _rawSaveST === 'function') _rawSaveST();
+    playMsg();
+    rerenderChatSafely();
+  }
+
+  // 6. 给私聊的系统提示词注入「迟川可偶尔发表情包 / 偷发你表情包」的彩蛋能力
+  const _origBuildSys = window.buildCharSystemPrompt;
+  if (typeof _origBuildSys === 'function' && !_origBuildSys._dadStkWrapped) {
+    const wrappedBuild = function (ch, contextText) {
+      let base = _origBuildSys.apply(this, arguments);
+      if (typeof RT === 'undefined' || RT.app !== 'chat') return base;
+      if (!ensureDadVault() || ST.cfg.dadStkFreq === 'off') return base;
+
+      const vault = getUsableVault().slice(0, 8);
+      const dadList = DAD_STICKERS.map(s => `<<STK:${s.id}>>(${s.label})`).join('、');
+      const stolenList = vault.map(v => `<<STK:${v.sid}>>(${v.label})`).join('、');
+      const freqHint = {
+        rare: '非常克制稀缺（大约 6~8 轮才偶尔发 1 次）',
+        normal: '保持反差感（大约 3~5 轮偶尔发 1 次，尤其她发了表情包或撒娇时）',
+        often: '可以较常斗图互动（大约 2~3 轮就可以发 1 次）'
+      }[ST.cfg.dadStkFreq] || '大约 3~5 轮偶尔发 1 次';
+
+      base += `
+
+【微信表情包反差彩蛋（仅限本次私聊）】
+你平时沉稳克制，但面对她时偶尔会发 1 枚表情包制造反差萌（频率：${freqHint}；不需要每句都发）。
+- 你的专属黑金表情包：${dadList}
+${stolenList ? `- 你偷偷长按收藏的她发过的表情包（偶尔直接发回去逗她或模仿她撒娇，反差感极强）：${stolenList}` : ''}
+若本次决定附带 1 枚表情包，请在你的回复文字末尾另起一行，严格原样写出 1 个双尖括号标记（例如 <<STK:dad_pat>>），不要改动里面的ID，一次最多 1 个。`;
+      return base;
+    };
+    wrappedBuild._dadStkWrapped = true;
+    window.buildCharSystemPrompt = wrappedBuild;
+  }
+
+  // 7. 拦截 callDualAPI：把 AI 返回的 <<STK:id>> 翻译成真实表情包标记
+  const _origCallDual = window.callDualAPI;
+  if (typeof _origCallDual === 'function' && !_origCallDual._dadStkWrapped) {
+    const wrappedDual = async function () {
+      const res = await _origCallDual.apply(this, arguments);
+      if (typeof RT !== 'undefined' && RT.app === 'chat' && res) {
+        return deepConvertObjectTokens(res);
+      }
+      return res;
+    };
+    wrappedDual._dadStkWrapped = true;
+    window.callDualAPI = wrappedDual;
+  }
+
+  // 8. 拦截 window.fetch：把聊天历史里的 [[DADSTK:...]] 清理成 AI 读得懂的中文描述（绝不碰系统提示词里的 <<STK:...>>）
+  if (!window._dadFetchPatched && typeof window.fetch === 'function') {
+    window._dadFetchPatched = true;
+    const _prevFetch = window.fetch.bind(window);
+    const cleanDadToken = s => (typeof s === 'string' && DAD_TOKEN_TEST.test(s))
+      ? s.replace(DAD_TOKEN_RE, (_, p) => `（你发了一个表情包：${(p.split('|')[1] || '贴纸').trim()}）`)
+      : s;
+
+    window.fetch = function (input, init) {
+      if (!init || typeof init.body !== 'string' || !DAD_TOKEN_TEST.test(init.body)) {
+        return _prevFetch(input, init);
+      }
+      try {
+        const body = JSON.parse(init.body);
+        if (Array.isArray(body.contents)) {
+          body.contents.forEach(c => {
+            if (c && Array.isArray(c.parts)) {
+              c.parts.forEach(p => { if (p && typeof p.text === 'string') p.text = cleanDadToken(p.text); });
+            }
+          });
+        } else if (Array.isArray(body.messages)) {
+          body.messages.forEach(m => {
+            if (m && m.role !== 'system' && typeof m.content === 'string') {
+              m.content = cleanDadToken(m.content);
+            }
+          });
+        } else {
+          return _prevFetch(input, init);
+        }
+        return _prevFetch(input, { ...init, body: JSON.stringify(body) });
+      } catch {
+        return _prevFetch(input, init);
+      }
+    };
+  }
+
+  // 9. 拦截 saveST：自动偷存你的表情包 + 把迟川「文字+表情包」拆成微信同款双气泡 + 兜底偶尔惊喜发图
+  const _rawSaveST = window.saveST;
+  let _inDadSave = false;
+  let _dadDelayTimer = null;
+
+  function processChatMessagesOnSave() {
+    if (!ensureDadVault()) return;
+    const ch = typeof activeChar === 'function' ? activeChar() : null;
+    const msgs = findChatMsgs(ch);
+    if (!msgs || !msgs.length) return;
+
+    // 首次加载时只静默同步历史里的用户表情包，不触发新的自动发送
+    if (typeof RT !== 'undefined' && !RT._dadInitDone) {
+      RT._dadInitDone = true;
+      msgs.slice(-30).forEach(m => { if (isUserMsg(m)) stealStickersFromText(getMsgText(m)); });
+      RT._dadLastSeenFp = makeMsgFingerprint(msgs[msgs.length - 1], msgs.length - 1);
+      RT._dadTurnsSinceStk = 2;
+      return;
+    }
+
+    const lastIdx = msgs.length - 1;
+    const last = msgs[lastIdx];
+    const fp = makeMsgFingerprint(last, lastIdx);
+    if (typeof RT !== 'undefined' && RT._dadLastSeenFp === fp) return;
+    if (typeof RT !== 'undefined') RT._dadLastSeenFp = fp;
+
+    const tk = getMsgTextKey(last);
+    let txt = getMsgText(last);
+
+    // A. 用户刚发消息：悄悄检查并偷存表情包
+    if (isUserMsg(last)) {
+      const hasStk = USER_STK_RE.test(txt);
+      USER_STK_RE.lastIndex = 0;
+      if (hasStk) {
+        const addedNew = stealStickersFromText(txt);
+        if (typeof RT !== 'undefined') RT._dadUserJustSentStk = true;
+        if (addedNew && Math.random() < 0.35) {
+          setTimeout(() => showToast('（迟川似乎悄悄多看了一眼你刚发的表情包…）'), 1400);
+        }
+      } else if (typeof RT !== 'undefined') {
+        RT._dadUserJustSentStk = false;
+      }
+      return;
+    }
+
+    // B. 迟川刚发消息
+    if (isCharMsg(last) && !last._dadAutoStk) {
+      // 兜底转换可能残留的 <<STK:...>>
+      if (txt.includes('<<STK:')) {
+        txt = convertAiStickerTokens(txt);
+        last[tk] = txt;
+      }
+
+      const hasDadTok = DAD_TOKEN_TEST.test(txt);
+      const hasUserTok = /\[\[STICKER:[^\]]+\]\]/.test(txt);
+
+      if (hasDadTok || hasUserTok) {
+        // 如果迟川同时发了文字和表情包，自动拆成微信同款两条独立气泡（先文字，再无底色表情包）
+        const combinedRe = /\[\[(?:DADSTK|STICKER):[^\]]+\]\]/g;
+        const found = txt.match(combinedRe);
+        const pureText = txt.replace(combinedRe, '').trim();
+        if (found && found.length && pureText) {
+          last[tk] = pureText;
+          const stkMsg = makeCharStickerMsg(last, found[0]);
+          msgs.push(stkMsg);
+          if (typeof RT !== 'undefined') RT._dadLastSeenFp = makeMsgFingerprint(stkMsg, msgs.length - 1);
+        }
+        if (typeof RT !== 'undefined') {
+          RT._dadTurnsSinceStk = 0;
+          RT._dadUserJustSentStk = false;
+        }
+        return;
+      }
+
+      // 如果本次回复没带表情包，按设定频率偶尔在 1 秒后惊喜补发一枚！
+      if (typeof RT === 'undefined' || RT.app !== 'chat' || ST.cfg.dadStkFreq === 'off') return;
+      RT._dadTurnsSinceStk = (RT._dadTurnsSinceStk || 0) + 1;
+      const userSentStk = !!RT._dadUserJustSentStk;
+      RT._dadUserJustSentStk = false;
+
+      const cfgMap = {
+        rare:   { onStk: 0.14, minTurn: 6, onNorm: 0.10 },
+        normal: { onStk: 0.36, minTurn: 3, onNorm: 0.20 },
+        often:  { onStk: 0.62, minTurn: 2, onNorm: 0.38 }
+      };
+      const rule = cfgMap[ST.cfg.dadStkFreq] || cfgMap.normal;
+      const shouldDrop = (userSentStk && Math.random() < rule.onStk)
+        || (RT._dadTurnsSinceStk >= rule.minTurn && Math.random() < rule.onNorm);
+
+      if (shouldDrop) {
+        clearTimeout(_dadDelayTimer);
+        const snapText = txt;
+        _dadDelayTimer = setTimeout(() => {
+          if (typeof RT !== 'undefined' && RT.app === 'chat') {
+            appendDadStickerNow(userSentStk ? true : null, snapText);
+          }
+        }, 950);
+      }
+    }
+  }
+
+  if (typeof _rawSaveST === 'function' && !_rawSaveST._dadStkWrapped) {
+    const wrappedSave = function () {
+      if (!_inDadSave) {
+        _inDadSave = true;
+        try { processChatMessagesOnSave(); } finally { _inDadSave = false; }
+      }
+      return _rawSaveST.apply(this, arguments);
+    };
+    wrappedSave._dadStkWrapped = true;
+    window.saveST = wrappedSave;
+  }
+
+  // 10. 渲染迟川专属黑金贴纸 + 给迟川偷发的你的表情包加上「🖤 偷存自你」微标签
+  function renderDadStickersInDOM(root) {
+    if (!root) return;
+    const isChat = typeof RT !== 'undefined' && RT.app === 'chat';
+
+    // A. 渲染 [[DADSTK:...]]
+    root.querySelectorAll('div, p, span').forEach(el => {
+      if (el.dataset.dadStkDone || el.closest('#wcDrawer, .wc-mask, input, textarea')) return;
+      const raw = el.textContent || '';
+      if (!DAD_TOKEN_TEST.test(raw)) return;
+      if (Array.from(el.children).some(ch => DAD_TOKEN_TEST.test(ch.textContent || ''))) return;
+
+      el.dataset.dadStkDone = '1';
+      if (!isChat) {
+        el.textContent = raw.replace(DAD_TOKEN_RE, '[表情包]');
+        return;
+      }
+
+      const m = [...raw.matchAll(DAD_TOKEN_RE)][0];
+      if (!m) return;
+      const parts = m[1].split('|');
+      const sid = (parts[0] || '').trim();
+      const label = (parts[1] || '').trim();
+      const rest = raw.replace(DAD_TOKEN_RE, '').trim();
+      const item = DAD_STICKERS.find(x => x.id === sid) || DAD_STICKERS[0];
+
+      const svgBox = `<div class="dad-msg-sticker" data-dad-hint="${safeEsc(item.hint || label)}">${item.svg}</div>`;
+      el.innerHTML = rest ? `${svgBox}<div class="wc-msg-cap" style="margin-top:4px">${safeEsc(rest)}</div>` : svgBox;
+
+      if (!rest) {
+        el.classList.add('wc-bare-bub');
+        if (el.parentElement && el.parentElement.children.length === 1 && /bub|bubble|msg-b/i.test(el.parentElement.className || '')) {
+          el.parentElement.classList.add('wc-bare-bub');
+        }
+      }
+
+      el.querySelectorAll('[data-dad-hint]').forEach(node => {
+        node.onclick = e => {
+          e.stopPropagation();
+          playTap();
+          showToast(`✦ 迟川的专属贴纸 · ${node.dataset.dadHint}`);
+        };
+      });
+    });
+
+    // B. 给左侧（迟川发出的）偷存表情包加上超可爱的「🖤 偷存自你」微标签
+    if (isChat) {
+      const layer = document.getElementById('appLayer');
+      if (layer) {
+        const layerRect = layer.getBoundingClientRect();
+        const midX = layerRect.left + layerRect.width / 2;
+        layer.querySelectorAll('.wc-msg-sticker').forEach(stkEl => {
+          if (stkEl.dataset.dadStolenChecked) return;
+          const r = stkEl.getBoundingClientRect();
+          if (!r.width) return;
+          stkEl.dataset.dadStolenChecked = '1';
+          const isLeftSide = (r.left + r.width / 2) < midX;
+          if (isLeftSide && stkEl.parentElement && !stkEl.parentElement.querySelector('.dad-stolen-tag')) {
+            const tag = document.createElement('div');
+            tag.className = 'dad-stolen-tag';
+            tag.textContent = '🖤 偷存自你';
+            tag.onclick = e => {
+              e.stopPropagation();
+              playTap();
+              showToast('这是迟川偷偷长按收藏的你的表情包 🖤');
+            };
+            stkEl.parentElement.appendChild(tag);
+          }
+        });
+      }
+    }
+  }
+
+  // 11. 往表情包抽屉底部注入「🖤 迟川」偷看页（查看他偷存的表情 + 调频率 + 立刻测试逗他发一个）
+  function renderDadDrawerContent(drawer) {
+    ensureDadVault();
+    const body = drawer.querySelector('.wc-drawer-body');
+    if (!body) return;
+    const vault = getUsableVault();
+    const customMap = new Map((ST.customStickers || []).map(x => [x.id, x]));
+    const freq = ST.cfg.dadStkFreq || 'normal';
+
+    body.innerHTML = `
+      <div class="dad-vault-hd">
+        <div class="dad-freq-row">
+          <span style="font-size:11px;color:#8f747e;font-weight:600">迟川发图：</span>
+          ${[
+            ['rare', '高冷偶尔'],
+            ['normal', '适中反差'],
+            ['often', '爱斗图'],
+            ['off', '关闭']
+          ].map(([k, name]) => `<button type="button" class="dad-freq-pill ${freq === k ? 'on' : ''}" data-dad-freq="${k}">${name}</button>`).join('')}
+        </div>
+        <button type="button" class="dad-try-btn" id="dadTryDropBtn">✨ 逗他发一个</button>
+      </div>
+
+      <div class="dad-sec-lbl">
+        <span>🖤 他偷偷收藏的你的表情包 (${vault.length})</span>
+        <span style="font-size:10px;color:#a0858f;font-weight:400">你发过的他会悄悄存起来</span>
+      </div>
+      ${vault.length ? `<div class="wc-stk-grid">
+        ${vault.map(v => {
+          const cs = customMap.get(v.sid);
+          return `<div class="wc-stk-cell" data-dad-preview-stolen="${safeEsc(v.sid)}" title="${safeEsc(v.label)}">
+            ${cs
+              ? `<img src="${cs.data}" alt="${safeEsc(v.label)}">`
+              : `<div class="dad-mini-card"><span style="font-size:20px">🐰</span><span style="font-size:10px;color:#c96283;font-weight:700;line-height:1.2">${safeEsc(v.label.slice(0, 6))}</span></div>`}
+            <button type="button" class="wc-stk-del" data-dad-unsteal="${safeEsc(v.sid)}" title="从他收藏里移除">×</button>
+          </div>`;
+        }).join('')}
+      </div>` : `<div style="padding:10px 12px;border-radius:12px;background:rgba(255,255,255,0.72);font-size:11.5px;color:#9e818c;text-align:center">你发过的贴纸和自定义表情包，他都会悄悄长按存进这里，等心情好时冷不丁发给你 🖤</div>`}
+
+      <div class="dad-sec-lbl" style="margin-top:12px">
+        <span>✦ 迟川的专属黑金贴纸 (${DAD_STICKERS.length})</span>
+        <span style="font-size:10px;color:#a0858f;font-weight:400">仅迟川本人使用</span>
+      </div>
+      <div class="wc-stk-grid">
+        ${DAD_STICKERS.map(s => `<button type="button" class="wc-stk-cell" style="background:#1e1a26;border-color:rgba(207,160,94,0.35)" data-dad-preview-own="${s.id}">${s.svg}</button>`).join('')}
+      </div>
+    `;
+
+    body.querySelectorAll('[data-dad-freq]').forEach(b => {
+      b.onclick = () => {
+        playTap();
+        ST.cfg.dadStkFreq = b.dataset.dadFreq;
+        if (typeof _rawSaveST === 'function') _rawSaveST();
+        renderDadDrawerContent(drawer);
+        showToast('已调整迟川发表情包的频率 ✦');
+      };
+    });
+
+    const tryBtn = document.getElementById('dadTryDropBtn');
+    if (tryBtn) {
+      tryBtn.onclick = () => {
+        playTap();
+        if (typeof RT !== 'undefined') RT._wcDrawer = null;
+        appendDadStickerNow(null, '');
+      };
+    }
+
+    body.querySelectorAll('[data-dad-unsteal]').forEach(b => {
+      b.onclick = e => {
+        e.stopPropagation();
+        playTap();
+        ST.dadStickerVault = ST.dadStickerVault.filter(x => x.sid !== b.dataset.dadUnsteal);
+        if (typeof _rawSaveST === 'function') _rawSaveST();
+        renderDadDrawerContent(drawer);
+        showToast('已悄悄从迟川收藏夹里删掉这枚表情');
+      };
+    });
+
+    body.querySelectorAll('[data-dad-preview-own]').forEach(b => {
+      b.onclick = () => {
+        playTap();
+        const s = DAD_STICKERS.find(x => x.id === b.dataset.dadPreviewOwn);
+        showToast(s ? `✦ 迟川专属「${s.label}」· 聊天时他会偶尔发给你` : '迟川专属贴纸');
+      };
+    });
+  }
+
+  function injectDadDrawerTab() {
+    const drawer = document.getElementById('wcDrawer');
+    if (!drawer) return;
+    const tabGroup = drawer.querySelector('.wc-tab-group');
+    if (!tabGroup || document.getElementById('wcTabDadVault')) return;
+
+    ensureDadVault();
+    const btn = document.createElement('button');
+    btn.id = 'wcTabDadVault';
+    btn.type = 'button';
+    btn.className = 'wc-tab-btn';
+    btn.textContent = `🖤 迟川(${getUsableVault().length})`;
+    btn.onclick = () => {
+      playTap();
+      drawer.querySelectorAll('.wc-tab-btn').forEach(x => x.classList.remove('on'));
+      btn.classList.add('on');
+      renderDadDrawerContent(drawer);
+    };
+    tabGroup.appendChild(btn);
+  }
+
+  function enhanceDadStickerUI() {
+    renderDadStickersInDOM(document.getElementById('appLayer') || document.body);
+    renderDadStickersInDOM(document.getElementById('homeLayer') || document.querySelector('.home-wrap'));
+    injectDadDrawerTab();
+  }
+
+  // 12. 挂钩渲染与监听
+  ['vChat', 'renderCurrentApp', 'renderHomeWidgets'].forEach(fnName => {
+    const orig = window[fnName];
+    if (typeof orig === 'function' && !orig._dadUiWrapped) {
+      const wrapped = function () {
+        const res = orig.apply(this, arguments);
+        setTimeout(enhanceDadStickerUI, 15);
+        return res;
+      };
+      wrapped._dadUiWrapped = true;
+      window[fnName] = wrapped;
+    }
+  });
+
+  const layerEl = document.getElementById('appLayer');
+  if (layerEl && typeof MutationObserver !== 'undefined') {
+    let t = null;
+    const obs = new MutationObserver(() => {
+      clearTimeout(t);
+      t = setTimeout(enhanceDadStickerUI, 45);
+    });
+    obs.observe(layerEl, { childList: true, subtree: true });
+  }
+
+  // 启动时先静默同步一次历史里已经发过的表情包
+  setTimeout(() => {
+    processChatMessagesOnSave();
+    enhanceDadStickerUI();
+  }, 260);
+})();
+</script>
 </body>
 </html>
