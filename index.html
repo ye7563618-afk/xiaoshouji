@@ -8253,7 +8253,7 @@ ${recentSnippets || '（暂无）'}
     display: block;
     border-radius: 14px;
     cursor: pointer;
-    filter: drop-shadow(0 4px 10px rgba(24, 18, 28, 0.22));
+    filter: drop-shadow(0 4px 10px rgba(24, 18, 28, 0.24));
     transition: transform 0.14s ease;
   }
   .dad-msg-sticker:active { transform: scale(0.94); }
@@ -8348,37 +8348,51 @@ ${recentSnippets || '（暂无）'}
   const AI_STK_RE = /<<STK:([a-zA-Z0-9_-]+)>>/g;
   const USER_STK_RE = /\[\[STICKER:([^\]]+)\]\]/g;
 
-  // 1. 迟川专属 8 枚黑金极简「金丝眼镜黑猫」贴纸（与你的软甜小兔配成情侣反差）
-  function makeDadCatSvg(face, deco, caption) {
-    return `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+  // 全站外貌修正铁律（彻底清除所有“眼镜”误描写）
+  const NO_GLASSES_RULE = `\n【迟川外貌最高铁律】迟川（Cyrus）绝对不戴眼镜！他平时和私下都从不戴金丝眼镜或任何眼镜。他的真实形象是：背头带几缕微垂额前碎发、锋利剑眉与狭长深眸、骨相冷峻贵气、常穿微敞领口的黑色衬衫与披肩黑大衣。严禁在任何聊天、推文、朋友圈或动作描写中出现“戴眼镜、推眼镜、摘眼镜、镜片、眼镜滑落/掉地上”等内容！`;
+
+  function sanitizeGlassesPrompt(text) {
+    if (typeof text !== 'string') return text;
+    if (!/眼镜/.test(text)) return text;
+    return text
+      .replace(/戴着?一副?(金丝|银丝|无框|半框)?眼镜/g, '背头带微垂碎发、剑眉冷眸')
+      .replace(/(金丝|银丝|无框|半框)眼镜/g, '背头微垂碎发、剑眉冷眸');
+  }
+
+  // 1. 迟川专属 8 枚「无眼镜·背头黑衬衫贵气黑猫」贴纸（严格还原背头碎发 + 剑眉深眸 + 敞领黑衬衫）
+  function makeDadCatSvg(uid, face, deco, caption) {
+    return `<svg viewBox="0 0 140 140" data-dad-v2="${uid}" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="dadBg" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0%" stop-color="#1e1a26"/>
-          <stop offset="100%" stop-color="#312435"/>
+        <linearGradient id="dbg_${uid}" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0%" stop-color="#19141f"/>
+          <stop offset="55%" stop-color="#281d2b"/>
+          <stop offset="100%" stop-color="#3c222d"/>
         </linearGradient>
-        <linearGradient id="dadGold" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%" stop-color="#f5d9ad"/>
-          <stop offset="100%" stop-color="#d4a362"/>
+        <linearGradient id="dgd_${uid}" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#f6dcb2"/>
+          <stop offset="100%" stop-color="#d29f5e"/>
         </linearGradient>
       </defs>
-      <rect x="6" y="6" width="128" height="128" rx="28" fill="url(#dadBg)" stroke="#cfa05e" stroke-width="2.2"/>
-      <!-- 猫耳 -->
-      <polygon points="36,52 44,22 62,40" fill="#14111a" stroke="#d8ad70" stroke-width="2.2" stroke-linejoin="round"/>
-      <polygon points="104,52 96,22 78,40" fill="#14111a" stroke="#d8ad70" stroke-width="2.2" stroke-linejoin="round"/>
-      <polygon points="42,46 46,30 56,41" fill="#463344"/>
-      <polygon points="98,46 94,30 84,41" fill="#463344"/>
-      <!-- 猫脸 -->
-      <ellipse cx="70" cy="69" rx="36" ry="30" fill="#14111a" stroke="#d8ad70" stroke-width="2.2"/>
-      <!-- 标志性金丝眼镜 -->
-      <circle cx="55" cy="67" r="10.5" fill="rgba(247,222,192,0.06)" stroke="#e6be82" stroke-width="1.8"/>
-      <circle cx="85" cy="67" r="10.5" fill="rgba(247,222,192,0.06)" stroke="#e6be82" stroke-width="1.8"/>
-      <line x1="65.5" y1="67" x2="74.5" y2="67" stroke="#e6be82" stroke-width="1.8"/>
-      <line x1="36" y1="64" x2="44.5" y2="66" stroke="#e6be82" stroke-width="1.5"/>
-      <line x1="104" y1="64" x2="95.5" y2="66" stroke="#e6be82" stroke-width="1.5"/>
+      <!-- 暗红黑金古典背景 -->
+      <rect x="6" y="6" width="128" height="128" rx="28" fill="url(#dbg_${uid})" stroke="#cfa05e" stroke-width="2.2"/>
+      <!-- 敞领黑衬衫与大衣翻领剪影 -->
+      <path d="M36 105 Q46 92 58 94 L70 103 L82 94 Q94 92 104 105 Z" fill="#110e15" stroke="#cfa05e" stroke-width="1.3" opacity="0.92"/>
+      <polygon points="62,95 70,104 78,95" fill="#e8cbb8" opacity="0.88"/>
+      <!-- 锐利猫耳 -->
+      <polygon points="35,54 43,21 62,39" fill="#141118" stroke="#d8ad70" stroke-width="2.1" stroke-linejoin="round"/>
+      <polygon points="105,54 97,21 78,39" fill="#141118" stroke="#d8ad70" stroke-width="2.1" stroke-linejoin="round"/>
+      <polygon points="41,47 45,30 56,41" fill="#4f2d3b"/>
+      <polygon points="99,47 95,30 84,41" fill="#4f2d3b"/>
+      <!-- 贵气黑猫脸（完全无眼镜！） -->
+      <ellipse cx="70" cy="68" rx="35" ry="29" fill="#16121b" stroke="#d8ad70" stroke-width="2.1"/>
+      <!-- 标志性背头 + 额前微垂碎发 -->
+      <path d="M46 46 Q62 32 82 37 Q93 40 97 48 Q86 42 76 46 Q73 53 69 55 Q70 46 65 44 Q59 50 56 52 Q56 45 46 46 Z" fill="#2b2025" stroke="#8a6c5a" stroke-width="1.2" stroke-linejoin="round"/>
+      <path d="M77 43 Q82 51 77 56" fill="none" stroke="#9e7d67" stroke-width="1.5" stroke-linecap="round"/>
       ${face}
       ${deco}
-      <rect x="18" y="105" width="104" height="22" rx="11" fill="url(#dadGold)"/>
-      <text x="70" y="120.5" text-anchor="middle" font-size="12.5" font-weight="800" fill="#211824" font-family="-apple-system,PingFang SC,sans-serif">${caption}</text>
+      <!-- 香槟金底标 -->
+      <rect x="18" y="105" width="104" height="22" rx="11" fill="url(#dgd_${uid})"/>
+      <text x="70" y="120.5" text-anchor="middle" font-size="12.5" font-weight="800" fill="#21161e" font-family="-apple-system,PingFang SC,sans-serif">${caption}</text>
     </svg>`;
   }
 
@@ -8386,83 +8400,86 @@ ${recentSnippets || '（暂无）'}
     {
       id: 'dad_pat', label: '摸摸头', hint: '伸手轻轻摸摸你的头',
       kw: /摸头|乖|别哭|委屈|哄|受气|辛苦|抱/,
-      svg: makeDadCatSvg(
-        `<path d="M50 67 Q55 63 60 67" fill="none" stroke="#f5d9ad" stroke-width="2.2" stroke-linecap="round"/><path d="M80 67 Q85 63 90 67" fill="none" stroke="#f5d9ad" stroke-width="2.2" stroke-linecap="round"/><path d="M66 78 Q70 82 74 78" fill="none" stroke="#f5d9ad" stroke-width="2" stroke-linecap="round"/>`,
-        `<path d="M56 20 Q70 12 84 20" fill="none" stroke="#f2a7c2" stroke-width="2.6" stroke-linecap="round"/><text x="105" y="42" font-size="14" fill="#f5d9ad">✦</text>`,
+      svg: makeDadCatSvg('pat',
+        `<path d="M46 61 L59 59" stroke="#e6be82" stroke-width="2.2" stroke-linecap="round"/><path d="M94 61 L81 59" stroke="#e6be82" stroke-width="2.2" stroke-linecap="round"/><path d="M49 69 Q55 64 61 69" fill="none" stroke="#f6dcb2" stroke-width="2.4" stroke-linecap="round"/><path d="M79 69 Q85 64 91 69" fill="none" stroke="#f6dcb2" stroke-width="2.4" stroke-linecap="round"/><path d="M66 79 Q70 83 74 79" fill="none" stroke="#f6dcb2" stroke-width="2.1" stroke-linecap="round"/>`,
+        `<path d="M56 19 Q70 11 84 19" fill="none" stroke="#f2a7c2" stroke-width="2.6" stroke-linecap="round"/><text x="106" y="42" font-size="14" fill="#f5d9ad">✦</text>`,
         '摸摸头'
       )
     },
     {
-      id: 'dad_come', label: '过来', hint: '低声勾手让你过来',
+      id: 'dad_come', label: '过来', hint: '晃着红酒杯低声让你过来',
       kw: /过来|回家|找我|想我|想你|见你|门口|接你/,
-      svg: makeDadCatSvg(
-        `<circle cx="55" cy="67" r="2.6" fill="#f5d9ad"/><circle cx="85" cy="67" r="2.6" fill="#f5d9ad"/><path d="M66 79 Q71 81 75 77" fill="none" stroke="#f5d9ad" stroke-width="2" stroke-linecap="round"/>`,
-        `<text x="104" y="44" font-size="15" fill="#f29cb9">♥</text><text x="20" y="44" font-size="12" fill="#e6be82">✦</text>`,
+      svg: makeDadCatSvg('come',
+        `<path d="M45 61 L60 63" stroke="#e6be82" stroke-width="2.4" stroke-linecap="round"/><path d="M95 61 L80 63" stroke="#e6be82" stroke-width="2.4" stroke-linecap="round"/><ellipse cx="54" cy="70" rx="5.2" ry="3.2" fill="#d9a166"/><circle cx="55" cy="70" r="1.9" fill="#1a1114"/><ellipse cx="86" cy="70" rx="5.2" ry="3.2" fill="#d9a166"/><circle cx="85" cy="70" r="1.9" fill="#1a1114"/><path d="M66 80 Q71 82 75 78" fill="none" stroke="#f6dcb2" stroke-width="2.1" stroke-linecap="round"/>`,
+        `<path d="M107 62 L117 62 L115 72 Q112 76 109 72 Z" fill="#8f1d35" stroke="#f5d9ad" stroke-width="1.3"/><line x1="112" y1="74" x2="112" y2="84" stroke="#f5d9ad" stroke-width="1.4"/><line x1="107" y1="84" x2="117" y2="84" stroke="#f5d9ad" stroke-width="1.4"/><text x="20" y="42" font-size="13" fill="#f29cb9">♥</text>`,
         '过来'
       )
     },
     {
-      id: 'dad_good', label: '乖一点', hint: '克制提醒你乖一点',
+      id: 'dad_good', label: '乖一点', hint: '挑眉克制提醒你乖一点',
       kw: /乖|听话|胡闹|不许|收敛|乱来|淘气/,
-      svg: makeDadCatSvg(
-        `<line x1="50" y1="67" x2="60" y2="67" stroke="#f5d9ad" stroke-width="2.2" stroke-linecap="round"/><line x1="80" y1="67" x2="90" y2="67" stroke="#f5d9ad" stroke-width="2.2" stroke-linecap="round"/><path d="M67 79 Q70 81 73 79" fill="none" stroke="#f5d9ad" stroke-width="2" stroke-linecap="round"/>`,
-        `<text x="106" y="45" font-size="13" fill="#e6be82">…</text>`,
+      svg: makeDadCatSvg('good',
+        `<path d="M45 62 L60 62" stroke="#e6be82" stroke-width="2.4" stroke-linecap="round"/><path d="M80 61 Q88 57 95 61" fill="none" stroke="#e6be82" stroke-width="2.4" stroke-linecap="round"/><path d="M49 70 L60 70" stroke="#f6dcb2" stroke-width="2.4" stroke-linecap="round"/><ellipse cx="86" cy="70" rx="4.6" ry="2.8" fill="#d9a166"/><circle cx="86" cy="70" r="1.7" fill="#1a1114"/><path d="M66 80 Q70 81 74 79" fill="none" stroke="#f6dcb2" stroke-width="2.1" stroke-linecap="round"/>`,
+        `<text x="106" y="44" font-size="14" fill="#e6be82">…</text>`,
         '乖一点'
       )
     },
     {
       id: 'dad_busy', label: '在开会', hint: '在开会，忙完立刻找你',
       kw: /开会|会议|忙|文件|报表|工作|加班|公司/,
-      svg: makeDadCatSvg(
-        `<circle cx="55" cy="68" r="2.5" fill="#f5d9ad"/><circle cx="85" cy="68" r="2.5" fill="#f5d9ad"/><line x1="66" y1="79" x2="74" y2="79" stroke="#f5d9ad" stroke-width="2" stroke-linecap="round"/>`,
-        `<rect x="101" y="25" width="18" height="14" rx="3" fill="none" stroke="#e6be82" stroke-width="1.8"/><line x1="105" y1="30" x2="115" y2="30" stroke="#e6be82" stroke-width="1.5"/><line x1="105" y1="34" x2="112" y2="34" stroke="#e6be82" stroke-width="1.5"/>`,
+      svg: makeDadCatSvg('busy',
+        `<path d="M46 61 L60 62" stroke="#e6be82" stroke-width="2.4" stroke-linecap="round"/><path d="M94 61 L80 62" stroke="#e6be82" stroke-width="2.4" stroke-linecap="round"/><ellipse cx="54" cy="70" rx="4.6" ry="2.7" fill="#d9a166"/><circle cx="54" cy="70" r="1.6" fill="#1a1114"/><ellipse cx="86" cy="70" rx="4.6" ry="2.7" fill="#d9a166"/><circle cx="86" cy="70" r="1.6" fill="#1a1114"/><line x1="66" y1="80" x2="74" y2="80" stroke="#f6dcb2" stroke-width="2" stroke-linecap="round"/>`,
+        `<rect x="102" y="24" width="18" height="14" rx="3" fill="none" stroke="#e6be82" stroke-width="1.7"/><line x1="106" y1="29" x2="116" y2="29" stroke="#e6be82" stroke-width="1.4"/><line x1="106" y1="33" x2="113" y2="33" stroke="#e6be82" stroke-width="1.4"/>`,
         '在开会'
       )
     },
     {
-      id: 'dad_sleep', label: '收手机睡觉', hint: '提醒你放下手机早点休息',
+      id: 'dad_sleep', label: '收手机睡觉', hint: '低声催你放下手机早点休息',
       kw: /睡|晚安|熬夜|太晚|困|休息|被窝|明天/,
-      svg: makeDadCatSvg(
-        `<path d="M50 68 Q55 72 60 68" fill="none" stroke="#f5d9ad" stroke-width="2.2" stroke-linecap="round"/><path d="M80 68 Q85 72 90 68" fill="none" stroke="#f5d9ad" stroke-width="2.2" stroke-linecap="round"/><circle cx="70" cy="79" r="2.2" fill="#e6be82"/>`,
-        `<path d="M108 24 A9 9 0 1 0 118 35 A7 7 0 1 1 108 24 Z" fill="#f5d9ad"/>`,
+      svg: makeDadCatSvg('sleep',
+        `<path d="M46 62 L59 61" stroke="#e6be82" stroke-width="2.1" stroke-linecap="round"/><path d="M94 62 L81 61" stroke="#e6be82" stroke-width="2.1" stroke-linecap="round"/><path d="M49 70 Q55 74 61 70" fill="none" stroke="#f6dcb2" stroke-width="2.3" stroke-linecap="round"/><path d="M79 70 Q85 74 91 70" fill="none" stroke="#f6dcb2" stroke-width="2.3" stroke-linecap="round"/><circle cx="70" cy="80" r="2.1" fill="#e6be82"/>`,
+        `<path d="M108 23 A9 9 0 1 0 118 34 A7 7 0 1 1 108 23 Z" fill="#f5d9ad"/>`,
         '收手机睡觉'
       )
     },
     {
-      id: 'dad_mine', label: '我的', hint: '按住小爱心暗暗宣示主权',
+      id: 'dad_mine', label: '我的', hint: '深邃目光暗暗宣示主权',
       kw: /我的|醋|别人|不准|占有|只准|喜欢|爱/,
-      svg: makeDadCatSvg(
-        `<circle cx="55" cy="67" r="2.8" fill="#f5d9ad"/><circle cx="85" cy="67" r="2.8" fill="#f5d9ad"/><path d="M66 78 Q70 82 74 78" fill="none" stroke="#f5d9ad" stroke-width="2" stroke-linecap="round"/>`,
-        `<path d="M70 89 C66 83 58 86 60 92 C62 97 70 101 70 101 C70 101 78 97 80 92 C82 86 74 83 70 89Z" fill="#f082a7"/>`,
+      svg: makeDadCatSvg('mine',
+        `<path d="M45 60 L60 64" stroke="#e6be82" stroke-width="2.5" stroke-linecap="round"/><path d="M95 60 L80 64" stroke="#e6be82" stroke-width="2.5" stroke-linecap="round"/><ellipse cx="54" cy="70" rx="5.2" ry="3.2" fill="#d9a166"/><circle cx="54" cy="70" r="2" fill="#1a1114"/><ellipse cx="86" cy="70" rx="5.2" ry="3.2" fill="#d9a166"/><circle cx="86" cy="70" r="2" fill="#1a1114"/><path d="M66 79 Q70 82 74 79" fill="none" stroke="#f6dcb2" stroke-width="2" stroke-linecap="round"/>`,
+        `<path d="M70 88 C66 82 58 85 60 91 C62 96 70 100 70 100 C70 100 78 96 80 91 C82 85 74 82 70 88Z" fill="#d94e76"/><text x="106" y="42" font-size="13" fill="#f5d9ad">✦</text>`,
         '我的'
       )
     },
     {
-      id: 'dad_kiss', label: '亲一下', hint: '耳尖微红，克制地亲一下',
+      id: 'dad_kiss', label: '亲一下', hint: '低头克制地亲一下你的额头',
       kw: /亲|吻|mua|贴贴|撒娇|想亲|奖励/,
-      svg: makeDadCatSvg(
-        `<path d="M50 67 Q55 63 60 67" fill="none" stroke="#f5d9ad" stroke-width="2.2" stroke-linecap="round"/><circle cx="85" cy="67" r="2.6" fill="#f5d9ad"/><ellipse cx="44" cy="76" rx="4.5" ry="2.6" fill="#f082a7" opacity="0.55"/><ellipse cx="96" cy="76" rx="4.5" ry="2.6" fill="#f082a7" opacity="0.55"/><path d="M68 78 Q71 80 68 82" fill="none" stroke="#f5d9ad" stroke-width="2" stroke-linecap="round"/>`,
-        `<path d="M108 55 C105 50 99 52 101 57 C103 61 108 64 108 64 C108 64 113 61 115 57 C117 52 111 50 108 55Z" fill="#ff7ba9"/>`,
+      svg: makeDadCatSvg('kiss',
+        `<path d="M46 61 L59 60" stroke="#e6be82" stroke-width="2.1" stroke-linecap="round"/><path d="M94 61 L81 60" stroke="#e6be82" stroke-width="2.1" stroke-linecap="round"/><path d="M49 69 Q55 65 61 69" fill="none" stroke="#f6dcb2" stroke-width="2.4" stroke-linecap="round"/><ellipse cx="86" cy="70" rx="4.8" ry="3" fill="#d9a166"/><circle cx="86" cy="70" r="1.8" fill="#1a1114"/><ellipse cx="44" cy="77" rx="4.5" ry="2.5" fill="#f082a7" opacity="0.52"/><ellipse cx="96" cy="77" rx="4.5" ry="2.5" fill="#f082a7" opacity="0.52"/><path d="M68 79 Q71 81 68 83" fill="none" stroke="#f6dcb2" stroke-width="2" stroke-linecap="round"/>`,
+        `<path d="M108 54 C105 49 99 51 101 56 C103 60 108 63 108 63 C108 63 113 60 115 56 C117 51 111 49 108 54Z" fill="#ff7ba9"/>`,
         '亲一下'
       )
     },
     {
-      id: 'dad_sigh', label: '真拿你没办法', hint: '扶额无奈却满眼纵容',
+      id: 'dad_sigh', label: '真拿你没办法', hint: '眉眼柔和无奈，满眼纵容',
       kw: /没办法|纵容|惯着|宠|笑|笨|傻|气鼓鼓/,
-      svg: makeDadCatSvg(
-        `<path d="M50 66 L60 68" stroke="#f5d9ad" stroke-width="2.2" stroke-linecap="round"/><path d="M90 66 L80 68" stroke="#f5d9ad" stroke-width="2.2" stroke-linecap="round"/><path d="M65 80 Q70 77 75 80" fill="none" stroke="#f5d9ad" stroke-width="2" stroke-linecap="round"/>`,
+      svg: makeDadCatSvg('sigh',
+        `<path d="M46 63 L60 60" stroke="#e6be82" stroke-width="2.2" stroke-linecap="round"/><path d="M94 63 L80 60" stroke="#e6be82" stroke-width="2.2" stroke-linecap="round"/><ellipse cx="54" cy="70" rx="4.8" ry="2.9" fill="#d9a166"/><circle cx="54" cy="70" r="1.7" fill="#1a1114"/><ellipse cx="86" cy="70" rx="4.8" ry="2.9" fill="#d9a166"/><circle cx="86" cy="70" r="1.7" fill="#1a1114"/><path d="M65 81 Q70 78 75 81" fill="none" stroke="#f6dcb2" stroke-width="2" stroke-linecap="round"/>`,
         `<text x="20" y="42" font-size="13" fill="#e6be82">✦</text><text x="106" y="44" font-size="13" fill="#f29cb9">♡</text>`,
         '拿你没办法'
       )
     }
   ];
 
+  // 挂到全局方便覆盖可能残留的旧版贴纸
+  window.__DAD_STICKERS_V2 = DAD_STICKERS;
+
   // 2. 数据与消息辅助工具
   function ensureDadVault() {
     if (typeof ST === 'undefined' || !ST) return false;
     if (!Array.isArray(ST.dadStickerVault)) ST.dadStickerVault = [];
     if (!ST.cfg) ST.cfg = {};
-    if (!ST.cfg.dadStkFreq) ST.cfg.dadStkFreq = 'normal'; // off | rare | normal | often
+    if (!ST.cfg.dadStkFreq) ST.cfg.dadStkFreq = 'normal';
     return true;
   }
 
@@ -8508,7 +8525,6 @@ ${recentSnippets || '（暂无）'}
     return `${idx}:${m.id || ''}:${isUserMsg(m) ? 'u' : 'c'}:${getMsgText(m).slice(0, 28)}`;
   }
 
-  // 把有效可发送的偷存表情过滤出来（确保用户删掉的自定义图不会裂图）
   function getUsableVault() {
     if (!ensureDadVault()) return [];
     const customIds = new Set((ST.customStickers || []).map(x => x.id));
@@ -8532,13 +8548,7 @@ ${recentSnippets || '（暂无）'}
         exist.lastSeenAt = Date.now();
         if (label && label !== '可爱表情包') exist.label = label;
       } else {
-        ST.dadStickerVault.unshift({
-          sid,
-          label,
-          stolenAt: Date.now(),
-          seenCount: 1,
-          usedCount: 0
-        });
+        ST.dadStickerVault.unshift({ sid, label, stolenAt: Date.now(), seenCount: 1, usedCount: 0 });
         if (ST.dadStickerVault.length > 28) ST.dadStickerVault.length = 28;
         addedNew = true;
       }
@@ -8546,7 +8556,7 @@ ${recentSnippets || '（暂无）'}
     return addedNew;
   }
 
-  // 4. 把 AI 输出的 <<STK:id>> 转为真实表情包标记
+  // 4. 转换 AI 返回的 <<STK:id>>
   function resolveAiStickerId(id) {
     const cleanId = String(id || '').trim();
     const dad = DAD_STICKERS.find(x => x.id === cleanId);
@@ -8577,7 +8587,7 @@ ${recentSnippets || '（暂无）'}
     return obj;
   }
 
-  // 5. 为迟川挑选一枚贴合当下语境的表情包（优先混用他偷偷存的你的表情包 + 他的黑金贴纸）
+  // 5. 为迟川挑选贴纸
   function pickStickerForDad(replyText, preferStolen = null) {
     const vault = getUsableVault();
     const useStolen = preferStolen !== null
@@ -8585,7 +8595,6 @@ ${recentSnippets || '（暂无）'}
       : (vault.length > 0 && Math.random() < 0.62);
 
     if (useStolen) {
-      // 优先挑用得少或用户刚收藏的自定义图，避免总发同一个
       const sorted = [...vault].sort((a, b) => {
         const aScore = (a.usedCount || 0) - (a.sid.startsWith('cs_') ? 0.5 : 0);
         const bScore = (b.usedCount || 0) - (b.sid.startsWith('cs_') ? 0.5 : 0);
@@ -8657,13 +8666,16 @@ ${recentSnippets || '（暂无）'}
     rerenderChatSafely();
   }
 
-  // 6. 给私聊的系统提示词注入「迟川可偶尔发表情包 / 偷发你表情包」的彩蛋能力
+  // 6. 注入角色系统提示词（全场景洗掉眼镜设定 + 私聊表情包彩蛋）
   const _origBuildSys = window.buildCharSystemPrompt;
-  if (typeof _origBuildSys === 'function' && !_origBuildSys._dadStkWrapped) {
+  if (typeof _origBuildSys === 'function' && !_origBuildSys._dadStkV2) {
     const wrappedBuild = function (ch, contextText) {
-      let base = _origBuildSys.apply(this, arguments);
+      let base = sanitizeGlassesPrompt(_origBuildSys.apply(this, arguments));
+      if (!base.includes('绝对不戴眼镜')) base += NO_GLASSES_RULE;
+
       if (typeof RT === 'undefined' || RT.app !== 'chat') return base;
       if (!ensureDadVault() || ST.cfg.dadStkFreq === 'off') return base;
+      if (base.includes('【微信表情包反差彩蛋')) return base;
 
       const vault = getUsableVault().slice(0, 8);
       const dadList = DAD_STICKERS.map(s => `<<STK:${s.id}>>(${s.label})`).join('、');
@@ -8683,53 +8695,87 @@ ${stolenList ? `- 你偷偷长按收藏的她发过的表情包（偶尔直接�
 若本次决定附带 1 枚表情包，请在你的回复文字末尾另起一行，严格原样写出 1 个双尖括号标记（例如 <<STK:dad_pat>>），不要改动里面的ID，一次最多 1 个。`;
       return base;
     };
-    wrappedBuild._dadStkWrapped = true;
+    wrappedBuild._dadStkV2 = true;
     window.buildCharSystemPrompt = wrappedBuild;
   }
 
-  // 7. 拦截 callDualAPI：把 AI 返回的 <<STK:id>> 翻译成真实表情包标记
+  // 7. 拦截 callDualAPI：翻译 <<STK:id>> + 清理旧补丁残留的“金丝眼镜”
   const _origCallDual = window.callDualAPI;
-  if (typeof _origCallDual === 'function' && !_origCallDual._dadStkWrapped) {
-    const wrappedDual = async function () {
-      const res = await _origCallDual.apply(this, arguments);
+  if (typeof _origCallDual === 'function' && !_origCallDual._dadStkV2) {
+    const wrappedDual = async function (sysPrompt, userPrompt) {
+      let sp = sanitizeGlassesPrompt(sysPrompt);
+      if (typeof sp === 'string' && !sp.includes('绝对不戴眼镜')) {
+        sp += NO_GLASSES_RULE;
+      }
+      const up = sanitizeGlassesPrompt(userPrompt);
+      const res = await _origCallDual.call(this, sp, up);
       if (typeof RT !== 'undefined' && RT.app === 'chat' && res) {
         return deepConvertObjectTokens(res);
       }
       return res;
     };
-    wrappedDual._dadStkWrapped = true;
+    wrappedDual._dadStkV2 = true;
     window.callDualAPI = wrappedDual;
   }
 
-  // 8. 拦截 window.fetch：把聊天历史里的 [[DADSTK:...]] 清理成 AI 读得懂的中文描述（绝不碰系统提示词里的 <<STK:...>>）
-  if (!window._dadFetchPatched && typeof window.fetch === 'function') {
-    window._dadFetchPatched = true;
+  // 8. 底层 window.fetch 拦截：确保全站所有 Gemini / OpenAI 请求都执行「迟川不戴眼镜」+ 清理 [[DADSTK]]
+  if (!window._dadFetchPatchedV2 && typeof window.fetch === 'function') {
+    window._dadFetchPatchedV2 = true;
     const _prevFetch = window.fetch.bind(window);
     const cleanDadToken = s => (typeof s === 'string' && DAD_TOKEN_TEST.test(s))
       ? s.replace(DAD_TOKEN_RE, (_, p) => `（你发了一个表情包：${(p.split('|')[1] || '贴纸').trim()}）`)
       : s;
 
     window.fetch = function (input, init) {
-      if (!init || typeof init.body !== 'string' || !DAD_TOKEN_TEST.test(init.body)) {
+      if (!init || typeof init.body !== 'string') return _prevFetch(input, init);
+      if (!init.body.includes('"contents"') && !init.body.includes('"messages"')) {
         return _prevFetch(input, init);
       }
       try {
         const body = JSON.parse(init.body);
+        let touched = false;
+
         if (Array.isArray(body.contents)) {
+          if (body.systemInstruction && Array.isArray(body.systemInstruction.parts)) {
+            body.systemInstruction.parts.forEach(p => {
+              if (p && typeof p.text === 'string') {
+                p.text = sanitizeGlassesPrompt(p.text);
+                if (!p.text.includes('绝对不戴眼镜')) p.text += NO_GLASSES_RULE;
+              }
+            });
+            touched = true;
+          }
           body.contents.forEach(c => {
             if (c && Array.isArray(c.parts)) {
-              c.parts.forEach(p => { if (p && typeof p.text === 'string') p.text = cleanDadToken(p.text); });
+              c.parts.forEach(p => {
+                if (p && typeof p.text === 'string') {
+                  const next = sanitizeGlassesPrompt(cleanDadToken(p.text));
+                  if (next !== p.text) { p.text = next; touched = true; }
+                }
+              });
             }
           });
         } else if (Array.isArray(body.messages)) {
+          let hasSys = false;
           body.messages.forEach(m => {
-            if (m && m.role !== 'system' && typeof m.content === 'string') {
-              m.content = cleanDadToken(m.content);
+            if (!m || typeof m.content !== 'string') return;
+            if (m.role === 'system') {
+              hasSys = true;
+              m.content = sanitizeGlassesPrompt(m.content);
+              if (!m.content.includes('绝对不戴眼镜')) m.content += NO_GLASSES_RULE;
+              touched = true;
+            } else {
+              const next = sanitizeGlassesPrompt(cleanDadToken(m.content));
+              if (next !== m.content) { m.content = next; touched = true; }
             }
           });
-        } else {
-          return _prevFetch(input, init);
+          if (!hasSys && body.messages.length) {
+            body.messages.unshift({ role: 'system', content: NO_GLASSES_RULE.trim() });
+            touched = true;
+          }
         }
+
+        if (!touched) return _prevFetch(input, init);
         return _prevFetch(input, { ...init, body: JSON.stringify(body) });
       } catch {
         return _prevFetch(input, init);
@@ -8737,7 +8783,7 @@ ${stolenList ? `- 你偷偷长按收藏的她发过的表情包（偶尔直接�
     };
   }
 
-  // 9. 拦截 saveST：自动偷存你的表情包 + 把迟川「文字+表情包」拆成微信同款双气泡 + 兜底偶尔惊喜发图
+  // 9. 拦截 saveST：偷存你的表情包 + 双气泡拆分 + 偶尔惊喜发图
   const _rawSaveST = window.saveST;
   let _inDadSave = false;
   let _dadDelayTimer = null;
@@ -8748,7 +8794,6 @@ ${stolenList ? `- 你偷偷长按收藏的她发过的表情包（偶尔直接�
     const msgs = findChatMsgs(ch);
     if (!msgs || !msgs.length) return;
 
-    // 首次加载时只静默同步历史里的用户表情包，不触发新的自动发送
     if (typeof RT !== 'undefined' && !RT._dadInitDone) {
       RT._dadInitDone = true;
       msgs.slice(-30).forEach(m => { if (isUserMsg(m)) stealStickersFromText(getMsgText(m)); });
@@ -8766,7 +8811,6 @@ ${stolenList ? `- 你偷偷长按收藏的她发过的表情包（偶尔直接�
     const tk = getMsgTextKey(last);
     let txt = getMsgText(last);
 
-    // A. 用户刚发消息：悄悄检查并偷存表情包
     if (isUserMsg(last)) {
       const hasStk = USER_STK_RE.test(txt);
       USER_STK_RE.lastIndex = 0;
@@ -8782,9 +8826,7 @@ ${stolenList ? `- 你偷偷长按收藏的她发过的表情包（偶尔直接�
       return;
     }
 
-    // B. 迟川刚发消息
     if (isCharMsg(last) && !last._dadAutoStk) {
-      // 兜底转换可能残留的 <<STK:...>>
       if (txt.includes('<<STK:')) {
         txt = convertAiStickerTokens(txt);
         last[tk] = txt;
@@ -8794,7 +8836,6 @@ ${stolenList ? `- 你偷偷长按收藏的她发过的表情包（偶尔直接�
       const hasUserTok = /\[\[STICKER:[^\]]+\]\]/.test(txt);
 
       if (hasDadTok || hasUserTok) {
-        // 如果迟川同时发了文字和表情包，自动拆成微信同款两条独立气泡（先文字，再无底色表情包）
         const combinedRe = /\[\[(?:DADSTK|STICKER):[^\]]+\]\]/g;
         const found = txt.match(combinedRe);
         const pureText = txt.replace(combinedRe, '').trim();
@@ -8811,7 +8852,6 @@ ${stolenList ? `- 你偷偷长按收藏的她发过的表情包（偶尔直接�
         return;
       }
 
-      // 如果本次回复没带表情包，按设定频率偶尔在 1 秒后惊喜补发一枚！
       if (typeof RT === 'undefined' || RT.app !== 'chat' || ST.cfg.dadStkFreq === 'off') return;
       RT._dadTurnsSinceStk = (RT._dadTurnsSinceStk || 0) + 1;
       const userSentStk = !!RT._dadUserJustSentStk;
@@ -8838,7 +8878,7 @@ ${stolenList ? `- 你偷偷长按收藏的她发过的表情包（偶尔直接�
     }
   }
 
-  if (typeof _rawSaveST === 'function' && !_rawSaveST._dadStkWrapped) {
+  if (typeof _rawSaveST === 'function' && !_rawSaveST._dadStkV2) {
     const wrappedSave = function () {
       if (!_inDadSave) {
         _inDadSave = true;
@@ -8846,23 +8886,34 @@ ${stolenList ? `- 你偷偷长按收藏的她发过的表情包（偶尔直接�
       }
       return _rawSaveST.apply(this, arguments);
     };
-    wrappedSave._dadStkWrapped = true;
+    wrappedSave._dadStkV2 = true;
     window.saveST = wrappedSave;
   }
 
-  // 10. 渲染迟川专属黑金贴纸 + 给迟川偷发的你的表情包加上「🖤 偷存自你」微标签
+  // 10. 渲染迟川无眼镜黑猫贴纸 + 自动替换可能残留的旧版眼镜 SVG + 偷存微标签
+  function upgradeLegacyGlassesSvgs(root) {
+    if (!root) return;
+    root.querySelectorAll('.dad-msg-sticker').forEach(box => {
+      const svg = box.querySelector('svg');
+      if (!svg || svg.dataset.dadV2) return;
+      const caption = (svg.querySelector('text:last-of-type')?.textContent || '').trim();
+      const matched = DAD_STICKERS.find(s => s.label === caption || caption.includes(s.label.slice(0, 2))) || DAD_STICKERS[0];
+      box.innerHTML = matched.svg;
+    });
+  }
+
   function renderDadStickersInDOM(root) {
     if (!root) return;
     const isChat = typeof RT !== 'undefined' && RT.app === 'chat';
 
-    // A. 渲染 [[DADSTK:...]]
     root.querySelectorAll('div, p, span').forEach(el => {
-      if (el.dataset.dadStkDone || el.closest('#wcDrawer, .wc-mask, input, textarea')) return;
+      if (el.dataset.dadStkV2Done || el.closest('#wcDrawer, .wc-mask, input, textarea')) return;
       const raw = el.textContent || '';
       if (!DAD_TOKEN_TEST.test(raw)) return;
       if (Array.from(el.children).some(ch => DAD_TOKEN_TEST.test(ch.textContent || ''))) return;
 
       el.dataset.dadStkDone = '1';
+      el.dataset.dadStkV2Done = '1';
       if (!isChat) {
         el.textContent = raw.replace(DAD_TOKEN_RE, '[表情包]');
         return;
@@ -8895,7 +8946,8 @@ ${stolenList ? `- 你偷偷长按收藏的她发过的表情包（偶尔直接�
       });
     });
 
-    // B. 给左侧（迟川发出的）偷存表情包加上超可爱的「🖤 偷存自你」微标签
+    upgradeLegacyGlassesSvgs(root);
+
     if (isChat) {
       const layer = document.getElementById('appLayer');
       if (layer) {
@@ -8923,7 +8975,7 @@ ${stolenList ? `- 你偷偷长按收藏的她发过的表情包（偶尔直接�
     }
   }
 
-  // 11. 往表情包抽屉底部注入「🖤 迟川」偷看页（查看他偷存的表情 + 调频率 + 立刻测试逗他发一个）
+  // 11. 抽屉内「🖤 迟川」偷看页
   function renderDadDrawerContent(drawer) {
     ensureDadVault();
     const body = drawer.querySelector('.wc-drawer-body');
@@ -8963,11 +9015,11 @@ ${stolenList ? `- 你偷偷长按收藏的她发过的表情包（偶尔直接�
       </div>` : `<div style="padding:10px 12px;border-radius:12px;background:rgba(255,255,255,0.72);font-size:11.5px;color:#9e818c;text-align:center">你发过的贴纸和自定义表情包，他都会悄悄长按存进这里，等心情好时冷不丁发给你 🖤</div>`}
 
       <div class="dad-sec-lbl" style="margin-top:12px">
-        <span>✦ 迟川的专属黑金贴纸 (${DAD_STICKERS.length})</span>
-        <span style="font-size:10px;color:#a0858f;font-weight:400">仅迟川本人使用</span>
+        <span>✦ 迟川的专属暗黑黑猫贴纸 (${DAD_STICKERS.length})</span>
+        <span style="font-size:10px;color:#a0858f;font-weight:400">背头黑衬衫 · 仅迟川使用</span>
       </div>
       <div class="wc-stk-grid">
-        ${DAD_STICKERS.map(s => `<button type="button" class="wc-stk-cell" style="background:#1e1a26;border-color:rgba(207,160,94,0.35)" data-dad-preview-own="${s.id}">${s.svg}</button>`).join('')}
+        ${DAD_STICKERS.map(s => `<button type="button" class="wc-stk-cell" style="background:#19141f;border-color:rgba(207,160,94,0.35)" data-dad-preview-own="${s.id}">${s.svg}</button>`).join('')}
       </div>
     `;
 
@@ -9014,21 +9066,28 @@ ${stolenList ? `- 你偷偷长按收藏的她发过的表情包（偶尔直接�
     const drawer = document.getElementById('wcDrawer');
     if (!drawer) return;
     const tabGroup = drawer.querySelector('.wc-tab-group');
-    if (!tabGroup || document.getElementById('wcTabDadVault')) return;
+    if (!tabGroup) return;
 
     ensureDadVault();
-    const btn = document.createElement('button');
-    btn.id = 'wcTabDadVault';
-    btn.type = 'button';
-    btn.className = 'wc-tab-btn';
+    let btn = document.getElementById('wcTabDadVault');
+    if (!btn) {
+      btn = document.createElement('button');
+      btn.id = 'wcTabDadVault';
+      btn.type = 'button';
+      btn.className = 'wc-tab-btn';
+      tabGroup.appendChild(btn);
+    }
     btn.textContent = `🖤 迟川(${getUsableVault().length})`;
-    btn.onclick = () => {
-      playTap();
-      drawer.querySelectorAll('.wc-tab-btn').forEach(x => x.classList.remove('on'));
-      btn.classList.add('on');
-      renderDadDrawerContent(drawer);
-    };
-    tabGroup.appendChild(btn);
+    // 总是绑定最新 V2 渲染函数（覆盖可能残留的旧版点击事件）
+    if (!btn.dataset.dadV2Bound) {
+      btn.dataset.dadV2Bound = '1';
+      btn.onclick = () => {
+        playTap();
+        drawer.querySelectorAll('.wc-tab-btn').forEach(x => x.classList.remove('on'));
+        btn.classList.add('on');
+        renderDadDrawerContent(drawer);
+      };
+    }
   }
 
   function enhanceDadStickerUI() {
@@ -9040,13 +9099,13 @@ ${stolenList ? `- 你偷偷长按收藏的她发过的表情包（偶尔直接�
   // 12. 挂钩渲染与监听
   ['vChat', 'renderCurrentApp', 'renderHomeWidgets'].forEach(fnName => {
     const orig = window[fnName];
-    if (typeof orig === 'function' && !orig._dadUiWrapped) {
+    if (typeof orig === 'function' && !orig._dadUiV2) {
       const wrapped = function () {
         const res = orig.apply(this, arguments);
-        setTimeout(enhanceDadStickerUI, 15);
+        setTimeout(enhanceDadStickerUI, 20);
         return res;
       };
-      wrapped._dadUiWrapped = true;
+      wrapped._dadUiV2 = true;
       window[fnName] = wrapped;
     }
   });
@@ -9056,17 +9115,17 @@ ${stolenList ? `- 你偷偷长按收藏的她发过的表情包（偶尔直接�
     let t = null;
     const obs = new MutationObserver(() => {
       clearTimeout(t);
-      t = setTimeout(enhanceDadStickerUI, 45);
+      t = setTimeout(enhanceDadStickerUI, 50);
     });
     obs.observe(layerEl, { childList: true, subtree: true });
   }
 
-  // 启动时先静默同步一次历史里已经发过的表情包
   setTimeout(() => {
     processChatMessagesOnSave();
     enhanceDadStickerUI();
   }, 260);
 })();
 </script>
+
 </body>
 </html>
