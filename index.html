@@ -5720,6 +5720,1384 @@ ${existingSnippets || '（暂无）'}
   }
 })();
 </script>
+<style>
+  /* 朋友圈顶部双人主页快捷入口 + 好友发动态栏 */
+  .mp-top-panel {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .mp-quick-bar {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 9px;
+  }
+  .mp-quick-pill {
+    display: flex;
+    align-items: center;
+    gap: 9px;
+    padding: 9px 11px;
+    border-radius: 16px;
+    background: rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(229, 140, 168, 0.24);
+    box-shadow: 0 4px 14px rgba(198, 98, 131, 0.08);
+    text-align: left;
+    transition: transform 0.14s ease;
+  }
+  .mp-quick-pill:active { transform: scale(0.97); }
+  .mp-quick-av {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    overflow: hidden;
+    flex-shrink: 0;
+    background: linear-gradient(135deg, #f9d8e5, #f0b5cb);
+    color: #fff;
+    font-weight: 700;
+    font-size: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border: 1.5px solid #fff;
+    box-shadow: 0 2px 6px rgba(74, 53, 61, 0.12);
+  }
+  .mp-quick-av img { width: 100%; height: 100%; object-fit: cover; display: block; }
 
+  .mp-npc-bar {
+    display: grid;
+    grid-template-columns: 1.25fr 1fr;
+    gap: 8px;
+  }
+  .mp-npc-btn {
+    padding: 9px 12px;
+    border-radius: 14px;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    transition: transform 0.14s ease, opacity 0.14s ease;
+  }
+  .mp-npc-btn:active { transform: scale(0.97); }
+  .mp-npc-btn:disabled { opacity: 0.62; }
+  .mp-npc-btn.primary {
+    background: linear-gradient(135deg, #f3a4bd, #e283a2);
+    color: #fff;
+    box-shadow: 0 4px 12px rgba(226, 131, 162, 0.28);
+  }
+  .mp-npc-btn.secondary {
+    background: rgba(255, 255, 255, 0.88);
+    color: #c96283;
+    border: 1px solid rgba(229, 140, 168, 0.34);
+  }
+  .mp-npc-av {
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 15px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 3px 10px rgba(74, 53, 61, 0.14);
+    border: 1.5px solid #fff;
+  }
+  .mp-clickable-av { cursor: pointer !important; transition: transform 0.14s ease; }
+  .mp-clickable-av:active { transform: scale(0.92); }
+
+  /* 指定好友选择弹窗 */
+  .mp-cast-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+  }
+  .mp-cast-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 13px;
+    background: #fff;
+    border: 1.5px solid rgba(229, 140, 168, 0.22);
+    text-align: left;
+    transition: all 0.14s ease;
+  }
+  .mp-cast-chip.on {
+    border-color: #e58ca8;
+    background: rgba(243, 164, 189, 0.14);
+    box-shadow: 0 3px 10px rgba(229, 140, 168, 0.16);
+  }
+  .mp-cast-dot {
+    width: 30px;
+    height: 30px;
+    border-radius: 9px;
+    color: #fff;
+    font-weight: 700;
+    font-size: 13px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  /* 微信风个人朋友圈主页全屏层 */
+  .mp-overlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9500;
+    background: rgba(24, 16, 22, 0.35);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    justify-content: center;
+    animation: mpFadeIn 0.2s ease;
+  }
+  @keyframes mpFadeIn {
+    from { opacity: 0; transform: translateY(14px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .mp-shell {
+    width: 100%;
+    max-width: 460px;
+    height: 100%;
+    background: #fff9fb;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    position: relative;
+    color: #4a353d;
+  }
+  .mp-scroll {
+    flex: 1;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding-bottom: calc(env(safe-area-inset-bottom, 16px) + 32px);
+  }
+  .mp-cover {
+    position: relative;
+    height: calc(195px + env(safe-area-inset-top, 12px));
+    padding: calc(env(safe-area-inset-top, 12px) + 10px) 16px 0;
+    background: linear-gradient(145deg, #ffd6e6 0%, #f5b2cc 52%, #e58ca8 100%);
+    overflow: visible;
+  }
+  .mp-cover.dad {
+    background: linear-gradient(145deg, #1b1824 0%, #2e2334 50%, #5e3d4f 100%);
+  }
+  .mp-cover::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 22% 35%, rgba(255, 255, 255, 0.18), transparent 56%),
+                linear-gradient(to top, rgba(0, 0, 0, 0.28), transparent 48%);
+    pointer-events: none;
+  }
+  .mp-topbar {
+    position: relative;
+    z-index: 3;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+  .mp-topbtn {
+    padding: 6px 13px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.28);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+  }
+  .mp-topbtn:active { opacity: 0.78; }
+  .mp-profile-anchor {
+    position: absolute;
+    right: 18px;
+    bottom: -24px;
+    z-index: 4;
+    display: flex;
+    align-items: flex-end;
+    gap: 12px;
+  }
+  .mp-name-wrap {
+    text-align: right;
+    margin-bottom: 30px;
+  }
+  .mp-name {
+    font-size: 19px;
+    font-weight: 700;
+    color: #fff;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+    display: inline-flex;
+    align-items: center;
+    gap: 5px;
+  }
+  .mp-big-av {
+    width: 72px;
+    height: 72px;
+    border-radius: 15px;
+    overflow: hidden;
+    background: linear-gradient(135deg, #f9d8e5, #e58ca8);
+    border: 3px solid #fff;
+    box-shadow: 0 8px 20px rgba(74, 53, 61, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    font-weight: 700;
+    color: #fff;
+    flex-shrink: 0;
+  }
+  .mp-big-av img { width: 100%; height: 100%; object-fit: cover; display: block; }
+  .mp-bio-sec {
+    padding: 34px 18px 14px;
+    border-bottom: 1px solid rgba(229, 140, 168, 0.16);
+    background: linear-gradient(to bottom, #fff, #fff9fb);
+  }
+  .mp-bio-txt {
+    text-align: right;
+    font-size: 12.5px;
+    color: #8f747e;
+    line-height: 1.5;
+  }
+  .mp-stats {
+    margin-top: 10px;
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+  .mp-stat-chip {
+    font-size: 11px;
+    color: #c96283;
+    background: rgba(229, 140, 168, 0.13);
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-weight: 600;
+  }
+
+  /* 微信按日期分组的时间轴 */
+  .mp-album {
+    padding: 16px 16px 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+  }
+  .mp-day-row {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+  }
+  .mp-day-col {
+    width: 60px;
+    flex-shrink: 0;
+    padding-top: 2px;
+    color: #4a353d;
+  }
+  .mp-day-big {
+    font-size: 22px;
+    font-weight: 800;
+    line-height: 1.05;
+    letter-spacing: -0.02em;
+  }
+  .mp-day-word {
+    font-size: 17px;
+    font-weight: 800;
+    line-height: 1.2;
+  }
+  .mp-day-mon {
+    font-size: 11px;
+    font-weight: 700;
+    color: #8f747e;
+    margin-left: 2px;
+  }
+  .mp-day-year {
+    font-size: 10px;
+    color: #b59aa4;
+    margin-top: 2px;
+  }
+  .mp-cards-col {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+  .mp-item {
+    background: #fff;
+    border-radius: 14px;
+    padding: 11px 12px;
+    border: 1px solid rgba(229, 140, 168, 0.18);
+    box-shadow: 0 4px 14px rgba(198, 98, 131, 0.06);
+    cursor: pointer;
+    transition: transform 0.13s ease;
+  }
+  .mp-item:active { transform: scale(0.985); }
+  .mp-item-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    margin-bottom: 6px;
+  }
+  .mp-item-time { font-size: 11px; color: #a68c96; }
+  .mp-item-tag {
+    font-size: 10px;
+    color: #c96283;
+    background: rgba(229, 140, 168, 0.14);
+    padding: 2px 8px;
+    border-radius: 999px;
+    font-weight: 600;
+  }
+  .mp-item-body { display: flex; gap: 10px; align-items: flex-start; }
+  .mp-item-thumb {
+    width: 64px;
+    height: 64px;
+    border-radius: 10px;
+    object-fit: cover;
+    flex-shrink: 0;
+    background: #f8e4ec;
+  }
+  .mp-item-text {
+    font-size: 13.5px;
+    line-height: 1.62;
+    color: #4a353d;
+    white-space: pre-wrap;
+    word-break: break-word;
+    flex: 1;
+    min-width: 0;
+  }
+  .mp-item-ft {
+    margin-top: 8px;
+    padding-top: 7px;
+    border-top: 1px dashed rgba(229, 140, 168, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    font-size: 11px;
+    color: #9e818c;
+  }
+
+  /* 单条动态详情弹窗 */
+  .mp-detail-mask {
+    position: fixed;
+    inset: 0;
+    z-index: 9600;
+    background: rgba(24, 16, 22, 0.45);
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+  }
+  .mp-detail-sheet {
+    width: 100%;
+    max-width: 460px;
+    max-height: 84vh;
+    background: #fff9fb;
+    border-radius: 22px 22px 0 0;
+    padding: 16px 16px calc(env(safe-area-inset-bottom, 16px) + 18px);
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    color: #4a353d;
+    box-shadow: 0 -8px 28px rgba(0, 0, 0, 0.16);
+  }
+  .mp-cmt-box {
+    margin-top: 12px;
+    background: rgba(253, 236, 242, 0.72);
+    border-radius: 14px;
+    padding: 10px 12px;
+    display: flex;
+    flex-direction: column;
+    gap: 7px;
+    font-size: 12.5px;
+    line-height: 1.55;
+  }
+  .mp-empty {
+    text-align: center;
+    padding: 48px 20px;
+    color: #a68c96;
+    font-size: 13px;
+  }
+</style>
+<script>
+(function () {
+  const pad2 = n => String(n).padStart(2, '0');
+  const safeEsc = s => (typeof esc === 'function' ? esc(s) : String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])));
+  const playTap = () => { try { if (typeof SFX !== 'undefined' && SFX.tap) SFX.tap(); } catch {} };
+  const playSoft = () => { try { if (typeof SFX !== 'undefined' && SFX.soft) SFX.soft(); } catch {} };
+  const showToast = msg => { try { if (typeof toast === 'function') toast(msg); } catch {} };
+
+  // 共同好友常驻卡司（也支持在弹窗里自由输入任何自定义好友）
+  const NPC_CAST = [
+    {
+      name: '陈序',
+      av: '陈',
+      color: 'linear-gradient(135deg, #4b6888, #2d4057)',
+      role: '新岚顾问 · 迟川多年损友',
+      bio: '看报表和看老迟双标，是我唯二的业余爱好。',
+      style: '毒舌风趣、金融圈精英口吻，最爱吐槽迟川对内宠溺对外冷脸的双标反差，也常发应酬、小酌或并购日常'
+    },
+    {
+      name: '林助理',
+      av: '林',
+      color: 'linear-gradient(135deg, #746b8e, #4a4261)',
+      role: '总裁办首席特助',
+      bio: '专业、高效、已熟练掌握“老板因陪太太临时改会”的应急预案。',
+      style: '冷静克制的职场精英风，带点欲言又止的打工人幽默，常发日程统筹、出差见闻、总裁办茶水间小插曲'
+    },
+    {
+      name: '孙遇',
+      av: '孙',
+      color: 'linear-gradient(135deg, #528976, #315c4e)',
+      role: '新岚研发部负责人',
+      bio: '理性分析一切，唯独分析不懂某人谈恋爱后的脑回路。',
+      style: '理工科冷幽默，关注技术、咖啡浓度、光照护眼和实验室趣事，顺口评价起感情来一本正经却特别好笑'
+    },
+    {
+      name: '周墨教授',
+      av: '周',
+      color: 'linear-gradient(135deg, #a27e66, #6f523f)',
+      role: '美院前辈 · 亦师亦友',
+      bio: '一盏清茶，半卷旧画，看风雅也看人间烟火。',
+      style: '温润儒雅、有书卷气，常发画展、写生、雨天煮茶或偶遇迟琰画画的欣慰感叹，偶尔温和打趣迟川'
+    },
+    {
+      name: 'Sota',
+      av: 'S',
+      color: 'linear-gradient(135deg, #c77996, #914965)',
+      role: '画室搭子 · 艺术圈密友',
+      bio: '颜料、拿铁、以及南湾画室最新一线八卦。',
+      style: '鲜活松弛、审美敏锐、爱吃瓜起哄，常发画室日常、调色灵感，或者撞见迟川来接人时的细节吐槽'
+    },
+    {
+      name: '苏晚',
+      av: '晚',
+      color: 'linear-gradient(135deg, #de9978, #b56b4d)',
+      role: '迟琰闺蜜 · 甜品搭子',
+      bio: '逛街永不缺席，替闺蜜护短冲在第一线。',
+      style: '活泼贴心、爱分享探店下午茶与穿搭日常，偶尔发条被小两口秀到的酸柠檬吐槽'
+    }
+  ];
+
+  // 离线兜底好友朋友圈（未接 API 或接口波动时无缝顶上）
+  const OFFLINE_NPC_MOMENTS = [
+    {
+      name: '陈序',
+      tag: '今日份双标',
+      text: '今天下午复盘会开到一半，某位平时在会议室里冷得像北极冰川的迟总，手机响了一声后脸色瞬间放柔，破天荒宣布提前二十分钟散会。\n\n我多嘴问了句什么急事，他收好钢笔头也不抬：“家里有人说想吃巷口那家刚出炉的栗子蛋糕。”\n行，你们新岚的绩效原来是拿单身狗的眼泪换的。',
+      likers: ['林助理', '孙遇', 'Sota', '迟川'],
+      comments: [
+        { a: '林助理', t: '陈顾问，其实明早十点前的会我也已经提前往后顺延半小时了。' },
+        { a: '孙遇', t: '栗子蛋糕热量不低，但鉴于迟总当时的表情，建议不要提出任何营养学异议。' },
+        { a: '迟川', t: '有空发朋友圈，不如把季度复盘的第三页补完。' }
+      ]
+    },
+    {
+      name: '林助理',
+      tag: '总裁办日常',
+      text: '整理完本周日程表，顺便总结出一条总裁办生存法则：\n\n如果老板早上九点走进办公室时领带系得一丝不苟、眉心微蹙，请保持绝对静音；如果他衣领边沾了一点若有似无的颜料星子还毫无察觉——今天全公司的审批通过率都会高达99%。',
+      likers: ['陈序', '孙遇', '周墨教授'],
+      comments: [
+        { a: '陈序', t: '哈哈哈哈救命，林助你这职场观察报告值一顿米其林！' },
+        { a: 'Sota', t: '那点颜料大概率是昨天在画室某人故意蹭上去的，我亲眼看见的！' }
+      ]
+    },
+    {
+      name: '孙遇',
+      tag: '实验室摸鱼',
+      text: '刚给新样品测完温控曲线，一抬头发现窗外天都黑透了。本来打算叫老迟一块吃个简餐顺便核对参数，结果他回了四个字：“回家做饭。”\n\n我对着屏幕思考了十秒：我们认识十年，他以前可是连咖啡机都懒得自己按的人。爱情确实改变热力学规律。',
+      likers: ['陈序', '林助理', '苏晚'],
+      comments: [
+        { a: '陈序', t: '别问，问就是人家家里那位只爱吃他亲手熬的汤。' },
+        { a: '迟川', t: '参数发邮箱，明天一早看。' }
+      ]
+    },
+    {
+      name: '周墨教授',
+      tag: '雨天煮茶',
+      text: '午后落了场小雨，在画室整理旧稿时翻出一张去年的水彩小样，色调清透灵动，倒让我想起小琰最近那几幅新作——笔触比从前更松弛明快了。\n\n画如其人，一个人被好好偏爱着的时候，连落笔的光影都是暖的。',
+      likers: ['迟川', 'Sota', '林助理'],
+      comments: [
+        { a: 'Sota', t: '周教授说得太戳心了！小琰最近画画眼里都在发光～' },
+        { a: '迟川', t: '下周画展开幕，我陪她一起来看您。' }
+      ]
+    },
+    {
+      name: 'Sota',
+      tag: '画室偶遇',
+      text: '刚才在画室门口倒颜料水，差点被一辆黑得发亮的车晃花眼。车窗降下来，迟总戴着金丝眼镜坐里面，手里居然稳稳端着一杯去冰三分糖的草莓牛乳，跟整张禁欲冷脸形成一万点反差暴击。\n\n救命，以后谁再说霸总高冷我第一个拿今天的画面反驳！',
+      likers: ['苏晚', '陈序', '林助理'],
+      comments: [
+        { a: '苏晚', t: '三分糖去冰都能记得分毫不差，迟总这细节控真的绝了！' },
+        { a: '陈序', t: '他那哪是记性好，他是把关于太太的所有参数都背得比财报还熟。' }
+      ]
+    },
+    {
+      name: '苏晚',
+      tag: '下午茶探店',
+      text: '发现一家新开的法式甜品屋，开心果巴斯克好吃到想原地转圈！本来兴冲冲拍照想约小琰明天下午来打卡，结果想到某位占有欲爆棚的迟先生明天正好休息——\n\n算了，我还是先问问他愿不愿意放人出来两小时吧哈哈哈。',
+      likers: ['Sota', '陈序', '迟川'],
+      comments: [
+        { a: '陈序', t: '大胆点，直接约，大不了老迟顺手把你们整桌单都买了然后亲自来接人。' },
+        { a: '迟川', t: '地址发我，明天下午我送她过去。' }
+      ]
+    }
+  ];
+
+  function getNpcMeta(name, fallbackObj) {
+    const found = NPC_CAST.find(x => x.name === name);
+    if (found) return found;
+    return {
+      name: name || '共同好友',
+      av: (fallbackObj && fallbackObj.npcAv) || String(name || '友').slice(0, 1),
+      color: (fallbackObj && fallbackObj.npcColor) || 'linear-gradient(135deg, #8b859c, #5d576e)',
+      role: (fallbackObj && fallbackObj.npcRole) || '共同好友',
+      bio: (fallbackObj && fallbackObj.npcBio) || '记录生活里的吉光片羽 ✨',
+      style: '自然真实、有生活气息的共同好友'
+    };
+  }
+
+  // 1. 自动找到存档里的朋友圈数组
+  function findMomentsList() {
+    if (typeof ST === 'undefined' || !ST) return null;
+    for (const k of ['moments', 'pyq', 'circle', 'feed', 'posts']) {
+      if (Array.isArray(ST[k])) return ST[k];
+    }
+    for (const k of Object.keys(ST)) {
+      if (['xposts', 'forum', 'chars', 'worldbook', 'wishes', 'days', 'moods', 'deletedXIds'].includes(k)) continue;
+      const v = ST[k];
+      if (Array.isArray(v) && v.length && v[0] && typeof v[0] === 'object') {
+        const x = v[0];
+        if (('comments' in x || 'replies' in x) && ('text' in x || 'body' in x || 'content' in x)) {
+          return v;
+        }
+      }
+    }
+    return null;
+  }
+
+  function extractTsFromId(id) {
+    const m = String(id || '').match(/(1[6-9]\d{11})/);
+    if (!m) return 0;
+    const n = Number(m[1]);
+    return (n > 1600000000000 && n < 2000000000000) ? n : 0;
+  }
+
+  // 2. 真实时间格式化
+  function formatMomentTime(ts) {
+    if (!ts || typeof ts !== 'number') return '刚刚';
+    const now = Date.now();
+    const diff = now - ts;
+    if (diff < 60 * 1000) return '刚刚';
+    if (diff < 60 * 60 * 1000) return `${Math.floor(diff / 60000)}分钟前`;
+
+    const d = new Date(ts);
+    const n = new Date(now);
+    const startOfDay = dt => new Date(dt.getFullYear(), dt.getMonth(), dt.getDate()).getTime();
+    const dayDiff = Math.round((startOfDay(n) - startOfDay(d)) / 86400000);
+    const hm = `${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+
+    if (dayDiff === 0) return `${Math.max(1, Math.floor(diff / 3600000))}小时前`;
+    if (dayDiff === 1) return `昨天 ${hm}`;
+    if (dayDiff === 2) return `前天 ${hm}`;
+    if (d.getFullYear() === n.getFullYear()) return `${d.getMonth() + 1}月${d.getDate()}日 ${hm}`;
+    return `${d.getFullYear()}年${d.getMonth() + 1}月${d.getDate()}日`;
+  }
+
+  function syncMomentTimes(allowSave) {
+    const list = findMomentsList();
+    if (!list) return false;
+    let changed = false;
+    list.forEach(m => {
+      if (!m || typeof m !== 'object') return;
+      if (typeof m.ts !== 'number' || m.ts < 1e12) {
+        const fromField = Number(m.createdAt || m.timestamp || 0);
+        const fromId = extractTsFromId(m.id);
+        if (fromField > 1e12) {
+          m.ts = fromField;
+          changed = true;
+        } else if (fromId > 1e12) {
+          m.ts = fromId;
+          changed = true;
+        } else if (String(m.time || '').trim() === '刚刚') {
+          m.ts = Date.now();
+          changed = true;
+        }
+      }
+      if (typeof m.ts === 'number' && m.ts > 1e12) {
+        const nextStr = formatMomentTime(m.ts);
+        if (m.time !== nextStr) {
+          m.time = nextStr;
+          changed = true;
+        }
+      }
+    });
+    if (changed && allowSave && typeof _rawSaveST === 'function') {
+      _rawSaveST();
+    }
+    return changed;
+  }
+
+  // 3. 字段兼容读取器 & 自动适配写入器
+  function getPostText(m) { return String(m.text || m.body || m.content || ''); }
+  function getPostTag(m) { return String(m.tag || m.mood || m.topic || m.loc || ''); }
+  function getPostImg(m) { return m.img || m.image || m.photo || ''; }
+  function getPostAuthor(m) { return String(m.author || m.name || m.who || '').trim(); }
+  function getPostComments(m) { return Array.isArray(m.comments) ? m.comments : (Array.isArray(m.replies) ? m.replies : []); }
+  function getLikesInfo(m) {
+    const names = Array.isArray(m.likers) ? m.likers
+      : Array.isArray(m.likedBy) ? m.likedBy
+      : Array.isArray(m.likes) ? m.likes : [];
+    const count = typeof m.likes === 'number' ? m.likes : names.length;
+    return { names, count };
+  }
+  function getAuthorType(m, ch) {
+    if (!m) return 'other';
+    if (m.isNpc || m.from === 'npc') return 'npc:' + (getPostAuthor(m) || '共同好友');
+    if (m.isMe === true || m.from === 'me' || m.from === 'user' || m.by === 'me' || m.by === 'user' || m.role === 'user') return 'me';
+    const author = getPostAuthor(m);
+    const myName = (typeof ST !== 'undefined' && ST.userName) ? ST.userName : '迟琰';
+    if (author === myName || author === '迟琰' || author === 'Cynder' || author === '我') return 'me';
+    if (author === ch.name || author === '迟川' || author === 'Cyrus') return 'dad';
+    if (author && NPC_CAST.some(x => x.name === author)) return 'npc:' + author;
+    if (m.from === 'char' || m.from === 'him' || m.by === 'char' || m.by === 'him' || m.role === 'char') return 'dad';
+    return author ? ('npc:' + author) : 'other';
+  }
+
+  // 参照现有动态数据结构，组装一条 100% 兼容原版渲染/点赞/评论的 NPC 朋友圈
+  function buildCompatibleNpcMoment(list, npc, payload) {
+    const sample = list.find(x => x && !x.isNpc) || list[0] || {};
+    const sampleCmt = (() => {
+      for (const item of list) {
+        const arr = getPostComments(item);
+        if (arr.length && arr[0] && typeof arr[0] === 'object') return arr[0];
+      }
+      return null;
+    })();
+
+    const textKey = ('text' in sample) ? 'text' : ('body' in sample) ? 'body' : ('content' in sample) ? 'content' : 'text';
+    const tagKey = ('tag' in sample) ? 'tag' : ('mood' in sample) ? 'mood' : ('topic' in sample) ? 'topic' : 'tag';
+    const cmtKey = Array.isArray(sample.comments) ? 'comments' : (Array.isArray(sample.replies) ? 'replies' : 'comments');
+
+    const mapComment = c => {
+      const a = String(c.a || '好友').trim();
+      const t = String(c.t || '').trim();
+      if (!sampleCmt) return { a, t };
+      const obj = {};
+      if ('author' in sampleCmt) obj.author = a;
+      else if ('name' in sampleCmt) obj.name = a;
+      else if ('by' in sampleCmt) obj.by = a;
+      else if ('u' in sampleCmt) obj.u = a;
+      else obj.a = a;
+
+      if ('text' in sampleCmt) obj.text = t;
+      else if ('content' in sampleCmt) obj.content = t;
+      else if ('msg' in sampleCmt) obj.msg = t;
+      else if ('c' in sampleCmt) obj.c = t;
+      else obj.t = t;
+
+      return obj;
+    };
+
+    const nowTs = Date.now();
+    const likerArr = Array.isArray(payload.likers) && payload.likers.length
+      ? payload.likers.map(x => String(x).trim()).filter(Boolean)
+      : ['陈序', '林助理', '孙遇'];
+    const cmtArr = Array.isArray(payload.comments)
+      ? payload.comments.filter(c => c && c.t).map(mapComment)
+      : [];
+
+    const m = {
+      id: 'm_npc_' + nowTs,
+      author: npc.name,
+      isMe: false,
+      isNpc: true,
+      from: 'npc',
+      npcAv: npc.av,
+      npcColor: npc.color,
+      npcRole: npc.role,
+      npcBio: npc.bio,
+      time: '刚刚',
+      ts: nowTs,
+      liked: false
+    };
+    if ('name' in sample) m.name = npc.name;
+    if ('who' in sample) m.who = npc.name;
+    if ('vis' in sample) m.vis = '公开';
+    if ('scope' in sample) m.scope = '公开';
+    if ('privacy' in sample) m.privacy = '公开';
+
+    m[textKey] = String(payload.text || '').trim();
+    m[tagKey] = String(payload.tag || '好友日常').trim();
+
+    if (Array.isArray(sample.likes)) {
+      m.likes = likerArr;
+    } else {
+      m.likes = likerArr.length;
+      if (Array.isArray(sample.likedBy)) m.likedBy = likerArr;
+      else m.likers = likerArr;
+    }
+
+    m[cmtKey] = cmtArr;
+    return m;
+  }
+
+  // 4. 生成一条共同好友 / NPC 朋友圈
+  window.generateNpcMoment = async function (targetNpc, customTopic = '') {
+    const list = findMomentsList();
+    if (!list) return showToast('未找到朋友圈数据');
+    const ch = typeof activeChar === 'function' ? activeChar() : { name: '迟川', avatar: '' };
+    const myName = (typeof ST !== 'undefined' && ST.userName) ? ST.userName : '迟琰';
+
+    // 未指定好友时，优先挑最近没发过的共同好友
+    let npc = targetNpc;
+    if (!npc) {
+      const recentAuthors = list.slice(0, 4).map(getPostAuthor);
+      const fresh = NPC_CAST.filter(x => !recentAuthors.includes(x.name));
+      const pool = fresh.length ? fresh : NPC_CAST;
+      npc = pool[Math.floor(Math.random() * pool.length)];
+    }
+
+    let payload = null;
+
+    if (typeof hasValidAPI === 'function' && hasValidAPI() && typeof callDualAPI === 'function') {
+      try {
+        const recentSnippets = list
+          .slice(0, 12)
+          .map((x, i) => `${i + 1}. [${getPostAuthor(x) || '动态'}] ${getPostText(x).replace(/\s+/g, ' ').slice(0, 40)}`)
+          .join('\n');
+        const wbSummary = (Array.isArray(ST.worldbook) ? ST.worldbook : [])
+          .filter(w => w.enabled)
+          .map(w => `·${w.title}：${w.content}`)
+          .join('\n')
+          .slice(0, 750);
+        const otherFriends = NPC_CAST.filter(x => x.name !== npc.name).map(x => x.name).join('、');
+        const seed = `${Date.now().toString(36)}-${Math.floor(Math.random() * 9999)}`;
+        const timeStr = `${typeof fmtDateCN === 'function' ? fmtDateCN() : ''} ${typeof nowHM === 'function' ? nowHM() : ''}`.trim();
+
+        const sys = `你是微信朋友圈动态生成器，现在请以共同好友「${npc.name}」的口吻发一条自然鲜活的微信朋友圈。
+【发布者设定】姓名：${npc.name}｜身份：${npc.role}｜风格：${npc.style}
+【核心圈子】共同好友里包含 ${ch.name}（新岚能源CEO，28岁，188cm，外冷内热、对伴侣占有欲与偏爱极强）与他的伴侣 ${myName}（娇小软甜、有梗可爱），以及其他好友：${otherFriends}。
+${wbSummary}
+【规则】
+1. 像真实微信朋友圈一样有生活气息、自然幽默，45~120字，不要有生硬AI味。可以写TA自己的工作生活片段，也可以顺带聊到偶遇或吐槽 ${ch.name}/${myName} 的有趣小事。
+2. 严禁与下方「已有朋友圈」撞梗重复。
+3. 附带 3~5 个点赞人名（从共同好友里挑，可包含 ${ch.name}），以及 2~3 条简短真实的好友评论（偶尔可以有 ${ch.name} 本人用极度克制简短的 10~25 字回一句；但绝对不要代替 ${myName} 评论，留给用户本人去互动！）。
+严格返回JSON：{"tag":"2~5字小标签","text":"朋友圈正文","likers":["好友1","好友2","好友3"],"comments":[{"a":"评论人","t":"评论内容"}]}`;
+
+        const userPrompt = `【随机种子：${seed}｜当前时间：${timeStr}】
+${customTopic ? `【用户指定的主题/灵感】${customTopic}\n` : ''}【近期已有朋友圈（禁止重复）】
+${recentSnippets || '（暂无）'}
+
+请让「${npc.name}」发一条全新的朋友圈！`;
+
+        const j = await callDualAPI(sys, userPrompt);
+        if (j && (j.text || j.body || j.content)) {
+          payload = {
+            tag: j.tag || '好友日常',
+            text: String(j.text || j.body || j.content).trim(),
+            likers: Array.isArray(j.likers) ? j.likers : ['陈序', '林助理', '孙遇'],
+            comments: Array.isArray(j.comments)
+              ? j.comments.filter(c => c && c.t && c.a !== myName && c.a !== '迟琰' && c.a !== 'Cynder')
+              : []
+          };
+        }
+      } catch {
+        showToast('API 暂不可用，已切换离线好友动态');
+      }
+    }
+
+    if (!payload) {
+      const sameNpcPool = OFFLINE_NPC_MOMENTS.filter(x => x.name === npc.name && !list.some(m => getPostText(m) === x.text));
+      const anyUnused = OFFLINE_NPC_MOMENTS.filter(x => !list.some(m => getPostText(m) === x.text));
+      const pickPool = sameNpcPool.length ? sameNpcPool : (anyUnused.length ? anyUnused : OFFLINE_NPC_MOMENTS);
+      const picked = pickPool[Math.floor(Math.random() * pickPool.length)];
+      if (!targetNpc) npc = getNpcMeta(picked.name);
+      payload = {
+        tag: picked.tag,
+        text: customTopic ? `${picked.text}\n\n（ps：顺便想起今天聊到的“${customTopic}”，改天细说！）` : picked.text,
+        likers: [...picked.likers],
+        comments: picked.comments.map(c => ({ ...c }))
+      };
+    }
+
+    const newMoment = buildCompatibleNpcMoment(list, npc, payload);
+    list.unshift(newMoment);
+    if (typeof _rawSaveST === 'function') _rawSaveST();
+    else if (typeof saveST === 'function') saveST();
+    playSoft();
+    if (typeof window.renderCurrentApp === 'function') {
+      try { window.renderCurrentApp(); } catch {}
+    }
+    setTimeout(enhanceMomentsDOM, 30);
+    showToast(`${npc.name} 刚刚发了一条新朋友圈 ✦`);
+  };
+
+  // 打开「指定好友发朋友圈」弹窗
+  function openNpcPickerModal() {
+    playTap();
+    if (typeof openModal !== 'function') return generateNpcMoment(null, '');
+    let selectedName = NPC_CAST[0].name;
+
+    openModal(`<div class="stack" style="gap:11px">
+      <div class="row">
+        <span class="sec-t">让哪位好友发朋友圈？</span>
+        <button type="button" onclick="closeModal()" class="tag-chip">取消</button>
+      </div>
+      <div class="mp-cast-grid" id="mpCastGrid">
+        ${NPC_CAST.map((n, i) => `
+          <button type="button" class="mp-cast-chip ${i === 0 ? 'on' : ''}" data-npc-pick="${safeEsc(n.name)}">
+            <div class="mp-cast-dot" style="background:${n.color}">${safeEsc(n.av)}</div>
+            <div style="min-width:0;flex:1">
+              <div style="font-size:12.5px;font-weight:700;color:#4a353d">${safeEsc(n.name)}</div>
+              <div style="font-size:10px;color:#9e818c;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${safeEsc(n.role)}</div>
+            </div>
+          </button>
+        `).join('')}
+      </div>
+      <input id="mpCustomNpc" class="inp" placeholder="或者自己填一个好友名字（留空则用上面选中的）" />
+      <input id="mpCustomTopic" class="inp" placeholder="想让TA发什么主题？（选填，留空自由发挥）" />
+      <button id="mpDoNpcPost" type="button" class="btn pink">立即刷新 TA 的朋友圈 ✦</button>
+    </div>`);
+
+    const grid = document.getElementById('mpCastGrid');
+    if (grid) {
+      grid.querySelectorAll('[data-npc-pick]').forEach(btn => {
+        btn.onclick = () => {
+          playTap();
+          selectedName = btn.dataset.npcPick;
+          grid.querySelectorAll('[data-npc-pick]').forEach(b => b.classList.remove('on'));
+          btn.classList.add('on');
+          const cInp = document.getElementById('mpCustomNpc');
+          if (cInp) cInp.value = '';
+        };
+      });
+    }
+
+    const goBtn = document.getElementById('mpDoNpcPost');
+    if (goBtn) {
+      goBtn.onclick = async () => {
+        const customName = (document.getElementById('mpCustomNpc')?.value || '').trim();
+        const customTopic = (document.getElementById('mpCustomTopic')?.value || '').trim();
+        const chosen = customName ? getNpcMeta(customName) : getNpcMeta(selectedName);
+        if (typeof closeModal === 'function') closeModal();
+        showToast(`${chosen.name} 正在编辑朋友圈…`);
+        await generateNpcMoment(chosen, customTopic);
+      };
+    }
+  }
+
+  // 5. 拦截 saveST：以后每发一条新朋友圈，立刻打上当前真实时间戳
+  const _rawSaveST = window.saveST;
+  if (typeof _rawSaveST === 'function') {
+    window.saveST = function () {
+      syncMomentTimes(false);
+      return _rawSaveST.apply(this, arguments);
+    };
+  }
+
+  // 6. 微信风个人朋友圈主页（支持 迟川 / 迟琰 / 任意好友相册 + 改时间 + 删除）
+  function closeMomentProfile() {
+    const old = document.getElementById('mpProfileOverlay');
+    if (old) old.remove();
+    const det = document.getElementById('mpDetailMask');
+    if (det) det.remove();
+  }
+
+  function openSingleMomentDetail(m, who, ch) {
+    const old = document.getElementById('mpDetailMask');
+    if (old) old.remove();
+
+    const isDad = who === 'dad';
+    const isMe = who === 'me';
+    const isNpc = String(who).startsWith('npc:');
+    const npcName = isNpc ? String(who).slice(4) : '';
+    const npcMeta = isNpc ? getNpcMeta(npcName, m) : null;
+
+    const dispName = isDad ? ch.name : (isMe ? (ST.userName || '迟琰') : npcMeta.name);
+    const avSrc = isDad ? ch.avatar : (isMe ? ST.userAvatar : '');
+    const tag = getPostTag(m);
+    const img = getPostImg(m);
+    const { names: likers, count: likeCount } = getLikesInfo(m);
+    const cmts = getPostComments(m);
+    const timeLabel = m.ts ? formatMomentTime(m.ts) : (m.time || '刚刚');
+    const exactDate = m.ts ? (() => {
+      const d = new Date(m.ts);
+      return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}`;
+    })() : '';
+
+    const mask = document.createElement('div');
+    mask.id = 'mpDetailMask';
+    mask.className = 'mp-detail-mask';
+    mask.innerHTML = `<div class="mp-detail-sheet">
+      <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:12px">
+        <div style="display:flex;align-items:center;gap:10px">
+          <div class="mp-quick-av" style="width:40px;height:40px;border-radius:11px;${npcMeta ? `background:${npcMeta.color}` : ''}">
+            ${avSrc ? `<img src="${avSrc}" alt="">` : safeEsc(dispName.slice(0, 1))}
+          </div>
+          <div>
+            <div style="font-size:15px;font-weight:700;color:#4a353d">${safeEsc(dispName)}</div>
+            <div style="font-size:11.5px;color:#9e818c">${safeEsc(timeLabel)}${exactDate ? ` · ${safeEsc(exactDate)}` : ''}</div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:5px">
+          <button type="button" id="mpEditTimeBtn" style="font-size:11px;color:#c96283;background:rgba(229,140,168,0.14);padding:4px 9px;border-radius:999px">改时间</button>
+          <button type="button" id="mpDelMomentBtn" style="font-size:11px;color:#a0858f;background:rgba(0,0,0,0.05);padding:4px 9px;border-radius:999px">删</button>
+          <button type="button" id="mpDetClose" style="font-size:11.5px;color:#8f747e;background:rgba(0,0,0,0.06);padding:4px 10px;border-radius:999px">关闭</button>
+        </div>
+      </div>
+
+      ${tag ? `<div style="margin-bottom:8px"><span class="mp-item-tag">${safeEsc(tag)}</span></div>` : ''}
+      <div style="font-size:14.5px;line-height:1.72;white-space:pre-wrap;word-break:break-word;color:#4a353d">${safeEsc(getPostText(m))}</div>
+      ${img ? `<img src="${img}" alt="" style="width:100%;max-height:300px;object-fit:cover;border-radius:14px;margin-top:10px">` : ''}
+
+      <div id="mpTimeEditor" style="display:none;margin-top:12px;padding:10px 12px;border-radius:12px;background:#fff;border:1px solid rgba(229,140,168,0.3)">
+        <div style="font-size:11.5px;color:#8f747e;margin-bottom:6px">选择这条动态的真实发布时间：</div>
+        <div style="display:flex;gap:8px;align-items:center">
+          <input id="mpTimeInput" type="datetime-local" style="flex:1;padding:6px 8px;border-radius:9px;border:1px solid rgba(229,140,168,0.35);font-size:12.5px;color:#4a353d;background:#fff9fb">
+          <button type="button" id="mpTimeSave" style="padding:6px 12px;border-radius:9px;background:#e58ca8;color:#fff;font-size:12px;font-weight:600">保存</button>
+        </div>
+      </div>
+
+      ${(likeCount > 0 || cmts.length > 0) ? `<div class="mp-cmt-box">
+        ${likeCount > 0 ? `<div style="color:#c96283;font-size:12px;${cmts.length ? 'padding-bottom:6px;border-bottom:1px solid rgba(229,140,168,0.18)' : ''}">♥ ${likers.length ? safeEsc(likers.join('、')) : `${likeCount} 人觉得很赞`}</div>` : ''}
+        ${cmts.map(c => {
+          const ca = c.a || c.author || c.name || c.by || c.u || '好友';
+          const ct = c.t || c.text || c.content || c.msg || c.c || '';
+          const rto = c.replyTo || c.to || '';
+          const isCh = ca === ch.name || ca === '迟川' || ca === 'Cyrus';
+          return `<div><strong style="color:${isCh ? '#c96283' : '#4a353d'}">${safeEsc(ca)}</strong>${rto ? ` <span style="color:#8f747e">回复</span> <strong>${safeEsc(rto)}</strong>` : ''}：${safeEsc(ct)}</div>`;
+        }).join('')}
+      </div>` : ''}
+    </div>`;
+
+    document.body.appendChild(mask);
+    mask.onclick = e => { if (e.target === mask) { playTap(); mask.remove(); } };
+    document.getElementById('mpDetClose').onclick = () => { playTap(); mask.remove(); };
+
+    let delArmed = false;
+    const delBtn = document.getElementById('mpDelMomentBtn');
+    delBtn.onclick = () => {
+      playTap();
+      if (!delArmed) {
+        delArmed = true;
+        delBtn.textContent = '确认删?';
+        delBtn.style.color = '#e05275';
+        return;
+      }
+      const list = findMomentsList();
+      if (list) {
+        const idx = list.indexOf(m);
+        if (idx > -1) {
+          list.splice(idx, 1);
+          if (typeof _rawSaveST === 'function') _rawSaveST();
+          mask.remove();
+          openMomentProfile(who);
+          if (typeof window.renderCurrentApp === 'function') {
+            try { window.renderCurrentApp(); } catch {}
+          }
+          showToast('已删除这条朋友圈');
+        }
+      }
+    };
+
+    document.getElementById('mpEditTimeBtn').onclick = () => {
+      playTap();
+      const box = document.getElementById('mpTimeEditor');
+      const inp = document.getElementById('mpTimeInput');
+      box.style.display = box.style.display === 'none' ? 'block' : 'none';
+      const base = new Date(m.ts || Date.now());
+      inp.value = `${base.getFullYear()}-${pad2(base.getMonth() + 1)}-${pad2(base.getDate())}T${pad2(base.getHours())}:${pad2(base.getMinutes())}`;
+    };
+
+    document.getElementById('mpTimeSave').onclick = () => {
+      const val = document.getElementById('mpTimeInput').value;
+      if (!val) return;
+      const ts = new Date(val).getTime();
+      if (!isNaN(ts)) {
+        m.ts = ts;
+        m.time = formatMomentTime(ts);
+        if (typeof _rawSaveST === 'function') _rawSaveST();
+        playTap();
+        mask.remove();
+        openMomentProfile(who);
+        if (typeof window.renderCurrentApp === 'function') {
+          try { window.renderCurrentApp(); } catch {}
+        }
+        showToast('已更新这条动态的真实时间 ✦');
+      }
+    };
+  }
+
+  window.openMomentProfile = function (who) {
+    playTap();
+    syncMomentTimes(true);
+    closeMomentProfile();
+
+    const ch = typeof activeChar === 'function' ? activeChar() : { name: '迟川', avatar: '' };
+    const isDad = who === 'dad';
+    const isMe = who === 'me';
+    const isNpc = String(who).startsWith('npc:');
+    const myName = (typeof ST !== 'undefined' && ST.userName) ? ST.userName : '迟琰';
+    const list = findMomentsList() || [];
+
+    const mine = list.filter(m => getAuthorType(m, ch) === who);
+    const totalLikes = mine.reduce((sum, m) => sum + getLikesInfo(m).count, 0);
+
+    const npcMeta = isNpc ? getNpcMeta(String(who).slice(4), mine[0]) : null;
+    const dispName = isDad ? ch.name : (isMe ? myName : npcMeta.name);
+    const otherName = isDad ? myName : ch.name;
+    const otherWho = isDad ? 'me' : 'dad';
+    const avSrc = isDad ? ch.avatar : (isMe && typeof ST !== 'undefined' ? ST.userAvatar : '');
+    const bio = isDad
+      ? (ch.bio || ch.motto || ch.signature || '新岚能源 · 只对你一人失控与偏爱')
+      : isMe
+        ? '记录和爸爸在一起的每一个心动日常 ✨'
+        : `${npcMeta.role} · ${npcMeta.bio}`;
+
+    // 按日期分组（微信相册同款）
+    const groups = [];
+    const groupMap = new Map();
+    const nowD = new Date();
+    const startOfDay = dt => new Date(dt.getFullYear(), dt.getMonth(), dt.getDate()).getTime();
+
+    mine.forEach(m => {
+      let key, dayWord = '', dayNum = '', monStr = '', yearStr = '';
+      if (m.ts && typeof m.ts === 'number') {
+        const d = new Date(m.ts);
+        const dayDiff = Math.round((startOfDay(nowD) - startOfDay(d)) / 86400000);
+        key = `${d.getFullYear()}-${d.getMonth() + 1}-${d.getDate()}`;
+        if (dayDiff === 0) dayWord = '今天';
+        else if (dayDiff === 1) dayWord = '昨天';
+        else {
+          dayNum = pad2(d.getDate());
+          monStr = `${d.getMonth() + 1}月`;
+          if (d.getFullYear() !== nowD.getFullYear()) yearStr = `${d.getFullYear()}年`;
+        }
+      } else {
+        key = 'txt_' + (m.time || '回忆');
+        dayWord = String(m.time || '回忆').slice(0, 4);
+      }
+      if (!groupMap.has(key)) {
+        const g = { key, dayWord, dayNum, monStr, yearStr, items: [] };
+        groupMap.set(key, g);
+        groups.push(g);
+      }
+      groupMap.get(key).items.push(m);
+    });
+
+    const overlay = document.createElement('div');
+    overlay.id = 'mpProfileOverlay';
+    overlay.className = 'mp-overlay';
+    overlay.innerHTML = `<div class="mp-shell">
+      <div class="mp-scroll no-sb">
+        <div class="mp-cover ${isDad ? 'dad' : 'me'}" ${npcMeta ? `style="background:${npcMeta.color}"` : ''}>
+          <div class="mp-topbar">
+            <button type="button" id="mpCloseBtn" class="mp-topbtn">← 返回</button>
+            <button type="button" id="mpSwitchBtn" class="mp-topbtn">看 ${safeEsc(otherName)} 的相册 ⇄</button>
+          </div>
+          <div class="mp-profile-anchor">
+            <div class="mp-name-wrap">
+              <div class="mp-name">${safeEsc(dispName)}${isDad ? ' <span style="font-size:12px;color:#f7dec0">✦</span>' : isMe ? ' <span style="font-size:12px;color:#fff0f6">♥</span>' : ''}</div>
+            </div>
+            <div class="mp-big-av" ${npcMeta ? `style="background:${npcMeta.color}"` : ''}>
+              ${avSrc ? `<img src="${avSrc}" alt="">` : safeEsc(dispName.slice(0, 1))}
+            </div>
+          </div>
+        </div>
+
+        <div class="mp-bio-sec">
+          <div class="mp-bio-txt">${safeEsc(bio)}</div>
+          <div class="mp-stats">
+            <span class="mp-stat-chip">共 ${mine.length} 条朋友圈</span>
+            <span class="mp-stat-chip">累计获赞 ${totalLikes}</span>
+          </div>
+        </div>
+
+        <div class="mp-album">
+          ${groups.length ? groups.map(g => `
+            <div class="mp-day-row">
+              <div class="mp-day-col">
+                ${g.dayWord
+                  ? `<div class="mp-day-word">${safeEsc(g.dayWord)}</div>`
+                  : `<div><span class="mp-day-big">${safeEsc(g.dayNum)}</span><span class="mp-day-mon">${safeEsc(g.monStr)}</span></div>`}
+                ${g.yearStr ? `<div class="mp-day-year">${safeEsc(g.yearStr)}</div>` : ''}
+              </div>
+              <div class="mp-cards-col">
+                ${g.items.map(m => {
+                  const idxInMine = mine.indexOf(m);
+                  const tag = getPostTag(m);
+                  const img = getPostImg(m);
+                  const cmts = getPostComments(m);
+                  const likes = getLikesInfo(m).count;
+                  const hm = m.ts ? `${pad2(new Date(m.ts).getHours())}:${pad2(new Date(m.ts).getMinutes())}` : (m.time || '');
+                  return `<div class="mp-item" data-mp-idx="${idxInMine}">
+                    <div class="mp-item-top">
+                      <span class="mp-item-time">${safeEsc(hm)}</span>
+                      ${tag ? `<span class="mp-item-tag">${safeEsc(tag)}</span>` : ''}
+                    </div>
+                    <div class="mp-item-body">
+                      ${img ? `<img class="mp-item-thumb" src="${img}" alt="">` : ''}
+                      <div class="mp-item-text">${safeEsc(getPostText(m))}</div>
+                    </div>
+                    <div class="mp-item-ft">
+                      <span>♥ ${likes} · 💬 ${cmts.length}</span>
+                      <span style="color:#c96283">查看详情 ›</span>
+                    </div>
+                  </div>`;
+                }).join('')}
+              </div>
+            </div>
+          `).join('') : `<div class="mp-empty">${safeEsc(dispName)} 还没有发过朋友圈哦～</div>`}
+        </div>
+      </div>
+    </div>`;
+
+    document.body.appendChild(overlay);
+    document.getElementById('mpCloseBtn').onclick = () => { playTap(); closeMomentProfile(); };
+    document.getElementById('mpSwitchBtn').onclick = () => openMomentProfile(otherWho);
+    overlay.querySelectorAll('[data-mp-idx]').forEach(el => {
+      el.onclick = () => {
+        playTap();
+        const item = mine[Number(el.dataset.mpIdx)];
+        if (item) openSingleMomentDetail(item, who, ch);
+      };
+    });
+  };
+
+  // 7. 增强朋友圈页面：顶部主页入口 + 好友发动态按键 + 修正 NPC 头像/名字 + 真实时间 + 点击头像进主页
+  function isMomentsViewActive() {
+    const layer = document.getElementById('appLayer');
+    if (!layer || !layer.innerHTML) return false;
+    if (typeof RT !== 'undefined' && ['moments', 'pyq', 'circle', 'feed'].includes(RT.app)) return true;
+    const head = layer.querySelector('.app-hd, header, [class*="hd"]');
+    return !!(head && head.textContent && head.textContent.includes('朋友圈'));
+  }
+
+  function enhanceMomentsDOM() {
+    if (!isMomentsViewActive()) return;
+    const layer = document.getElementById('appLayer');
+    const body = layer.querySelector('.app-body') || layer;
+    const list = findMomentsList();
+    if (!list || !body) return;
+
+    const ch = typeof activeChar === 'function' ? activeChar() : { name: '迟川', avatar: '' };
+    const myName = (typeof ST !== 'undefined' && ST.userName) ? ST.userName : '迟琰';
+    const dadCount = list.filter(m => getAuthorType(m, ch) === 'dad').length;
+    const meCount = list.filter(m => getAuthorType(m, ch) === 'me').length;
+
+    if (!document.getElementById('mpTopPanel')) {
+      const panel = document.createElement('div');
+      panel.id = 'mpTopPanel';
+      panel.className = 'mp-top-panel';
+      panel.innerHTML = `
+        <div class="mp-quick-bar">
+          <button type="button" id="mpOpenDad" class="mp-quick-pill">
+            <div class="mp-quick-av">${ch.avatar ? `<img src="${ch.avatar}" alt="">` : safeEsc(ch.name.slice(0, 1))}</div>
+            <div style="min-width:0;flex:1">
+              <div style="font-size:13px;font-weight:700;color:#4a353d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${safeEsc(ch.name)}的主页</div>
+              <div style="font-size:10.5px;color:#9e818c">${dadCount} 条朋友圈 ›</div>
+            </div>
+          </button>
+          <button type="button" id="mpOpenMe" class="mp-quick-pill">
+            <div class="mp-quick-av">${ST.userAvatar ? `<img src="${ST.userAvatar}" alt="">` : safeEsc(myName.slice(0, 1))}</div>
+            <div style="min-width:0;flex:1">
+              <div style="font-size:13px;font-weight:700;color:#4a353d;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">${safeEsc(myName)}的主页</div>
+              <div style="font-size:10.5px;color:#9e818c">${meCount} 条朋友圈 ›</div>
+            </div>
+          </button>
+        </div>
+        <div class="mp-npc-bar">
+          <button type="button" id="mpGenNpcRand" class="mp-npc-btn primary">✨ 刷新 1 条好友动态</button>
+          <button type="button" id="mpGenNpcPick" class="mp-npc-btn secondary">👥 指定好友发</button>
+        </div>`;
+      body.insertBefore(panel, body.firstChild);
+
+      document.getElementById('mpOpenDad').onclick = () => openMomentProfile('dad');
+      document.getElementById('mpOpenMe').onclick = () => openMomentProfile('me');
+      document.getElementById('mpGenNpcPick').onclick = () => openNpcPickerModal();
+      document.getElementById('mpGenNpcRand').onclick = async () => {
+        const b1 = document.getElementById('mpGenNpcRand');
+        const b2 = document.getElementById('mpGenNpcPick');
+        if (b1) { b1.disabled = true; b1.textContent = '好友正在编辑中…'; }
+        if (b2) b2.disabled = true;
+        try {
+          await generateNpcMoment(null, '');
+        } finally {
+          const nb1 = document.getElementById('mpGenNpcRand');
+          const nb2 = document.getElementById('mpGenNpcPick');
+          if (nb1) { nb1.disabled = false; nb1.textContent = '✨ 刷新 1 条好友动态'; }
+          if (nb2) nb2.disabled = false;
+        }
+      };
+    }
+
+    const cards = Array.from(body.querySelectorAll('.card')).filter(c => !c.closest('#mpTopPanel'));
+    cards.forEach((card, idx) => {
+      let m = list[idx];
+      const txt = card.textContent || '';
+      if (!m || (getPostText(m).length > 6 && !txt.includes(getPostText(m).slice(0, 10)))) {
+        const found = list.find(x => getPostText(x).length > 6 && txt.includes(getPostText(x).slice(0, 10)));
+        if (found) m = found;
+      }
+      if (!m) return;
+
+      const who = getAuthorType(m, ch);
+      const isNpcPost = String(who).startsWith('npc:');
+
+      // 兜底把界面上还残留的“刚刚”换成真实时间
+      if (m.ts) {
+        const realTime = formatMomentTime(m.ts);
+        if (realTime !== '刚刚') {
+          card.querySelectorAll('div, span').forEach(node => {
+            if (node.children.length === 0 && node.textContent && node.textContent.trim().startsWith('刚刚')) {
+              node.textContent = node.textContent.replace(/^(\s*)刚刚/, `$1${realTime}`);
+            }
+          });
+        }
+      }
+
+      if (card.dataset.mpBound) return;
+      card.dataset.mpBound = '1';
+
+      const head = card.firstElementChild || card;
+
+      // 如果是共同好友发的动态，确保显示 TA 自己的彩色头像与名字（避免被原代码误显示成迟川）
+      if (isNpcPost) {
+        const npcMeta = getNpcMeta(getPostAuthor(m), m);
+        const topImg = head.querySelector('img');
+        let npcAvEl = null;
+        if (topImg) {
+          const badge = document.createElement('div');
+          badge.className = 'mp-npc-av mp-clickable-av';
+          badge.style.background = npcMeta.color;
+          badge.textContent = npcMeta.av;
+          badge.title = `点击查看 ${npcMeta.name} 的朋友圈`;
+          const wrap = topImg.parentElement;
+          if (wrap && wrap !== head && wrap.children.length === 1) {
+            wrap.replaceWith(badge);
+          } else {
+            topImg.replaceWith(badge);
+          }
+          npcAvEl = badge;
+        }
+        const headNodes = Array.from(head.querySelectorAll('div, span, strong')).slice(0, 10);
+        headNodes.forEach(el => {
+          if (el.children.length === 0 && !el.closest('button')) {
+            const t = el.textContent.trim();
+            if (t === ch.name || t === '迟川' || t === npcMeta.name) {
+              el.textContent = npcMeta.name;
+              el.style.cursor = 'pointer';
+              el.addEventListener('click', e => {
+                e.stopPropagation();
+                openMomentProfile(who);
+              });
+            }
+          }
+        });
+        if (npcAvEl) {
+          npcAvEl.addEventListener('click', e => {
+            e.stopPropagation();
+            openMomentProfile(who);
+          });
+        }
+        return;
+      }
+
+      if (who !== 'dad' && who !== 'me') return;
+
+      const topImg = head.querySelector('img') || card.querySelector('img');
+      const avTarget = topImg ? (topImg.parentElement || topImg) : head.firstElementChild;
+      if (avTarget && !avTarget.closest('button')) {
+        avTarget.classList.add('mp-clickable-av');
+        avTarget.title = '点击查看个人朋友圈主页';
+        avTarget.addEventListener('click', e => {
+          e.stopPropagation();
+          openMomentProfile(who);
+        });
+      }
+
+      const targetName = who === 'dad' ? ch.name : myName;
+      const nameNodes = Array.from(head.querySelectorAll('div, span, strong')).slice(0, 10);
+      const nameEl = nameNodes.find(el => el.children.length === 0 && el.textContent.trim() === targetName);
+      if (nameEl && !nameEl.closest('button')) {
+        nameEl.style.cursor = 'pointer';
+        nameEl.addEventListener('click', e => {
+          e.stopPropagation();
+          openMomentProfile(who);
+        });
+      }
+    });
+  }
+
+  // 8. 聊天页面点击你和迟川的消息头像，也能直接跳进个人朋友圈主页
+  if (!window._mpGlobalAvatarBind) {
+    window._mpGlobalAvatarBind = true;
+    document.addEventListener('click', e => {
+      const layer = document.getElementById('appLayer');
+      if (!layer || !layer.contains(e.target)) return;
+      if (e.target.closest('#mpProfileOverlay, #mpDetailMask, #mpTopPanel, #modal, .modal, button, a, input, textarea, label, select, [onclick]')) return;
+
+      const appName = (typeof RT !== 'undefined' && RT.app) ? RT.app : '';
+      if (appName !== 'chat' && !isMomentsViewActive()) return;
+
+      const img = e.target.tagName === 'IMG' ? e.target : e.target.querySelector?.('img');
+      if (!img || !img.src) return;
+
+      const ch = typeof activeChar === 'function' ? activeChar() : null;
+      const isDadAv = ch && ch.avatar && img.src === ch.avatar;
+      const isMeAv = typeof ST !== 'undefined' && ST.userAvatar && img.src === ST.userAvatar;
+      if (!isDadAv && !isMeAv) return;
+
+      const rect = img.getBoundingClientRect();
+      if (rect.width > 66 || rect.height > 66) return;
+
+      e.stopPropagation();
+      openMomentProfile(isDadAv ? 'dad' : 'me');
+    }, false);
+  }
+
+  // 9. 挂钩渲染函数 + DOM 监听 + 每分钟自动刷新时间
+  ['vMoments', 'vPyq', 'vFeed', 'vCircle', 'renderCurrentApp'].forEach(fnName => {
+    const orig = window[fnName];
+    if (typeof orig === 'function' && !orig._mpWrapped) {
+      const wrapped = function () {
+        syncMomentTimes(false);
+        const res = orig.apply(this, arguments);
+        setTimeout(enhanceMomentsDOM, 0);
+        return res;
+      };
+      wrapped._mpWrapped = true;
+      window[fnName] = wrapped;
+    }
+  });
+
+  const layerEl = document.getElementById('appLayer');
+  if (layerEl && typeof MutationObserver !== 'undefined') {
+    let obsTimer = null;
+    const obs = new MutationObserver(() => {
+      if (!isMomentsViewActive()) return;
+      clearTimeout(obsTimer);
+      obsTimer = setTimeout(() => {
+        syncMomentTimes(false);
+        enhanceMomentsDOM();
+      }, 40);
+    });
+    obs.observe(layerEl, { childList: true, subtree: false });
+  }
+
+  syncMomentTimes(true);
+  setTimeout(enhanceMomentsDOM, 200);
+  setInterval(() => {
+    const changed = syncMomentTimes(false);
+    if (changed && isMomentsViewActive()) enhanceMomentsDOM();
+  }, 60000);
+})();
+</script>
 </body>
 </html>
