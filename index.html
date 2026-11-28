@@ -9757,7 +9757,200 @@ ${recentSnippets || '（暂无）'}
 
   pruneDeletedItems();
   setTimeout(runAllInjections, 200);
+})(); 
+</script>
+<script>
+(function () {
+  const STK_RE = /<<STK:\s*([a-zA-Z0-9_-]+)\s*>>/g;
+  const STK_TEST = /<<STK:\s*[a-zA-Z0-9_-]+\s*>>/;
+  const COMBINED_TOK_RE = /\[\[(?:DADSTK|STICKER):[^\]]+\]\]/g;
+
+  const DAD_LABELS = {
+    dad_pat: '摸摸头',
+    dad_come: '过来',
+    dad_good: '乖一点',
+    dad_busy: '在开会',
+    dad_sleep: '收手机睡觉',
+    dad_mine: '我的',
+    dad_kiss: '亲一下',
+    dad_sigh: '真拿你没办法'
+  };
+
+  function resolveToken(id) {
+    const clean = String(id || '').trim();
+    const dadList = Array.isArray(window.__DAD_STICKERS_V2) ? window.__DAD_STICKERS_V2 : [];
+    const dadHit = dadList.find(x => x.id === clean);
+    if (dadHit) return `[[DADSTK:${dadHit.id}|${dadHit.label}]]`;
+    if (DAD_LABELS[clean]) return `[[DADSTK:${clean}|${DAD_LABELS[clean]}]]`;
+
+    const vault = (typeof ST !== 'undefined' && Array.isArray(ST.dadStickerVault)) ? ST.dadStickerVault : [];
+    const stolen = vault.find(x => x.sid === clean);
+    if (stolen) {
+      stolen.usedCount = (stolen.usedCount || 0) + 1;
+      return `[[STICKER:${stolen.sid}|${stolen.label || '可爱表情包'}]]`;
+    }
+
+    const custom = (typeof ST !== 'undefined' && Array.isArray(ST.customStickers)) ? ST.customStickers : [];
+    const cs = custom.find(x => x.id === clean);
+    if (cs) return `[[STICKER:${cs.id}|${cs.label || '表情包'}]]`;
+
+    if (clean.startsWith('bi_')) return `[[STICKER:${clean}|可爱贴纸]]`;
+    if (clean.startsWith('dad_')) return `[[DADSTK:dad_sigh|真拿你没办法]]`;
+    return '';
+  }
+
+  // 1. 递归转换 API 返回结果里的 <<STK:...>>，有文字+贴纸时顺手拆成两个独立气泡
+  function convertResponseDeep(node, keyName = '') {
+    if (typeof node === 'string') {
+      if (!STK_TEST.test(node)) return node;
+      if (/voice|audio|speech|tts/i.test(keyName)) {
+        return node.replace(STK_RE, '').trim();
+      }
+      return node.replace(STK_RE, (_, id) => resolveToken(id)).trim();
+    }
+    if (Array.isArray(node)) {
+      const out = [];
+      node.forEach(item => {
+        if (typeof item === 'string' && STK_TEST.test(item)) {
+          const tokens = [];
+          const textOnly = item.replace(STK_RE, (_, id) => {
+            const tk = resolveToken(id);
+            if (tk) tokens.push(tk);
+            return '';
+          }).trim();
+          if (textOnly) out.push(textOnly);
+          tokens.forEach(tk => out.push(tk));
+        } else {
+          out.push(convertResponseDeep(item, keyName));
+        }
+      });
+      return out;
+    }
+    if (node && typeof node === 'object') {
+      Object.keys(node).forEach(k => {
+        node[k] = convertResponseDeep(node[k], k);
+      });
+    }
+    return node;
+  }
+
+  // 2. 重新包一层最新的 window.callDualAPI，接回表情包翻译开关
+  const _prevDual = window.callDualAPI;
+  if (typeof _prevDual === 'function' && !_prevDual._stkTagFixed) {
+    const wrapped = async function () {
+      const res = await _prevDual.apply(this, arguments);
+      if (res) convertResponseDeep(res);
+      return res;
+    };
+    wrapped._stkTagFixed = true;
+    window.callDualAPI = wrapped;
+  }
+
+  // 3. 扫描并修复聊天记录里残留的 <<STK:...>>（顺手把文字和贴纸拆成独立气泡）
+  function getTextKey(m) {
+    if (!m || typeof m !== 'object') return null;
+    for (const k of ['t', 'text', 'content', 'msg']) {
+      if (typeof m[k] === 'string') return k;
+    }
+    return null;
+  }
+
+  function cloneAsStickerMsg(src, tkKey, tokenStr) {
+    const clone = {};
+    ['from', 'role', 'sender', 'who', 'by', 'isMe', 'me', 'charId', 'time', 'ts', 'createdAt'].forEach(k => {
+      if (k in src) clone[k] = src[k];
+    });
+    if (!Object.keys(clone).length) clone.from = 'him';
+    if ('type' in src && src.type !== 'voice') clone.type = src.type;
+    if ('id' in src) clone.id = 'dstk_' + Date.now() + '_' + Math.floor(Math.random() * 9999);
+    clone[tkKey] = tokenStr;
+    clone._dadAutoStk = true;
+    return clone;
+  }
+
+  function collectAllMsgArrays() {
+    const arrays = new Set();
+    if (typeof ST === 'undefined' || !ST) return [];
+    const addIfArr = a => { if (Array.isArray(a) && a.length) arrays.add(a); };
+    if (Array.isArray(ST.chars)) {
+      ST.chars.forEach(c => {
+        if (!c || typeof c !== 'object') return;
+        ['msgs', 'messages', 'chat', 'history', 'logs'].forEach(k => addIfArr(c[k]));
+      });
+    }
+    ['chats', 'msgs', 'messages', 'chatHistory', 'chat'].forEach(k => {
+      const v = ST[k];
+      if (Array.isArray(v)) addIfArr(v);
+      else if (v && typeof v === 'object') Object.values(v).forEach(addIfArr);
+    });
+    return Array.from(arrays);
+  }
+
+  function fixArrayMessages(arr, onlyTail = false) {
+    let changed = false;
+    const start = onlyTail ? Math.max(0, arr.length - 12) : 0;
+    for (let i = start; i < arr.length; i++) {
+      const m = arr[i];
+      const tkKey = getTextKey(m);
+      if (!tkKey) continue;
+      let str = m[tkKey];
+      if (!str) continue;
+
+      if (STK_TEST.test(str)) {
+        str = str.replace(STK_RE, (_, id) => resolveToken(id)).trim();
+        m[tkKey] = str;
+        changed = true;
+      }
+
+      const found = str.match(COMBINED_TOK_RE);
+      if (found && found.length) {
+        const rest = str.replace(COMBINED_TOK_RE, '').trim();
+        if (rest) {
+          m[tkKey] = rest;
+          const stkMsg = cloneAsStickerMsg(m, tkKey, found[0]);
+          arr.splice(i + 1, 0, stkMsg);
+          i++;
+          changed = true;
+        }
+      }
+    }
+    return changed;
+  }
+
+  function fixAllChatHistory(onlyTail = false) {
+    let any = false;
+    collectAllMsgArrays().forEach(arr => {
+      if (fixArrayMessages(arr, onlyTail)) any = true;
+    });
+    return any;
+  }
+
+  // 拦截 saveST：以后每次迟川连发多条气泡+语音时，扫描最近 12 条，绝不再漏网
+  const _prevSave = window.saveST;
+  let _inFixSave = false;
+  if (typeof _prevSave === 'function' && !_prevSave._stkTagFixed) {
+    const wrappedSave = function () {
+      if (!_inFixSave) {
+        _inFixSave = true;
+        try { fixAllChatHistory(true); } finally { _inFixSave = false; }
+      }
+      return _prevSave.apply(this, arguments);
+    };
+    wrappedSave._stkTagFixed = true;
+    window.saveST = wrappedSave;
+  }
+
+  // 启动时顺手把聊天记录里已经发出来的 <<STK:dad_mine>> / <<STK:dad_sigh>> 立刻还原成贴纸
+  setTimeout(() => {
+    if (fixAllChatHistory(false)) {
+      if (typeof window.saveST === 'function') window.saveST();
+      if (typeof RT !== 'undefined' && RT.app === 'chat' && typeof window.vChat === 'function') {
+        window.vChat();
+      }
+    }
+  }, 320);
 })();
 </script>
+
 </body>
 </html>
