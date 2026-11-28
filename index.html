@@ -9951,6 +9951,310 @@ ${recentSnippets || '（暂无）'}
   }, 320);
 })();
 </script>
+<script>
+(function () {
+  if (window.__SCROLL_LOCK_PATCHED) return;
+  window.__SCROLL_LOCK_PATCHED = true;
 
+  const viewStates = Object.create(null); // viewKey -> { top, atBottom, distFromBottom }
+  let activeTimers = [];
+  let userDragging = false;
+  let restoringUntil = 0;
+  let lastHandledRenderAt = 0;
+  let currentViewKey = '';
+  let lastSnapshot = null;
+
+  function getAppName() {
+    if (typeof RT !== 'undefined' && RT && RT.app) return String(RT.app);
+    const layer = document.getElementById('appLayer');
+    const hd = layer && layer.querySelector('.app-hd, header, [class*="hd"]');
+    const txt = (hd && hd.textContent) || '';
+    if (txt.includes('朋友圈')) return 'moments';
+    return 'unknown';
+  }
+
+  function getViewKey() {
+    const app = getAppName();
+    if (app === 'chat') {
+      const ch = typeof activeChar === 'function' ? activeChar() : null;
+      return 'chat:' + ((ch && ch.id) || 'default');
+    }
+    if (app === 'forum') {
+      return (typeof RT !== 'undefined' && RT.openPostId) ? ('forum:post:' + RT.openPostId) : 'forum:list';
+    }
+    if (app === 'xapp') {
+      return (typeof RT !== 'undefined' && RT.openXId)
+        ? ('xapp:post:' + RT.openXId)
+        : ('xapp:list:' + ((typeof RT !== 'undefined' && RT.xTab) || 'forYou'));
+    }
+    return app;
+  }
+
+  function isListKey(key) {
+    return key === 'moments' || key === 'pyq' || key === 'circle' || key === 'feed' ||
+      key === 'forum:list' || key.startsWith('xapp:list:');
+  }
+  function isDetailKey(key) {
+    return key.startsWith('forum:post:') || key.startsWith('xapp:post:');
+  }
+
+  function getDataMeta(key) {
+    if (typeof ST === 'undefined' || !ST) return { count: 0, firstId: '' };
+    if (key.startsWith('chat:')) {
+      const ch = typeof activeChar === 'function' ? activeChar() : null;
+      let msgs = null;
+      if (ch) {
+        for (const k of ['msgs', 'messages', 'chat', 'history', 'logs']) {
+          if (Array.isArray(ch[k])) { msgs = ch[k]; break; }
+        }
+      }
+      if (!msgs) {
+        for (const k of ['chats', 'msgs', 'messages', 'chatHistory']) {
+          if (ch && ST[k] && Array.isArray(ST[k][ch.id])) { msgs = ST[k][ch.id]; break; }
+        }
+      }
+      if (!msgs) {
+        for (const k of ['msgs', 'messages', 'chat']) {
+          if (Array.isArray(ST[k])) { msgs = ST[k]; break; }
+        }
+      }
+      return { count: msgs ? msgs.length : 0, firstId: '' };
+    }
+    if (key === 'moments' || key === 'pyq' || key === 'circle' || key === 'feed') {
+      for (const k of ['moments', 'pyq', 'circle', 'feed', 'posts']) {
+        if (Array.isArray(ST[k])) {
+          return { count: ST[k].length, firstId: ST[k][0] ? String(ST[k][0].id || ST[k][0].text || '').slice(0, 24) : '' };
+        }
+      }
+    }
+    if (key === 'forum:list' && Array.isArray(ST.forum)) {
+      return { count: ST.forum.length, firstId: ST.forum[0] ? String(ST.forum[0].id || '') : '' };
+    }
+    if (key.startsWith('forum:post:') && Array.isArray(ST.forum)) {
+      const p = ST.forum.find(x => x.id === key.slice(11));
+      return { count: p && Array.isArray(p.replies) ? p.replies.length : 0, firstId: '' };
+    }
+    if (key.startsWith('xapp:list:') && Array.isArray(ST.xposts)) {
+      return { count: ST.xposts.length, firstId: ST.xposts[0] ? String(ST.xposts[0].id || '') : '' };
+    }
+    if (key.startsWith('xapp:post:') && Array.isArray(ST.xposts)) {
+      const p = ST.xposts.find(x => x.id === key.slice(10));
+      return { count: p && Array.isArray(p.replies) ? p.replies.length : 0, firstId: '' };
+    }
+    return { count: 0, firstId: '' };
+  }
+
+  // 自动识别当前页面真正负责滚动的主容器（避开表情抽屉与弹窗）
+  function findMainScroller() {
+    const layer = document.getElementById('appLayer');
+    if (!layer || !layer.firstElementChild) return null;
+
+    const preferred = Array.from(layer.querySelectorAll('.chat-body, .chat-msgs, .x-feed, .app-body, .no-sb'))
+      .filter(el => !el.closest('#wcDrawer, .wc-mask, #modal, .modal') && el.clientHeight > 120);
+
+    const pickBest = arr => {
+      if (!arr.length) return null;
+      const scrollable = arr.filter(el => el.scrollHeight > el.clientHeight + 2);
+      const pool = scrollable.length ? scrollable : arr;
+      return pool.sort((a, b) => (b.scrollHeight - b.clientHeight) - (a.scrollHeight - a.clientHeight) || b.clientHeight - a.clientHeight)[0];
+    };
+
+    const hit = pickBest(preferred);
+    if (hit) return hit;
+
+    const fallback = Array.from(layer.querySelectorAll('div, section, main')).filter(el => {
+      if (el.closest('#wcDrawer, .wc-mask, #modal, .modal') || el.clientHeight <= 150) return false;
+      const oy = getComputedStyle(el).overflowY;
+      return oy === 'auto' || oy === 'scroll' || oy === 'overlay';
+    });
+    return pickBest(fallback);
+  }
+
+  function clearPendingRestores() {
+    activeTimers.forEach(t => clearTimeout(t));
+    activeTimers = [];
+  }
+
+  function readScrollerState(el) {
+    if (!el) return null;
+    const dist = Math.max(0, el.scrollHeight - el.clientHeight - el.scrollTop);
+    return {
+      top: el.scrollTop,
+      distFromBottom: dist,
+      atBottom: dist < 115
+    };
+  }
+
+  function captureLiveState() {
+    const key = getViewKey();
+    if (!key || key === 'unknown') return;
+    currentViewKey = key;
+    const scroller = findMainScroller();
+    const st = readScrollerState(scroller);
+    if (st && scroller.scrollHeight > scroller.clientHeight + 4) {
+      viewStates[key] = st;
+    }
+    const meta = getDataMeta(key);
+    lastSnapshot = { key, state: viewStates[key] || st, meta };
+  }
+
+  // 按目标模式稳稳锁定滚动位置（覆盖贴纸/图片/顶部面板异步撑开高度的时间窗口）
+  function scheduleRestore(mode, targetTop) {
+    clearPendingRestores();
+    userDragging = false;
+    restoringUntil = Date.now() + 420;
+
+    const applyOnce = () => {
+      if (userDragging) return;
+      const scroller = findMainScroller();
+      if (!scroller) return;
+      if (mode === 'bottom') {
+        scroller.scrollTop = scroller.scrollHeight;
+      } else if (mode === 'top') {
+        scroller.scrollTop = 0;
+      } else if (mode === 'keepTop') {
+        const maxTop = Math.max(0, scroller.scrollHeight - scroller.clientHeight);
+        scroller.scrollTop = Math.min(Math.max(0, targetTop || 0), maxTop);
+      }
+      if (mode === 'bottom') {
+        // 如果聊天里有尚未加载完的相册图片，加载完后再轻推一次到底部
+        scroller.querySelectorAll('img').forEach(img => {
+          if (!img.complete && !img.dataset.slImgHook) {
+            img.dataset.slImgHook = '1';
+            img.addEventListener('load', () => {
+              if (!userDragging) {
+                const s = findMainScroller();
+                if (s) s.scrollTop = s.scrollHeight;
+              }
+            }, { once: true });
+          }
+        });
+      }
+    };
+
+    applyOnce();
+    if (typeof requestAnimationFrame === 'function') {
+      requestAnimationFrame(() => { if (!userDragging) applyOnce(); });
+    }
+    [32, 90, 185, 320].forEach(ms => {
+      activeTimers.push(setTimeout(() => {
+        if (!userDragging) applyOnce();
+      }, ms));
+    });
+  }
+
+  function decideAndRestore(prevSnap) {
+    const nextKey = getViewKey();
+    const nextMeta = getDataMeta(nextKey);
+    const prevKey = prevSnap ? prevSnap.key : '';
+    const prevState = (prevSnap && prevSnap.state) || viewStates[prevKey] || null;
+    const prevMeta = (prevSnap && prevSnap.meta) || { count: 0, firstId: '' };
+
+    currentViewKey = nextKey;
+
+    if (nextKey === prevKey && prevState) {
+      // 留在同一个页面原地刷新（点语音、点赞、点回复、删评论、新消息到达等）
+      if (nextKey.startsWith('chat:')) {
+        if (nextMeta.count > prevMeta.count) {
+          // 刚发了新消息或迟川回了新气泡：稳稳停在最底部
+          scheduleRestore('bottom', 0);
+        } else if (prevState.atBottom) {
+          // 原本就在底部（比如点最底下的语音）：稳稳停在最底部，绝不往上跳
+          scheduleRestore('bottom', 0);
+        } else {
+          // 原本在往上翻旧记录（比如点以前某条语音）：原位锁死不跑偏
+          scheduleRestore('keepTop', prevState.top);
+        }
+      } else if (isListKey(nextKey) && nextMeta.count > prevMeta.count && nextMeta.firstId && nextMeta.firstId !== prevMeta.firstId) {
+        // 刚刚在列表顶部生成/发布了全新动态：自然回到顶部看新帖
+        scheduleRestore('top', 0);
+      } else if (isDetailKey(nextKey) && nextMeta.count > prevMeta.count && prevState.atBottom) {
+        // 帖子详情里正在底部等新回复：跟着滑到最新楼层
+        scheduleRestore('bottom', 0);
+      } else {
+        // 点赞 / 点回复 / 展开 / 重说 / 删评论：牢牢停在刚才的位置！
+        scheduleRestore('keepTop', prevState.top);
+      }
+    } else {
+      // 切换到了另一个页面或子视图
+      if (nextKey.startsWith('chat:')) {
+        // 刚点进聊天页：稳稳停在最新一条消息处
+        scheduleRestore('bottom', 0);
+      } else if (isDetailKey(prevKey) && isListKey(nextKey) && viewStates[nextKey]) {
+        // 从帖子详情点「← 返回」回到列表：还原你刚才滑到的位置！
+        scheduleRestore('keepTop', viewStates[nextKey].top);
+      } else {
+        scheduleRestore('top', 0);
+      }
+    }
+
+    // 更新最新快照
+    lastSnapshot = { key: nextKey, state: viewStates[nextKey] || prevState, meta: nextMeta };
+  }
+
+  // 1. 监听用户真实滚动与手势：一旦开始手动滑动，立刻交还控制权，绝不和手指抢滚动
+  const layerEl = document.getElementById('appLayer');
+  if (layerEl) {
+    layerEl.addEventListener('touchmove', () => {
+      userDragging = true;
+      clearPendingRestores();
+    }, { passive: true, capture: true });
+
+    layerEl.addEventListener('wheel', () => {
+      userDragging = true;
+      clearPendingRestores();
+    }, { passive: true, capture: true });
+
+    layerEl.addEventListener('scroll', e => {
+      if (Date.now() < restoringUntil && !userDragging) return;
+      const t = e.target;
+      if (!t || t === document || t.closest?.('#wcDrawer, .wc-mask, #modal, .modal')) return;
+      const key = getViewKey();
+      if (!key || key === 'unknown') return;
+      const st = readScrollerState(t);
+      if (st) {
+        viewStates[key] = st;
+        currentViewKey = key;
+        lastSnapshot = { key, state: st, meta: getDataMeta(key) };
+      }
+    }, { passive: true, capture: true });
+
+    // 2. 兜底监听：就算有没走常规渲染函数的刷新，也能自动锁住位置
+    if (typeof MutationObserver !== 'undefined') {
+      const obs = new MutationObserver(() => {
+        if (Date.now() - lastHandledRenderAt < 40) return;
+        const snap = lastSnapshot ? { ...lastSnapshot } : null;
+        decideAndRestore(snap);
+      });
+      obs.observe(layerEl, { childList: true, subtree: false });
+    }
+  }
+
+  // 3. 包裹全站主要渲染函数，在重绘前一瞬间精准拍下滚动位置
+  function wrapRenderer(fnName) {
+    const orig = window[fnName];
+    if (typeof orig !== 'function' || orig._slWrapped) return;
+    const wrapped = function () {
+      const isIdle = Date.now() >= restoringUntil || userDragging;
+      if (isIdle) captureLiveState();
+      const snap = lastSnapshot ? {
+        key: lastSnapshot.key,
+        state: lastSnapshot.state ? { ...lastSnapshot.state } : null,
+        meta: lastSnapshot.meta ? { ...lastSnapshot.meta } : { count: 0, firstId: '' }
+      } : null;
+
+      lastHandledRenderAt = Date.now();
+      const res = orig.apply(this, arguments);
+      decideAndRestore(snap);
+      return res;
+    };
+    wrapped._slWrapped = true;
+    window[fnName] = wrapped;
+  }
+
+  ['vChat', 'vMoments', 'vPyq', 'vFeed', 'vCircle', 'vForum', 'vXApp', 'renderCurrentApp'].forEach(wrapRenderer);
+  setTimeout(captureLiveState, 180);
+})();
+</script>
 </body>
 </html>
