@@ -7099,5 +7099,1152 @@ ${recentSnippets || '（暂无）'}
   }, 60000);
 })();
 </script>
+<style>
+  /* 聊天输入框右侧的微信风工具按钮 */
+  .wc-tool-btn {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    border: 1px solid rgba(229, 140, 168, 0.34);
+    background: rgba(255, 255, 255, 0.85);
+    color: var(--pink-deep, #c96283);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 17px;
+    line-height: 1;
+    flex-shrink: 0;
+    cursor: pointer;
+    transition: transform 0.14s ease, background 0.15s ease;
+    padding: 0;
+  }
+  .wc-tool-btn:active { transform: scale(0.9); }
+  .wc-tool-btn.on {
+    background: linear-gradient(135deg, #f3a4bd, #e283a2);
+    color: #fff;
+    border-color: transparent;
+    box-shadow: 0 3px 10px rgba(226, 131, 162, 0.34);
+  }
+
+  /* 微信风底部抽屉面板 */
+  .wc-drawer {
+    width: 100%;
+    background: rgba(255, 249, 251, 0.96);
+    border-top: 1px solid rgba(229, 140, 168, 0.22);
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    padding-bottom: env(safe-area-inset-bottom, 8px);
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    animation: wcSlideUp 0.18s ease;
+    z-index: 20;
+    color: #4a353d;
+  }
+  @keyframes wcSlideUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .wc-drawer-body {
+    height: 222px;
+    overflow-y: auto;
+    -webkit-overflow-scrolling: touch;
+    padding: 12px 14px 10px;
+  }
+  .wc-drawer-tabs {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 6px 12px;
+    border-top: 1px solid rgba(229, 140, 168, 0.16);
+    background: rgba(255, 255, 255, 0.72);
+    gap: 6px;
+  }
+  .wc-tab-group {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .wc-tab-btn {
+    padding: 5px 11px;
+    border-radius: 10px;
+    font-size: 12px;
+    font-weight: 600;
+    color: #8f747e;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+  }
+  .wc-tab-btn.on {
+    color: #c96283;
+    background: rgba(229, 140, 168, 0.16);
+  }
+
+  /* 表情包网格 */
+  .wc-stk-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+  }
+  .wc-stk-cell {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    border-radius: 14px;
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(229, 140, 168, 0.18);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 5px;
+    cursor: pointer;
+    overflow: hidden;
+    transition: transform 0.12s ease;
+  }
+  .wc-stk-cell:active { transform: scale(0.93); }
+  .wc-stk-cell img,
+  .wc-stk-cell svg {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    pointer-events: none;
+  }
+  .wc-stk-add {
+    border: 1.5px dashed rgba(229, 140, 168, 0.55);
+    background: rgba(255, 240, 246, 0.65);
+    color: #c96283;
+    gap: 3px;
+  }
+  .wc-stk-del {
+    position: absolute;
+    top: 3px;
+    right: 3px;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    background: rgba(235, 86, 118, 0.92);
+    color: #fff;
+    font-size: 12px;
+    font-weight: 700;
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 3;
+    cursor: pointer;
+  }
+
+  /* 经典 Emoji 网格 */
+  .wc-emoji-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 6px;
+  }
+  .wc-emoji-btn {
+    height: 38px;
+    border-radius: 10px;
+    background: transparent;
+    border: none;
+    font-size: 23px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+  }
+  .wc-emoji-btn:active {
+    background: rgba(229, 140, 168, 0.18);
+    transform: scale(0.9);
+  }
+
+  /* 微信风「+」更多面板 */
+  .wc-plus-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 14px 10px;
+    padding: 8px 4px;
+  }
+  .wc-plus-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+  }
+  .wc-plus-ico {
+    width: 54px;
+    height: 54px;
+    border-radius: 16px;
+    background: #fff;
+    border: 1px solid rgba(229, 140, 168, 0.22);
+    box-shadow: 0 4px 12px rgba(198, 98, 131, 0.08);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 24px;
+    transition: transform 0.13s ease;
+  }
+  .wc-plus-item:active .wc-plus-ico { transform: scale(0.92); }
+  .wc-plus-lbl {
+    font-size: 11px;
+    color: #6f5560;
+    font-weight: 600;
+  }
+
+  /* 聊天消息中的图片与表情包样式 */
+  .wc-bare-bub {
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    padding: 2px !important;
+  }
+  .wc-msg-sticker {
+    width: 118px;
+    height: 118px;
+    display: block;
+    object-fit: contain;
+    border-radius: 14px;
+    cursor: pointer;
+    filter: drop-shadow(0 3px 8px rgba(74, 53, 61, 0.12));
+  }
+  .wc-msg-photo-wrap {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    max-width: 210px;
+  }
+  .wc-msg-photo {
+    display: block;
+    max-width: 196px;
+    max-height: 240px;
+    width: auto;
+    height: auto;
+    border-radius: 14px;
+    object-fit: cover;
+    cursor: pointer;
+    box-shadow: 0 4px 14px rgba(74, 53, 61, 0.16);
+    border: 1.5px solid rgba(255, 255, 255, 0.78);
+  }
+  .wc-msg-cap {
+    font-size: 13.5px;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-break: break-word;
+  }
+
+  /* 全屏看图灯箱 & 发图确认弹窗 */
+  .wc-mask {
+    position: fixed;
+    inset: 0;
+    z-index: 9800;
+    background: rgba(18, 12, 16, 0.78);
+    backdrop-filter: blur(6px);
+    -webkit-backdrop-filter: blur(6px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+    animation: wcFade 0.16s ease;
+  }
+  @keyframes wcFade {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .wc-lightbox-img {
+    max-width: 94vw;
+    max-height: 82vh;
+    border-radius: 14px;
+    object-fit: contain;
+    box-shadow: 0 14px 36px rgba(0, 0, 0, 0.45);
+  }
+  .wc-sheet {
+    width: 100%;
+    max-width: 340px;
+    background: #fff9fb;
+    border-radius: 20px;
+    padding: 16px;
+    color: #4a353d;
+    display: flex;
+    flex-direction: column;
+    gap: 11px;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.25);
+  }
+  .wc-preview-box {
+    width: 100%;
+    max-height: 220px;
+    border-radius: 14px;
+    background: #fdf0f5;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    padding: 8px;
+  }
+  .wc-preview-box img {
+    max-width: 100%;
+    max-height: 204px;
+    border-radius: 10px;
+    object-fit: contain;
+  }
+</style>
+<script>
+(function () {
+  const safeEsc = s => (typeof esc === 'function' ? esc(s) : String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c])));
+  const playTap = () => { try { if (typeof SFX !== 'undefined' && SFX.tap) SFX.tap(); } catch {} };
+  const showToast = msg => { try { if (typeof toast === 'function') toast(msg); } catch {} };
+
+  const TOKEN_RE = /\[\[(MEDIA|STICKER):([^\]]+)\]\]/g;
+  const TOKEN_TEST_RE = /\[\[(MEDIA|STICKER):[^\]]+\]\]/;
+
+  // 1. 内置 12 枚手绘风软甜贴纸（纯 SVG，秒加载且不占缓存空间）
+  function makeBunnySvg(face, deco, caption, bg = '#fff4f8') {
+    return `<svg viewBox="0 0 140 140" xmlns="http://www.w3.org/2000/svg">
+      <rect x="6" y="6" width="128" height="128" rx="28" fill="${bg}" stroke="#f3c5d7" stroke-width="2.5"/>
+      <ellipse cx="47" cy="36" rx="11" ry="22" transform="rotate(-12 47 36)" fill="#fff" stroke="#5b3e49" stroke-width="3"/>
+      <ellipse cx="47" cy="37" rx="5.5" ry="13" transform="rotate(-12 47 37)" fill="#ffc5da"/>
+      <ellipse cx="93" cy="36" rx="11" ry="22" transform="rotate(12 93 36)" fill="#fff" stroke="#5b3e49" stroke-width="3"/>
+      <ellipse cx="93" cy="37" rx="5.5" ry="13" transform="rotate(12 93 37)" fill="#ffc5da"/>
+      <ellipse cx="70" cy="72" rx="37" ry="31" fill="#fff" stroke="#5b3e49" stroke-width="3"/>
+      <ellipse cx="47" cy="78" rx="6.5" ry="4" fill="#ff9ec2" opacity="0.65"/>
+      <ellipse cx="93" cy="78" rx="6.5" ry="4" fill="#ff9ec2" opacity="0.65"/>
+      ${face}
+      ${deco}
+      <rect x="20" y="106" width="100" height="22" rx="11" fill="#e58ca8"/>
+      <text x="70" y="121.5" text-anchor="middle" font-size="13" font-weight="700" fill="#ffffff" font-family="-apple-system,PingFang SC,sans-serif">${caption}</text>
+    </svg>`;
+  }
+
+  const BUILTIN_STICKERS = [
+    {
+      id: 'bi_hug', label: '张开双臂要抱抱',
+      svg: makeBunnySvg(
+        `<circle cx="56" cy="69" r="3.6" fill="#5b3e49"/><circle cx="84" cy="69" r="3.6" fill="#5b3e49"/><path d="M64 76 Q70 82 76 76" fill="none" stroke="#5b3e49" stroke-width="2.6" stroke-linecap="round"/><path d="M35 84 Q24 76 31 67" fill="none" stroke="#5b3e49" stroke-width="3" stroke-linecap="round"/><path d="M105 84 Q116 76 109 67" fill="none" stroke="#5b3e49" stroke-width="3" stroke-linecap="round"/>`,
+        `<path d="M70 28 C67 23 60 25 62 31 C64 35 70 39 70 39 C70 39 76 35 78 31 C80 25 73 23 70 28Z" fill="#ff6f9e"/>`,
+        '要抱抱'
+      )
+    },
+    {
+      id: 'bi_pout', label: '眼泪汪汪委屈巴巴',
+      svg: makeBunnySvg(
+        `<circle cx="55" cy="70" r="4.5" fill="#5b3e49"/><circle cx="53.5" cy="68.5" r="1.6" fill="#fff"/><circle cx="85" cy="70" r="4.5" fill="#5b3e49"/><circle cx="83.5" cy="68.5" r="1.6" fill="#fff"/><path d="M65 80 Q70 75 75 80" fill="none" stroke="#5b3e49" stroke-width="2.5" stroke-linecap="round"/><ellipse cx="52" cy="79" rx="2.6" ry="4" fill="#8fd3ff"/><ellipse cx="88" cy="79" rx="2.6" ry="4" fill="#8fd3ff"/>`,
+        `<path d="M48 61 L59 57 M92 61 L81 57" stroke="#5b3e49" stroke-width="2.4" stroke-linecap="round"/>`,
+        '委屈巴巴', '#f5f7ff'
+      )
+    },
+    {
+      id: 'bi_nuzzle', label: '疯狂贴贴蹭蹭',
+      svg: makeBunnySvg(
+        `<path d="M51 70 Q56 64 61 70" fill="none" stroke="#5b3e49" stroke-width="2.8" stroke-linecap="round"/><path d="M79 70 Q84 64 89 70" fill="none" stroke="#5b3e49" stroke-width="2.8" stroke-linecap="round"/><path d="M64 76 Q70 83 76 76" fill="none" stroke="#5b3e49" stroke-width="2.6" stroke-linecap="round"/>`,
+        `<text x="19" y="54" font-size="16" fill="#ff7aa8">♥</text><text x="108" y="54" font-size="16" fill="#ff7aa8">♥</text><text x="102" y="92" font-size="13" fill="#f0a25a">✦</text>`,
+        '贴贴！'
+      )
+    },
+    {
+      id: 'bi_blush', label: '害羞脸红心跳',
+      svg: makeBunnySvg(
+        `<circle cx="56" cy="70" r="3.4" fill="#5b3e49"/><circle cx="84" cy="70" r="3.4" fill="#5b3e49"/><path d="M67 78 Q70 81 73 78" fill="none" stroke="#5b3e49" stroke-width="2.4" stroke-linecap="round"/><path d="M42 78 L46 75 M46 79 L50 76 M90 78 L94 75 M94 79 L98 76" stroke="#ff5c93" stroke-width="2" stroke-linecap="round"/>`,
+        `<text x="104" y="45" font-size="18" fill="#ff6699">♡</text><text x="22" y="48" font-size="14" fill="#ff8db5">♡</text>`,
+        '脸红了', '#fff0f5'
+      )
+    },
+    {
+      id: 'bi_angry', label: '气鼓鼓哄不好了',
+      svg: makeBunnySvg(
+        `<path d="M50 65 L61 69" stroke="#5b3e49" stroke-width="2.6" stroke-linecap="round"/><path d="M90 65 L79 69" stroke="#5b3e49" stroke-width="2.6" stroke-linecap="round"/><circle cx="56" cy="72" r="3.2" fill="#5b3e49"/><circle cx="84" cy="72" r="3.2" fill="#5b3e49"/><path d="M65 81 Q70 76 75 81" fill="none" stroke="#5b3e49" stroke-width="2.6" stroke-linecap="round"/>`,
+        `<path d="M106 32 L112 38 M112 32 L106 38" stroke="#ff5d7a" stroke-width="3" stroke-linecap="round"/>`,
+        '气鼓鼓', '#fff3f0'
+      )
+    },
+    {
+      id: 'bi_kiss', label: 'mua亲一口',
+      svg: makeBunnySvg(
+        `<path d="M51 69 Q56 64 61 69" fill="none" stroke="#5b3e49" stroke-width="2.8" stroke-linecap="round"/><circle cx="84" cy="69" r="3.5" fill="#5b3e49"/><path d="M67 76 Q71 78 68 80 Q71 82 67 84" fill="none" stroke="#5b3e49" stroke-width="2.4" stroke-linecap="round"/>`,
+        `<path d="M107 62 C104 57 97 59 99 65 C101 69 107 73 107 73 C107 73 113 69 115 65 C117 59 110 57 107 62Z" fill="#ff5b8f"/>`,
+        '亲一口'
+      )
+    },
+    {
+      id: 'bi_look', label: '星星眼求关注爸爸看我',
+      svg: makeBunnySvg(
+        `<text x="50" y="75" font-size="14" fill="#f09a43">★</text><text x="78" y="75" font-size="14" fill="#f09a43">★</text><path d="M65 80 Q70 85 75 80" fill="none" stroke="#5b3e49" stroke-width="2.5" stroke-linecap="round"/>`,
+        `<text x="20" y="42" font-size="15" fill="#f0a25a">✦</text><text x="108" y="42" font-size="15" fill="#f0a25a">✦</text>`,
+        '爸爸看我', '#fff9ee'
+      )
+    },
+    {
+      id: 'bi_sleepy', label: '困困了想睡觉',
+      svg: makeBunnySvg(
+        `<path d="M50 71 Q56 75 62 71" fill="none" stroke="#5b3e49" stroke-width="2.6" stroke-linecap="round"/><path d="M78 71 Q84 75 90 71" fill="none" stroke="#5b3e49" stroke-width="2.6" stroke-linecap="round"/><circle cx="70" cy="80" r="3.2" fill="#ff9ec2"/>`,
+        `<text x="100" y="44" font-size="15" font-weight="700" fill="#8b7ab8">Z</text><text x="112" y="34" font-size="12" font-weight="700" fill="#a899d1">z</text>`,
+        '困困了', '#f6f3ff'
+      )
+    },
+    {
+      id: 'bi_love', label: '捧着大爱心最喜欢你',
+      svg: makeBunnySvg(
+        `<circle cx="56" cy="67" r="3.4" fill="#5b3e49"/><circle cx="84" cy="67" r="3.4" fill="#5b3e49"/><path d="M65 74 Q70 79 75 74" fill="none" stroke="#5b3e49" stroke-width="2.4" stroke-linecap="round"/>`,
+        `<path d="M70 86 C64 78 52 82 55 91 C58 98 70 104 70 104 C70 104 82 98 85 91 C88 82 76 78 70 86Z" fill="#ff6b9d"/>`,
+        '最喜欢你'
+      )
+    },
+    {
+      id: 'bi_hmph', label: '扭过头哼不理你',
+      svg: makeBunnySvg(
+        `<circle cx="52" cy="70" r="3.3" fill="#5b3e49"/><circle cx="78" cy="70" r="3.3" fill="#5b3e49"/><path d="M59 80 L68 79" stroke="#5b3e49" stroke-width="2.6" stroke-linecap="round"/>`,
+        `<text x="101" y="54" font-size="15" font-weight="700" fill="#c96283">哼!</text>`,
+        '不理你了'
+      )
+    },
+    {
+      id: 'bi_pat', label: '凑过脑袋求摸头',
+      svg: makeBunnySvg(
+        `<path d="M51 72 Q56 67 61 72" fill="none" stroke="#5b3e49" stroke-width="2.6" stroke-linecap="round"/><path d="M79 72 Q84 67 89 72" fill="none" stroke="#5b3e49" stroke-width="2.6" stroke-linecap="round"/><path d="M66 79 Q70 83 74 79" fill="none" stroke="#5b3e49" stroke-width="2.5" stroke-linecap="round"/>`,
+        `<path d="M58 22 Q70 14 82 22" fill="none" stroke="#e58ca8" stroke-width="3" stroke-linecap="round"/><text x="104" y="48" font-size="14" fill="#ff7aa8">✧</text>`,
+        '求摸头'
+      )
+    },
+    {
+      id: 'bi_ok', label: '乖乖收到听话',
+      svg: makeBunnySvg(
+        `<circle cx="56" cy="69" r="3.5" fill="#5b3e49"/><circle cx="84" cy="69" r="3.5" fill="#5b3e49"/><path d="M64 77 Q70 83 76 77" fill="none" stroke="#5b3e49" stroke-width="2.6" stroke-linecap="round"/>`,
+        `<circle cx="109" cy="40" r="11" fill="#e58ca8"/><path d="M104 40 L108 44 L115 36" fill="none" stroke="#fff" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>`,
+        '乖乖收到'
+      )
+    }
+  ];
+
+  const CLASSIC_EMOJIS = [
+    '🥺', '🥰', '😘', '😚', '😳', '🙈', '🥹',
+    '😤', '😠', '😭', '😿', '🫠', '🫣', '🤭',
+    '😏', '😎', '😴', '🥱', '🤗', '🫶', '🙏',
+    '❤️', '🩷', '💗', '💓', '💘', '✨', '🌙',
+    '🌸', '🍓', '🍰', '☕', '🥂', '🎁', '🎀'
+  ];
+
+  function ensureMediaStore() {
+    if (typeof ST === 'undefined' || !ST) return false;
+    if (!ST.chatMedia || typeof ST.chatMedia !== 'object') ST.chatMedia = {};
+    if (!Array.isArray(ST.customStickers)) ST.customStickers = [];
+    return true;
+  }
+
+  function safeSaveWithQuotaGuard() {
+    if (typeof saveST !== 'function') return true;
+    try {
+      saveST();
+      return true;
+    } catch (err) {
+      // 如果浏览器存储空间接近上限，自动清理最旧的 3 张聊天图片再保存，避免丢失聊天记录
+      if (ensureMediaStore()) {
+        const keys = Object.keys(ST.chatMedia).sort((a, b) => (ST.chatMedia[a]?.ts || 0) - (ST.chatMedia[b]?.ts || 0));
+        keys.slice(0, 3).forEach(k => delete ST.chatMedia[k]);
+        try {
+          saveST();
+          showToast('已自动释放部分旧图缓存以保护聊天记录');
+          return true;
+        } catch {}
+      }
+      showToast('本地存储空间较满，建议在「+」里点清理旧图缓存');
+      return false;
+    }
+  }
+
+  // 2. 自动压缩图片 / 表情包（保护 iPhone 浏览器存储空间，同时支持动图 GIF）
+  function compressImageFile(file, opts = {}) {
+    const maxSide = opts.maxSide || 480;
+    const quality = opts.quality || 0.72;
+    const keepGif = !!opts.keepGif;
+    const keepAlpha = !!opts.keepAlpha;
+
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('读取图片失败'));
+      reader.onload = () => {
+        const rawUrl = reader.result;
+        if (keepGif && file.type === 'image/gif' && file.size < 340 * 1024) {
+          return resolve(rawUrl);
+        }
+        const img = new Image();
+        img.onerror = () => reject(new Error('图片格式暂不支持'));
+        img.onload = () => {
+          let w = img.naturalWidth || img.width;
+          let h = img.naturalHeight || img.height;
+          if (w > maxSide || h > maxSide) {
+            if (w >= h) { h = Math.round((h * maxSide) / w); w = maxSide; }
+            else { w = Math.round((w * maxSide) / h); h = maxSide; }
+          }
+          const canvas = document.createElement('canvas');
+          canvas.width = Math.max(1, w);
+          canvas.height = Math.max(1, h);
+          const ctx = canvas.getContext('2d');
+          if (!keepAlpha) {
+            ctx.fillStyle = '#ffffff';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+          }
+          ctx.drawImage(img, 0, 0, canvas.width, canvas.height);
+          let out = '';
+          if (keepAlpha) {
+            out = canvas.toDataURL('image/webp', quality);
+            if (!out.startsWith('data:image/webp')) {
+              out = canvas.toDataURL('image/png');
+            }
+          } else {
+            out = canvas.toDataURL('image/jpeg', quality);
+          }
+          resolve(out);
+        };
+        img.src = rawUrl;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  // 3. 拦截发往 Gemini / OpenAI 的 API 请求：让迟川真正看懂图片与表情包！
+  if (!window._wcFetchPatched && typeof window.fetch === 'function') {
+    window._wcFetchPatched = true;
+    const _origFetch = window.fetch.bind(window);
+
+    function lookupMedia(id) {
+      if (!ensureMediaStore()) return null;
+      return ST.chatMedia[id] || null;
+    }
+    function lookupCustomSticker(id) {
+      if (!ensureMediaStore()) return null;
+      return ST.customStickers.find(x => x.id === id) || null;
+    }
+    function parseDataUrlForVision(dataUrl) {
+      if (!dataUrl || typeof dataUrl !== 'string') return null;
+      const m = dataUrl.match(/^data:(image\/(?:jpeg|jpg|png|webp));base64,(.+)$/i);
+      if (!m) return null;
+      const mime = m[1].toLowerCase() === 'image/jpg' ? 'image/jpeg' : m[1].toLowerCase();
+      return { mime, base64: m[2], url: dataUrl };
+    }
+
+    function cleanTextAndCollectVision(text, collected) {
+      if (typeof text !== 'string' || !TOKEN_TEST_RE.test(text)) return text;
+      const recentId = (typeof RT !== 'undefined' && RT._wcLastMediaId && (Date.now() - (RT._wcLastMediaAt || 0) < 35000))
+        ? RT._wcLastMediaId : '';
+      return text.replace(TOKEN_RE, (_, kind, payload) => {
+        if (kind === 'MEDIA') {
+          const id = payload.trim();
+          const m = lookupMedia(id);
+          if (m && m.data && (!recentId || recentId === id)) {
+            const v = parseDataUrlForVision(m.data);
+            if (v) collected.push(v);
+          }
+          return m && m.note ? `（发来了一张照片，附言：${m.note}）` : '（发来了一张照片，请结合照片画面自然回应）';
+        }
+        const parts = payload.split('|');
+        const sid = (parts[0] || '').trim();
+        const label = parts.slice(1).join('|').trim();
+        if (sid.startsWith('cs_')) {
+          const cs = lookupCustomSticker(sid);
+          if (cs && cs.data && recentId === sid) {
+            const v = parseDataUrlForVision(cs.data);
+            if (v) collected.push(v);
+          }
+          const desc = label || (cs && cs.label) || '可爱表情包';
+          return `（发来一个表情包：${desc}）`;
+        }
+        const bi = BUILTIN_STICKERS.find(x => x.id === sid);
+        return `（发来一个表情包：${label || (bi ? bi.label : '可爱贴纸')}）`;
+      });
+    }
+
+    window.fetch = async function (input, init) {
+      if (!init || typeof init.body !== 'string' || !TOKEN_TEST_RE.test(init.body)) {
+        return _origFetch(input, init);
+      }
+
+      let parsed;
+      try { parsed = JSON.parse(init.body); } catch { return _origFetch(input, init); }
+
+      const textOnlyBody = JSON.parse(init.body);
+      let attachedVision = false;
+
+      // Gemini generateContent 格式
+      if (Array.isArray(parsed.contents)) {
+        const cleanParts = (arr, collectArr) => {
+          arr.forEach(p => {
+            if (p && typeof p.text === 'string') {
+              p.text = cleanTextAndCollectVision(p.text, collectArr);
+            }
+          });
+        };
+        if (parsed.systemInstruction?.parts) cleanParts(parsed.systemInstruction.parts, []);
+        if (textOnlyBody.systemInstruction?.parts) cleanParts(textOnlyBody.systemInstruction.parts, []);
+
+        parsed.contents.forEach((c, idx) => {
+          if (!c || !Array.isArray(c.parts)) return;
+          const foundImgs = [];
+          cleanParts(c.parts, foundImgs);
+          if (textOnlyBody.contents[idx]?.parts) cleanParts(textOnlyBody.contents[idx].parts, []);
+          if (foundImgs.length) {
+            const latest = foundImgs[foundImgs.length - 1];
+            c.parts.push({ inlineData: { mimeType: latest.mime, data: latest.base64 } });
+            attachedVision = true;
+          }
+        });
+      }
+      // OpenAI / 中转站 chat/completions 格式
+      else if (Array.isArray(parsed.messages)) {
+        parsed.messages.forEach((msg, idx) => {
+          if (!msg || typeof msg.content !== 'string') return;
+          const foundImgs = [];
+          const cleaned = cleanTextAndCollectVision(msg.content, foundImgs);
+          textOnlyBody.messages[idx].content = cleaned;
+          if (foundImgs.length && msg.role === 'user') {
+            const latest = foundImgs[foundImgs.length - 1];
+            msg.content = [
+              { type: 'text', text: cleaned },
+              { type: 'image_url', image_url: { url: latest.url } }
+            ];
+            attachedVision = true;
+          } else {
+            msg.content = cleaned;
+          }
+        });
+      } else {
+        return _origFetch(input, init);
+      }
+
+      const res = await _origFetch(input, { ...init, body: JSON.stringify(parsed) });
+      // 如果所选第三方中转模型不支持识图返回 400/415/422，自动无感降级成纯文字描述重试，绝不报错
+      if (attachedVision && !res.ok && [400, 415, 422].includes(res.status)) {
+        return _origFetch(input, { ...init, body: JSON.stringify(textOnlyBody) });
+      }
+      return res;
+    };
+  }
+
+  // 4. 全屏查看大图 & 发图/添表情弹窗
+  function openLightbox(src) {
+    playTap();
+    const old = document.getElementById('wcLightboxMask');
+    if (old) old.remove();
+    const mask = document.createElement('div');
+    mask.id = 'wcLightboxMask';
+    mask.className = 'wc-mask';
+    mask.innerHTML = `<img class="wc-lightbox-img" src="${src}" alt="图片预览">`;
+    mask.onclick = () => mask.remove();
+    document.body.appendChild(mask);
+  }
+
+  function openPhotoConfirmModal(dataUrl) {
+    const old = document.getElementById('wcConfirmMask');
+    if (old) old.remove();
+    const mask = document.createElement('div');
+    mask.id = 'wcConfirmMask';
+    mask.className = 'wc-mask';
+    mask.innerHTML = `<div class="wc-sheet">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <strong style="font-size:15px">发送图片给 TA</strong>
+        <button type="button" id="wcPhCancel" style="border:none;background:rgba(229,140,168,0.14);color:#c96283;padding:3px 10px;border-radius:999px;font-size:12px">取消</button>
+      </div>
+      <div class="wc-preview-box"><img src="${dataUrl}" alt="预览"></div>
+      <input id="wcPhCap" class="inp" placeholder="顺便附一句话？（选填，比如：爸爸你看～）" />
+      <button type="button" id="wcPhSend" class="btn pink">发送图片 ✦</button>
+    </div>`;
+    document.body.appendChild(mask);
+    mask.onclick = e => { if (e.target === mask) mask.remove(); };
+    document.getElementById('wcPhCancel').onclick = () => { playTap(); mask.remove(); };
+    document.getElementById('wcPhSend').onclick = () => {
+      if (!ensureMediaStore()) return;
+      const cap = (document.getElementById('wcPhCap')?.value || '').trim();
+      const id = 'img_' + Date.now() + '_' + Math.floor(Math.random() * 900 + 100);
+      ST.chatMedia[id] = { type: 'img', data: dataUrl, note: cap, ts: Date.now() };
+      if (!safeSaveWithQuotaGuard()) return;
+      if (typeof RT !== 'undefined') {
+        RT._wcLastMediaId = id;
+        RT._wcLastMediaAt = Date.now();
+        RT._wcDrawer = null;
+      }
+      mask.remove();
+      playTap();
+      submitChatToken(cap ? `[[MEDIA:${id}]]\n${cap}` : `[[MEDIA:${id}]]`);
+    };
+  }
+
+  function openAddStickerModal(dataUrl) {
+    const old = document.getElementById('wcConfirmMask');
+    if (old) old.remove();
+    const mask = document.createElement('div');
+    mask.id = 'wcConfirmMask';
+    mask.className = 'wc-mask';
+    mask.innerHTML = `<div class="wc-sheet">
+      <div style="display:flex;align-items:center;justify-content:space-between">
+        <strong style="font-size:15px">收藏到我的表情包</strong>
+        <button type="button" id="wcStCancel" style="border:none;background:rgba(229,140,168,0.14);color:#c96283;padding:3px 10px;border-radius:999px;font-size:12px">取消</button>
+      </div>
+      <div class="wc-preview-box"><img src="${dataUrl}" alt="表情包预览" style="max-height:150px"></div>
+      <input id="wcStLabel" class="inp" placeholder="给迟川看懂的含义（选填，如：委屈求抱抱 / 翻白眼）" />
+      <button type="button" id="wcStSave" class="btn pink">保存表情包 ✦</button>
+    </div>`;
+    document.body.appendChild(mask);
+    mask.onclick = e => { if (e.target === mask) mask.remove(); };
+    document.getElementById('wcStCancel').onclick = () => { playTap(); mask.remove(); };
+    document.getElementById('wcStSave').onclick = () => {
+      if (!ensureMediaStore()) return;
+      const label = (document.getElementById('wcStLabel')?.value || '').trim().replace(/[\[\]|]/g, '');
+      const id = 'cs_' + Date.now();
+      ST.customStickers.unshift({ id, data: dataUrl, label: label || '自定义表情包', ts: Date.now() });
+      if (!safeSaveWithQuotaGuard()) return;
+      mask.remove();
+      playTap();
+      if (typeof RT !== 'undefined') {
+        RT._wcDrawer = 'sticker';
+        RT._wcStkTab = 'fav';
+      }
+      renderDrawer();
+      showToast('已收藏到「♥ 收藏」表情包 ✦');
+    };
+  }
+
+  // 5. 定位聊天输入栏并发送消息
+  function isChatViewActive() {
+    const layer = document.getElementById('appLayer');
+    if (!layer || !layer.innerHTML) return false;
+    if (typeof RT !== 'undefined' && RT.app === 'chat') return true;
+    return false;
+  }
+
+  function findChatContext() {
+    const layer = document.getElementById('appLayer');
+    if (!layer) return null;
+    const forms = Array.from(layer.querySelectorAll('form')).filter(f => !f.closest('#modal, .modal, .wc-mask'));
+    let form = forms[forms.length - 1] || null;
+    let inp = form ? form.querySelector('input:not([type="file"]):not([type="hidden"]):not([type="checkbox"]), textarea') : null;
+    if (!inp) {
+      const inputs = Array.from(layer.querySelectorAll('input:not([type="file"]):not([type="hidden"]):not([type="checkbox"]), textarea'))
+        .filter(el => !el.closest('#modal, .modal, .wc-mask'));
+      inp = inputs[inputs.length - 1] || null;
+      if (inp) form = inp.closest('form') || inp.parentElement;
+    }
+    if (!inp || !form) return null;
+
+    const btns = Array.from(form.querySelectorAll('button')).filter(b => !b.classList.contains('wc-tool-btn'));
+    const sendBtn = btns.find(b => b.type === 'submit') || btns[btns.length - 1] || null;
+    let bar = form;
+    if (bar.parentElement && bar.parentElement !== layer) {
+      const pStyle = getComputedStyle(bar.parentElement);
+      if (pStyle.flexDirection !== 'column' && bar.parentElement.parentElement && bar.parentElement.parentElement !== layer) {
+        bar = bar.parentElement;
+      }
+    }
+    const scroller = layer.querySelector('.chat-body, .chat-msgs, .app-body, .no-sb');
+    return { layer, form, bar, inp, sendBtn, scroller };
+  }
+
+  function submitChatToken(tokenText) {
+    const ctx = findChatContext();
+    if (!ctx) return showToast('请先打开聊天界面哦');
+    const { form, inp, sendBtn } = ctx;
+    inp.value = tokenText;
+    inp.dispatchEvent(new Event('input', { bubbles: true }));
+    if (sendBtn) {
+      sendBtn.click();
+    } else if (form.tagName === 'FORM' && form.requestSubmit) {
+      form.requestSubmit();
+    } else {
+      form.dispatchEvent(new Event('submit', { bubbles: true, cancelable: true }));
+    }
+  }
+
+  function insertEmojiToInput(emoji) {
+    const ctx = findChatContext();
+    if (!ctx) return;
+    const { inp } = ctx;
+    const start = inp.selectionStart ?? inp.value.length;
+    const end = inp.selectionEnd ?? inp.value.length;
+    inp.value = inp.value.slice(0, start) + emoji + inp.value.slice(end);
+    inp.dispatchEvent(new Event('input', { bubbles: true }));
+    try { inp.setSelectionRange(start + emoji.length, start + emoji.length); } catch {}
+  }
+
+  // 6. 隐藏文件选择器（相册发图 / 拍照 / 添加表情包）
+  function ensurePickers() {
+    if (document.getElementById('wcPhotoPicker')) return;
+    const wrap = document.createElement('div');
+    wrap.style.display = 'none';
+    wrap.innerHTML = `
+      <input id="wcPhotoPicker" type="file" accept="image/*" />
+      <input id="wcCameraPicker" type="file" accept="image/*" capture="environment" />
+      <input id="wcStickerPicker" type="file" accept="image/*" />
+    `;
+    document.body.appendChild(wrap);
+
+    const handlePhoto = async e => {
+      const file = e.target.files && e.target.files[0];
+      e.target.value = '';
+      if (!file) return;
+      try {
+        showToast('正在处理图片…');
+        const url = await compressImageFile(file, { maxSide: 480, quality: 0.72, keepAlpha: false });
+        openPhotoConfirmModal(url);
+      } catch (err) {
+        showToast(err.message || '图片处理失败');
+      }
+    };
+    document.getElementById('wcPhotoPicker').onchange = handlePhoto;
+    document.getElementById('wcCameraPicker').onchange = handlePhoto;
+
+    document.getElementById('wcStickerPicker').onchange = async e => {
+      const file = e.target.files && e.target.files[0];
+      e.target.value = '';
+      if (!file) return;
+      try {
+        showToast('正在整理表情包…');
+        const url = await compressImageFile(file, { maxSide: 220, quality: 0.8, keepGif: true, keepAlpha: true });
+        openAddStickerModal(url);
+      } catch (err) {
+        showToast(err.message || '表情包读取失败');
+      }
+    };
+  }
+
+  // 7. 渲染微信风底部抽屉（表情包面板 / 「+」图片与功能面板）
+  function renderDrawer() {
+    const ctx = findChatContext();
+    const existing = document.getElementById('wcDrawer');
+    if (existing) existing.remove();
+    if (!ctx || typeof RT === 'undefined') return;
+
+    const btnEmo = document.getElementById('wcBtnEmoji');
+    const btnPlus = document.getElementById('wcBtnPlus');
+    if (btnEmo) btnEmo.classList.toggle('on', RT._wcDrawer === 'sticker');
+    if (btnPlus) btnPlus.classList.toggle('on', RT._wcDrawer === 'plus');
+
+    if (!RT._wcDrawer) return;
+    ensureMediaStore();
+
+    const drawer = document.createElement('div');
+    drawer.id = 'wcDrawer';
+    drawer.className = 'wc-drawer';
+
+    if (RT._wcDrawer === 'plus') {
+      const mediaCount = Object.keys(ST.chatMedia || {}).length;
+      const stkCount = (ST.customStickers || []).length;
+      drawer.innerHTML = `
+        <div class="wc-drawer-body no-sb">
+          <div class="wc-plus-grid">
+            <button type="button" class="wc-plus-item" id="wcActAlbum">
+              <div class="wc-plus-ico">🖼️</div>
+              <span class="wc-plus-lbl">相册图片</span>
+            </button>
+            <button type="button" class="wc-plus-item" id="wcActCam">
+              <div class="wc-plus-ico">📷</div>
+              <span class="wc-plus-lbl">拍摄照片</span>
+            </button>
+            <button type="button" class="wc-plus-item" id="wcActAddStk">
+              <div class="wc-plus-ico">🩷</div>
+              <span class="wc-plus-lbl">添加表情包</span>
+            </button>
+            <button type="button" class="wc-plus-item" id="wcActClean">
+              <div class="wc-plus-ico">🧹</div>
+              <span class="wc-plus-lbl">图片缓存(${mediaCount})</span>
+            </button>
+          </div>
+          <div style="margin-top:16px;padding:10px 12px;border-radius:12px;background:rgba(255,255,255,0.75);font-size:11.5px;color:#8f747e;line-height:1.55">
+            ✦ 已支持微信同款发图与收藏表情包（已收藏 ${stkCount} 枚）。接了支持识图的 API（如 Gemini）时，迟川还能直接看懂你发的照片画面和斗图包哦～
+          </div>
+        </div>`;
+
+      const host = ctx.bar.parentElement || ctx.layer;
+      host.insertBefore(drawer, ctx.bar.nextSibling);
+
+      document.getElementById('wcActAlbum').onclick = () => { playTap(); ensurePickers(); document.getElementById('wcPhotoPicker').click(); };
+      document.getElementById('wcActCam').onclick = () => { playTap(); ensurePickers(); document.getElementById('wcCameraPicker').click(); };
+      document.getElementById('wcActAddStk').onclick = () => { playTap(); ensurePickers(); document.getElementById('wcStickerPicker').click(); };
+      document.getElementById('wcActClean').onclick = () => {
+        playTap();
+        const keys = Object.keys(ST.chatMedia || {}).sort((a, b) => (ST.chatMedia[a]?.ts || 0) - (ST.chatMedia[b]?.ts || 0));
+        if (keys.length <= 5) return showToast(`当前仅存 ${keys.length} 张聊天图片，空间很充足哦`);
+        const toDel = keys.slice(0, keys.length - 5);
+        toDel.forEach(k => delete ST.chatMedia[k]);
+        safeSaveWithQuotaGuard();
+        renderDrawer();
+        showToast(`已清理 ${toDel.length} 张较早的图片缓存（保留最近 5 张）`);
+      };
+    } else if (RT._wcDrawer === 'sticker') {
+      const tab = RT._wcStkTab || (ST.customStickers.length ? 'fav' : 'cute');
+      const manageMode = !!RT._wcManageStk;
+      let bodyHTML = '';
+
+      if (tab === 'cute') {
+        bodyHTML = `<div class="wc-stk-grid">
+          ${BUILTIN_STICKERS.map(s => `
+            <button type="button" class="wc-stk-cell" data-send-bi="${s.id}" title="${safeEsc(s.label)}">
+              ${s.svg}
+            </button>
+          `).join('')}
+        </div>`;
+      } else if (tab === 'fav') {
+        bodyHTML = `<div class="wc-stk-grid">
+          <button type="button" class="wc-stk-cell wc-stk-add" id="wcFavAddTile">
+            <span style="font-size:24px;line-height:1">＋</span>
+            <span style="font-size:10.5px;font-weight:600">添加表情</span>
+          </button>
+          ${ST.customStickers.map(s => `
+            <div class="wc-stk-cell" data-send-cs="${s.id}" title="${safeEsc(s.label)}">
+              <img src="${s.data}" alt="${safeEsc(s.label)}">
+              ${manageMode ? `<button type="button" class="wc-stk-del" data-del-cs="${s.id}">×</button>` : ''}
+            </div>
+          `).join('')}
+        </div>
+        ${!ST.customStickers.length ? '<div style="text-align:center;margin-top:16px;font-size:12px;color:#a0858f">点左上角「＋ 添加表情」就能把手机相册里的表情包/动图收藏进来啦～</div>' : ''}`;
+      } else {
+        bodyHTML = `<div class="wc-emoji-grid">
+          ${CLASSIC_EMOJIS.map(em => `<button type="button" class="wc-emoji-btn" data-ins-em="${em}">${em}</button>`).join('')}
+        </div>`;
+      }
+
+      drawer.innerHTML = `
+        <div class="wc-drawer-body no-sb">${bodyHTML}</div>
+        <div class="wc-drawer-tabs">
+          <div class="wc-tab-group">
+            <button type="button" class="wc-tab-btn ${tab === 'cute' ? 'on' : ''}" data-wc-tab="cute">🐰 软甜贴纸</button>
+            <button type="button" class="wc-tab-btn ${tab === 'fav' ? 'on' : ''}" data-wc-tab="fav">♥ 收藏(${ST.customStickers.length})</button>
+            <button type="button" class="wc-tab-btn ${tab === 'emoji' ? 'on' : ''}" data-wc-tab="emoji">☺ Emoji</button>
+          </div>
+          ${tab === 'fav' && ST.customStickers.length
+            ? `<button type="button" id="wcToggleManage" class="wc-tab-btn ${manageMode ? 'on' : ''}">${manageMode ? '完成' : '管理'}</button>`
+            : `<button type="button" id="wcCloseDrawer" class="wc-tab-btn">收起</button>`}
+        </div>`;
+
+      const host = ctx.bar.parentElement || ctx.layer;
+      host.insertBefore(drawer, ctx.bar.nextSibling);
+
+      drawer.querySelectorAll('[data-wc-tab]').forEach(b => {
+        b.onclick = () => {
+          playTap();
+          RT._wcStkTab = b.dataset.wcTab;
+          RT._wcManageStk = false;
+          renderDrawer();
+        };
+      });
+      if (document.getElementById('wcCloseDrawer')) {
+        document.getElementById('wcCloseDrawer').onclick = () => { playTap(); RT._wcDrawer = null; renderDrawer(); };
+      }
+      if (document.getElementById('wcToggleManage')) {
+        document.getElementById('wcToggleManage').onclick = () => { playTap(); RT._wcManageStk = !RT._wcManageStk; renderDrawer(); };
+      }
+      if (document.getElementById('wcFavAddTile')) {
+        document.getElementById('wcFavAddTile').onclick = () => { playTap(); ensurePickers(); document.getElementById('wcStickerPicker').click(); };
+      }
+      drawer.querySelectorAll('[data-send-bi]').forEach(b => {
+        b.onclick = () => {
+          const st = BUILTIN_STICKERS.find(x => x.id === b.dataset.sendBi);
+          if (!st) return;
+          playTap();
+          RT._wcDrawer = null;
+          submitChatToken(`[[STICKER:${st.id}|${st.label}]]`);
+        };
+      });
+      drawer.querySelectorAll('[data-del-cs]').forEach(b => {
+        b.onclick = e => {
+          e.stopPropagation();
+          playTap();
+          ST.customStickers = ST.customStickers.filter(x => x.id !== b.dataset.delCs);
+          safeSaveWithQuotaGuard();
+          renderDrawer();
+          showToast('已移出收藏表情包');
+        };
+      });
+      drawer.querySelectorAll('[data-send-cs]').forEach(el => {
+        el.onclick = () => {
+          if (RT._wcManageStk) return;
+          const st = ST.customStickers.find(x => x.id === el.dataset.sendCs);
+          if (!st) return;
+          playTap();
+          RT._wcLastMediaId = st.id;
+          RT._wcLastMediaAt = Date.now();
+          RT._wcDrawer = null;
+          submitChatToken(`[[STICKER:${st.id}|${st.label}]]`);
+        };
+      });
+      drawer.querySelectorAll('[data-ins-em]').forEach(b => {
+        b.onclick = () => { playTap(); insertEmojiToInput(b.dataset.insEm); };
+      });
+    }
+
+    if (ctx.scroller) {
+      setTimeout(() => { ctx.scroller.scrollTop = ctx.scroller.scrollHeight; }, 30);
+    }
+  }
+
+  // 8. 把聊天记录里的 [[MEDIA:...]] 和 [[STICKER:...]] 渲染成微信同款图片/贴纸气泡
+  function renderMediaBubbles(root) {
+    if (!root) return;
+    ensureMediaStore();
+    const isChat = isChatViewActive();
+
+    const nodes = Array.from(root.querySelectorAll('div, p, span'));
+    nodes.forEach(el => {
+      if (el.dataset.wcMediaDone || el.closest('#wcDrawer, .wc-mask, input, textarea')) return;
+      const raw = el.textContent || '';
+      if (!TOKEN_TEST_RE.test(raw)) return;
+      // 只处理最内层包含标记的节点，避免覆盖整条消息外壳
+      const hasChildToken = Array.from(el.children).some(ch => TOKEN_TEST_RE.test(ch.textContent || ''));
+      if (hasChildToken) return;
+
+      el.dataset.wcMediaDone = '1';
+
+      // 在非聊天页（如桌面预览/消息列表）里，优雅替换成 [图片] / [表情包]
+      if (!isChat) {
+        el.textContent = raw.replace(TOKEN_RE, (_, kind) => (kind === 'MEDIA' ? '[图片]' : '[表情包]'));
+        return;
+      }
+
+      const restText = raw.replace(TOKEN_RE, '').trim();
+      const matches = [...raw.matchAll(TOKEN_RE)];
+      if (!matches.length) return;
+      const [, kind, payload] = matches[0];
+
+      if (kind === 'STICKER') {
+        const parts = payload.split('|');
+        const sid = (parts[0] || '').trim();
+        const label = parts.slice(1).join('|').trim();
+        let visualHTML = '';
+
+        if (sid.startsWith('cs_')) {
+          const cs = (ST.customStickers || []).find(x => x.id === sid);
+          visualHTML = cs
+            ? `<img class="wc-msg-sticker" src="${cs.data}" alt="${safeEsc(label || cs.label)}" data-wc-zoom="${cs.data}">`
+            : `<span style="font-size:12px;color:#9e818c">[表情包：${safeEsc(label || '已删除')}]</span>`;
+        } else {
+          const bi = BUILTIN_STICKERS.find(x => x.id === sid);
+          visualHTML = bi
+            ? `<div class="wc-msg-sticker">${bi.svg}</div>`
+            : `<span style="font-size:12px;color:#9e818c">[表情包：${safeEsc(label)}]</span>`;
+        }
+
+        el.innerHTML = restText
+          ? `${visualHTML}<div class="wc-msg-cap" style="margin-top:4px">${safeEsc(restText)}</div>`
+          : visualHTML;
+
+        if (!restText) {
+          el.classList.add('wc-bare-bub');
+          if (el.parentElement && el.parentElement.children.length === 1 && /bub|bubble|msg-b/i.test(el.parentElement.className || '')) {
+            el.parentElement.classList.add('wc-bare-bub');
+          }
+        }
+      } else if (kind === 'MEDIA') {
+        const id = payload.trim();
+        const item = ST.chatMedia && ST.chatMedia[id];
+        if (item && item.data) {
+          el.innerHTML = `<div class="wc-msg-photo-wrap">
+            <img class="wc-msg-photo" src="${item.data}" alt="聊天图片" data-wc-zoom="${item.data}">
+            ${restText ? `<div class="wc-msg-cap">${safeEsc(restText)}</div>` : ''}
+          </div>`;
+          if (!restText) {
+            el.classList.add('wc-bare-bub');
+            if (el.parentElement && el.parentElement.children.length === 1 && /bub|bubble|msg-b/i.test(el.parentElement.className || '')) {
+              el.parentElement.classList.add('wc-bare-bub');
+            }
+          }
+        } else {
+          el.innerHTML = `<span style="font-size:12px;opacity:0.75">[图片已清理${restText ? ' · ' + safeEsc(restText) : ''}]</span>`;
+        }
+      }
+
+      el.querySelectorAll('[data-wc-zoom]').forEach(imgEl => {
+        imgEl.onclick = e => {
+          e.stopPropagation();
+          openLightbox(imgEl.dataset.wcZoom);
+        };
+      });
+    });
+  }
+
+  // 9. 注入聊天页底部 ☺ 和 ⊕ 按钮
+  function enhanceChatUI() {
+    const layer = document.getElementById('appLayer');
+    renderMediaBubbles(layer || document.body);
+    renderMediaBubbles(document.getElementById('homeLayer') || document.querySelector('.home-wrap'));
+
+    if (!isChatViewActive()) return;
+    const ctx = findChatContext();
+    if (!ctx) return;
+
+    ensurePickers();
+    const { form, inp, sendBtn } = ctx;
+
+    if (!document.getElementById('wcBtnEmoji')) {
+      const btnEmo = document.createElement('button');
+      btnEmo.id = 'wcBtnEmoji';
+      btnEmo.type = 'button';
+      btnEmo.className = 'wc-tool-btn';
+      btnEmo.title = '表情包';
+      btnEmo.textContent = '☺';
+      btnEmo.onclick = () => {
+        playTap();
+        RT._wcDrawer = RT._wcDrawer === 'sticker' ? null : 'sticker';
+        renderDrawer();
+      };
+
+      const btnPlus = document.createElement('button');
+      btnPlus.id = 'wcBtnPlus';
+      btnPlus.type = 'button';
+      btnPlus.className = 'wc-tool-btn';
+      btnPlus.title = '发送图片 / 更多';
+      btnPlus.textContent = '＋';
+      btnPlus.onclick = () => {
+        playTap();
+        RT._wcDrawer = RT._wcDrawer === 'plus' ? null : 'plus';
+        renderDrawer();
+      };
+
+      if (sendBtn && sendBtn.parentNode === form) {
+        form.insertBefore(btnEmo, sendBtn);
+        form.insertBefore(btnPlus, sendBtn);
+      } else {
+        form.appendChild(btnEmo);
+        form.appendChild(btnPlus);
+      }
+
+      inp.addEventListener('focus', () => {
+        if (typeof RT !== 'undefined' && RT._wcDrawer) {
+          RT._wcDrawer = null;
+          renderDrawer();
+        }
+      });
+    }
+
+    if (typeof RT !== 'undefined' && RT._wcDrawer && !document.getElementById('wcDrawer')) {
+      renderDrawer();
+    }
+  }
+
+  // 10. 挂钩渲染函数与 DOM 监听，确保每次刷新聊天页都丝滑保留
+  ['vChat', 'renderCurrentApp', 'renderHomeWidgets'].forEach(fnName => {
+    const orig = window[fnName];
+    if (typeof orig === 'function' && !orig._wcWrapped) {
+      const wrapped = function () {
+        const res = orig.apply(this, arguments);
+        setTimeout(enhanceChatUI, 0);
+        return res;
+      };
+      wrapped._wcWrapped = true;
+      window[fnName] = wrapped;
+    }
+  });
+
+  const layerEl = document.getElementById('appLayer');
+  if (layerEl && typeof MutationObserver !== 'undefined') {
+    let t = null;
+    const obs = new MutationObserver(() => {
+      clearTimeout(t);
+      t = setTimeout(enhanceChatUI, 30);
+    });
+    obs.observe(layerEl, { childList: true, subtree: true });
+  }
+
+  setTimeout(enhanceChatUI, 180);
+})();
+</script>
+
 </body>
 </html>
